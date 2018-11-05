@@ -10,7 +10,7 @@
 \pagestyle{plain}
 \usepackage{xcolor}
 \usepackage{algorithm2e}
-\usepackage{tikz}
+\usepackage{tikz,pgfplots}
 \usepackage{etoolbox}
 \usepackage{mathtools}
 \usepackage{caption}
@@ -558,18 +558,18 @@ Although those examples are tiny and simple, none of the software verifiers are 
 \begin{table}
 	\begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
-							   & \small CBMC\cite{cbmc2} 	& \small CPA-Seq\cite{cpachecker} & \small  ESBMC-kind\cite{esbmc} & \small  UAutomizer\cite{uautomizer} &\small  VeriAbs\cite{veriabs} &\small J-Recover\\
+		& \small CBMC\cite{cbmc2} 	& \small CPA-Seq\cite{cpachecker} & \small  ESBMC-kind\cite{esbmc} & \small  UAutomizer\cite{uautomizer} &\small  VeriAbs\cite{veriabs} &\small J-Recover\\
 \hline
 \hline
-\small \textsf{rangesum}	& 0.96 	   & 30 		 & 2.2 				 &  10				 & 180       &6.1\\
+\small \textsf{rangesum}	& 0.96 	   & 30 		 & 2.2 				 &  10				 & 180       &9.9\\
 \hline
-\small \textsf{avg}			 &  TO      &  TO		  &  TO				 &  TO				 &  2          &5.2\\
+\small \textsf{avg}			 &  TO      &  TO		  &  TO				 &  TO				 &  2          &10.9\\
 \hline
-\small \textsf{max}		    &  TO      &  TO		 &  TO				& TO				 &  7         &5.8\\
+\small \textsf{max}		    &  TO      &  TO		 &  TO				& TO				 &  7         &9.4\\
 \hline
-\small \textsf{sep}		     &  TO      &  TO		  &  TO				 & TO				 &  TO        &6.3\\
+\small \textsf{sep}		     &  TO      &  TO		  &  TO				 & TO				 &  TO        &9.9\\
 \hline
-\small \textsf{sum}		    &  TO      &  TO		 &  TO				& TO				&  1.7       &5.3\\
+\small \textsf{sum}		    &  TO      &  TO		 &  TO				& TO				&  1.7       &9.9\\
 \hline
 	\end{tabular}
 	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list results of tool with better performance in these examples, which includes top three tools in the overall ranking and the reachability safety category.}
@@ -607,6 +607,83 @@ Although those examples are tiny and simple, none of the software verifiers are 
 \end{table}
 
 
+% Optimization table
+\begin{table}
+	\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+		& \multicolumn{3}{c|}{\small w/o Optimization}	& \multicolumn{3}{c|}{\small Optimized} \\
+\hline
+		\small Lines & \small Average & \small Median & \small Timeout & \small Average & \small Median & \small Timeout \\
+\hline
+\hline
+		50	&	11.104	&	10.446	&	0	&	10.284	&	10.193	&	0	\\
+\hline                                                                              
+		100	&	19.766	&	11.239	&	1	&	29.544	&	11.172	&	3	\\
+\hline                                                                             
+		150	&	88.741	&	17.943	&	12	&	63.931	&	13.984	&	7	\\
+\hline                                                                             
+		200	&	88.741	&	169.456	&	26	&	63.931	&	13.984	&	7	\\
+\hline                                                                             
+		250	&	232.348	&	300.000	&	43	&	175.976	&	248.998	&	30	\\
+\hline
+	\end{tabular}
+	\caption{....}
+	\label{tab:opt2}
+\end{table}
+
+% Optimization compare graph
+\begin{tikzpicture}
+	\begin{axis}[%
+			xmin=-5, xmax=320,
+			ymin=-5, ymax=320,
+			xlabel=Optimize,
+			ylabel=w/o Optimization
+			]
+	\addplot[scatter,only marks,%
+		scatter src=explicit symbolic, mark=x]%
+		file {plot_data/optimize.data};
+\draw (-100,-100) -- (400, 400);
+\end{axis}
+\end{tikzpicture}
+
+% BMC table
+\begin{table}
+	\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\hline
+		& \multicolumn{3}{c|}{\small Optimized}	& & \multicolumn{3}{c|}{\small w/o Optimization} \\
+\hline
+		\small Lines/Vars & \small Average & \small Median & \small Timeout & Lines/Vars (jimple)& \small Average & \small Median & \small Timeout \\
+\hline
+\hline
+		50/5	&	0.063	&	0.058	&	0	&	72.85/65.7	&	0.139	&	0.143	&	0	\\
+\hline
+		100/10	&	0.840	&	0.240	&	0	&	129.95/120.85	&	3.052	&	0.374	&	0	\\
+\hline
+		150/15	&	28.459	&	1.752	&	1	&	186.9/175.6	&	36.233	&	2.151	&	1	\\
+\hline
+		200/20	&	76.220	&	14.37	&	2	&	243.75/230.6	&	89.730	&	15.941	&	5	\\
+\hline
+		250/25	&	84.358	&	1.413	&	5	&	300.55/285.85	&	172.482	&	243.845	&	10	\\
+\hline
+	\end{tabular}
+	\caption{....}
+	\label{tab:opt2}
+\end{table}
+
+% BMC compare graph
+\begin{tikzpicture}
+	\begin{axis}[%
+			xmin=-5, xmax=150,
+			ymin=-5, ymax=150,
+			xlabel=J-ReCoVer(s),
+			ylabel=BMC(s)
+			]
+	\addplot[scatter,only marks,%
+		scatter src=explicit symbolic, mark=x]%
+		file {plot_data/bmc.data};
+\draw (-100,-100) -- (400, 400);
+\end{axis}
+\end{tikzpicture}
 
 %Discuss the tool’s practical capabilities with reference to the type and size of problems it can handle
 
