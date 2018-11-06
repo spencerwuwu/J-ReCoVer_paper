@@ -672,9 +672,9 @@ Although those examples are tiny and simple, none of the software verifiers are 
 
 % BMC compare graph
 \begin{tikzpicture}
-	\begin{axis}[%
-			xmin=-5, xmax=150,
-			ymin=-5, ymax=150,
+	\begin{loglogaxis}[%
+			xmin=-5, xmax=320,
+			ymin=-5, ymax=320,
 			xlabel=J-ReCoVer(s),
 			ylabel=BMC(s)
 			]
@@ -682,7 +682,7 @@ Although those examples are tiny and simple, none of the software verifiers are 
 		scatter src=explicit symbolic, mark=x]%
 		file {plot_data/bmc.data};
 \draw (-100,-100) -- (400, 400);
-\end{axis}
+\end{loglogaxis}
 \end{tikzpicture}
 
 %Discuss the tool’s practical capabilities with reference to the type and size of problems it can handle
