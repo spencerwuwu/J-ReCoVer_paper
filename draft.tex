@@ -444,7 +444,7 @@ The problem of variable overflow is not handled by this tool. In fact, if we con
 In this section we explain how data flow analysis are used in our case to improve the precision of commutativity checking and the algorithm we used to construct the $F$ function in formula~(\ref{eq:commu}).
 
 \subsection{Improving the precision of commutativity verification using data flow analysis}
-
+\label{section:opt1}
 We find that in many cases, formula~\ref{eq:commu} is a condition that is too strong for the reducer to be commutative. For instance, consider the example in Fig.~\ref{fig:reducer_opt}, in the loop body, the input is first stored in a variable $t$ and then added to $s$. In this case, the $F$ function returns the updated values of both $s$ and $t$ after the execution of loop body. Observe that 
 $F(c_1, F(c_2,s,t) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t) = (c_1+c_2, c_2)$, which follows that the corresponding equation~\ref{eq:commu} is invalid. The second component of the returned tuple, which corresponds to the value of $temp$ after executing the loop body twice, are $c_1$ and $c_2$, respectively. However, in this case, the value of $t$ is not important to the output of this reducer.
 
@@ -491,7 +491,7 @@ For the case that $c_j$ is an assignment $w:=e$ and $w\in V_3$, we add all varia
 Then we modify the equation~(\ref{eq:commu}) to the one below
 
 \begin{equation}
-F(n_1, F(n_2,x_1,x_2,\ldots,x_n) =_{V_2\cup V_3} F(n_2, F(n_1,x_1,x_2,\ldots,x_n) 
+F(n_1, F(n_2,x_1,x_2,\ldots,x_n) )=_{V_2\cup V_3} F(n_2, F(n_1,x_1,x_2,\ldots,x_n) )
 \label{eq:commu2}
 \end{equation}
 The special equality operator $=_{V_2\cup V_3}$ is defined (informally) as an equality that only focus on the positions of variables in $V_2\cup V_3$.
@@ -500,6 +500,8 @@ The set $V_2$ is defined as the set of variables we used to collect output value
 The use of equation~(\ref{eq:commu2}) is critical to the successful of our approach. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $14\%$ to $98\%$. The details of the experiments can be found in Section~\ref{section:exp}.
 
 \subsection{Computing the $F$ function using symbolic execution with efficiently data structure}
+\label{section:opt2}
+
 The computation of $F$ in equation~(\ref{eq:commu2}) can be done in several different ways. For example, one can construct a formula in the style of bounded model checking. Here we apply \emph{symbolic execution} to generate $F$. Our approach is very simple. First, we define the set $\Var_0=\{v_0 \mid v \in \Var \}\cup \{c_0\}$ as the set of initial symbolic values of all variables, where $c_0$ is used to denote the symbolic value from the input of the reducer.
 A \emph{symbolic state} is a triple $\langle pc, val, cmds \rangle$, where the \emph{path condition} $pc$ is a guard in $\Grd$ over $\Var_0$, the \emph{symbolic valuation} is a mapping from variables in $\Var$ to an expression in $\Exp$ over $\Var_0$, and $cmds\in \Cmd$ is the remaining commands to be executed. The \emph{initial symbolic state} is $\langle \true, val_0, s_2\rangle$, where $val_0(v) = v_0$ for all $v\in\Var$. 
 One can compute the next symbolic state of $\langle pc, val, c;cmds \rangle$ according to the following transition rules. Recall that $c$ is either in the form of $(v:= e_0)$ or $\ite{g}{c_1}{c_2}$:
@@ -540,15 +542,14 @@ J-ReCoVer is implemented in JAVA and build on top of Soot~\cite{soot} 2.5.0 and 
 First, we use the search engine \url{http://searchcode.com}~\cite{searchcode} to collect java programs contains the key strings ``public void reduce('' or ``protected void reduce(''.  Since there is an upper bound in number of returned results in the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of $6$ code length filters $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$ 
 and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total we get $11346$ Java programs. We then filter out cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those uses non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmark.
 The second set of examples are those have been discussed in verification literatures~\cite{ChenHSW15,ChenSW16,SmithA16}. This set is relatively small, we have only $10$ examples. 
-For the third set of benchmarks, we created a program that randomly generate reducer program in order to test the scalability of J-Recover, which we can give as parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the branch statements, and $A$ is the number of assignment statement. All assignments are in the form of $v_1 := v_2\circ v_3,\circ\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
+For the third set of benchmarks, we created a program that randomly generate reducer program in order to test the scalability of J-Recover, which we can give as parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statement. All assignments are in the form of $v_1 := v_2\circ v_3,\circ\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
  The source code of the random generator is available at \url{https://github.com/spencerwuwu/benchmark-generator}.
 All benchmark examples can be found on the web-site of J-Recover.
 
-Our evaluation answers the following three questions:
+Our evaluation answers the following two questions:
 \begin{itemize}
-	\item Is J-Recover better than other competing tools/techniques?
+	\item Is J-Recover better than other competing tools?
 	\item Are the two optimizations proposed in Section~\ref{section:optimizations} critical and effective?
-	\item How good J-Recover scales?
 \end{itemize} 
 
 \subsection{Comparison with competing tools}
@@ -556,7 +557,7 @@ As already pointed out in~\cite{ChenHSW15}, reducer commutativity problems can b
 The examples in~\cite{ChenHSW15}, which includes \textsf{rangesum}\footnote{The sum of the second half of the input list.}, \textsf{avg}, \textsf{max}, \textsf{sep}\footnote{The number of occurrences of even numbers minus that of odd numbers.}, \textsf{sum}, are already included in SV-Comp~\cite{svcomp} (Software Verification Competition) benchmarks.
 Although those examples are tiny and simple, none of the software verifiers are able to verify all of them according to the 2018 results. In contrast, J-Recover can verify all them very efficiently. 
 
-In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, but the results of J-Recover will not be much different if we run it on other machines. The other limitation is that in J-Recover, we analysis Java implementation and in SV-Comp they analyze the C implementations. Since those functions to be analyzed are relatively simple, the difference between C and Java implementation is very small (even syntactically). The main difference in the statistics still comes from the algorithm being used for verification.
+In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, but the results of J-Recover will not be much different if we run it on other machines. The other limitation is that in J-Recover, we analysis Java implementation and in SV-Comp they analyze the C implementations. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programing language the reducer is written in.
 \begin{table}[t]
 \scalebox{0.95}{
 	\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -586,115 +587,139 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 
 \subsection{The performance of J-Recover with and without optimizations}
 
-\begin{table}
+For the optimization based on data flow analysis (Section~\ref{section:opt1}), we evaluation them based on real-world benchmark sets collected from open repositories (118 examples) and also literatures (10 examples). The difference between the version with and without this optimization is very clear. The results are presented in table~\ref{tab:opt1}. The first column is the result without optimization, i.e., using Equation~(\ref{eq:commu}) and the second column is the result with optimization, i.e., using Equation~(\ref{eq:commu2}). The precision of the analysis is improved from $14.4\%$ to $97.5\%$ for examples from open repositories and
+$10\%$ to $100\%$ for examples from literatures. There are only three cases that J-Recover with data flow analysis cannot handle. The reason that J-Recover fails is that the three reducer uses more complicated structure than what J-Recover currently supports, i.e., in the form of $s_1;\rloop\{s_2\};s_3$. The three reducer programs uses a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such program can be handled by more sophisticated program transformation operations, For example, we can merge the two loops and push the outer branch condition inside the merged loop. 
+However, this new program transformation operation is not implemented in J-Recover yet.
+
+\begin{table}[htb]
 	\centering
 	\begin{tabular}{|l|l|l|l|}
 		\hline
-		& &Equation~(\ref{eq:commu})	& Equation~(\ref{eq:commu2}) \\
+		& &W/O optimization	& With optimization\\
 		\hline
 		\hline
-		\multirow{3}{*}{Open repositories}&Commutative& 8&106\\ 
+		\multirow{4}{*}{Open repositories}&Commutative& 8&106\\ 
 		\cline{2-4}
 		&Non-commutative&9&9\\
 		\cline{2-4}
 		&Unknown&101&3\\
+		\cline{2-4}
+		&Precision& 14.4\% & 97.5\%\\
 		\hline
 		\hline
-		\multirow{3}{*}{Literatures}&Commutative& 0&9\\
+		\multirow{4}{*}{Literatures}&Commutative& 0&9\\
 		\cline{2-4}
 		&Non-commutative&1&1\\
 		\cline{2-4}
 		&Unknown&9&0\\
+		\cline{2-4}
+		&Precision& 10\% & 100\%\\
 		\hline
 	\end{tabular}
-	\caption{The improvement of precision using data flow analysis.}
+	\caption{The improvement of precision using data flow analysis. The row ``Precision'' is calculated as the number of examples that J-Recover returns commutative or non-commutative divided by the total number of example.}
 	\label{tab:opt1}
 \end{table}
 
+For the optimization based on improving the data structure used in symbolic execution (Section~\ref{section:opt2}), the main focus in on the improvement in scalability. In fact, even for the version without optimizations, J-Recover can handle most of the real-world benchmarks efficiently. So we use randomly generated examples as the target in this evaluation.  Recall that our random reducer program generator uses three parameters $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statements. In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and uses lines numbers from $50$ to $250$. The most difficult cases might have $5$ to $6$ nested branches and $25$ integer variables in reducer program. Those program will be processed by Soot and translated to the so called Jimple format. In our experience, this will increase the number of lines by $20\%$ and variables by $11$ times. The results are presented in Fig.~\ref{tab:opt2} in the form of a table and also a scatter plot. Form there we can see that the optimization is helpful in improving all the statistics (average, median execution time and the number of cases that cannot be finished within 300 seconds). Also from the scatter plot we can see that much more cases are solved with the new optimization.
 
-% Optimization table
-Number of (variable):(if-else):(line)=5:1:50. Each number test 60 times.
-\begin{table}
-	\begin{tabular}{|l|l|l|l|l|l|l|}
-\hline
-		& \multicolumn{3}{c|}{\small w/o Optimization}	& \multicolumn{3}{c|}{\small Optimized} \\
-\hline
-		\small Lines & \small Average & \small Median & \small Timeout & \small Average & \small Median & \small Timeout \\
-\hline
-\hline
-		50	&	11.104	&	10.446	&	0	&	10.284	&	10.193	&	0	\\
-\hline                                                                              
-		100	&	19.766	&	11.239	&	1	&	29.544	&	11.172	&	3	\\
-\hline                                                                             
-		150	&	88.741	&	17.943	&	12	&	63.931	&	13.984	&	7	\\
-\hline                                                                             
-		200	&	88.741	&	169.456	&	26	&	63.931	&	13.984	&	7	\\
-\hline                                                                             
-		250	&	232.348	&	300.000	&	43	&	175.976	&	248.998	&	30	\\
-\hline
-	\end{tabular}
-	\caption{....}
+
+\begin{figure}[htb]
+	
+	\begin{minipage}{0.6\textwidth}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+	\hline
+	& \multicolumn{3}{c|}{\small W/O optimization}	& \multicolumn{3}{c|}{\small With optimization} \\
+	\hline
+	\small Lines & \small Average & \small Median & \small T/O & \small Average & \small Median & \small T/O \\
+	\hline
+	\hline
+	50	&	11.104	&	10.446	&	0	&	10.284	&	10.193	&	0	\\
+	\hline                                                                              
+	100	&	19.766	&	11.239	&	1	&	29.544	&	11.172	&	3	\\
+	\hline                                                                             
+	150	&	88.741	&	17.943	&	12	&	63.931	&	13.984	&	7	\\
+	\hline                                                                             
+	200	&	88.741	&	169.456	&	26	&	63.931	&	13.984	&	7	\\
+	\hline                                                                             
+	250	&	232.348	&	300.000	&	43	&	175.976	&	248.998	&	30	\\
+	\hline
+\end{tabular}
+	\end{minipage}	
+	\begin{minipage}{0.4\textwidth}
+\scalebox{0.6}{
+	\begin{tikzpicture}
+	\begin{axis}[%
+	xmin=-5, xmax=320,
+	ymin=-5, ymax=320,
+	xlabel={\Large with optimization},
+	ylabel={\Large w/o optimization}
+	]
+	\addplot[scatter,only marks,%
+	scatter src=explicit symbolic, mark=x]%
+	file {plot_data/optimize.data};
+	\draw (-100,-100) -- (400, 400);
+	\end{axis}
+	\end{tikzpicture}
+}		
+	\end{minipage}				
+
+	
+	\caption{The improvement in scalability using the better data structure for symbolic execution. Each cell in the table is the summary of 60 randomly generated programs. In the table T/O stands for timeout and W/O is without. } 
 	\label{tab:opt2}
-\end{table}
+\end{figure}
 
 % Optimization compare graph
+Bounded model checking (BMC) is another approach to create the $F$ function in Equations~\ref{eq:commu} and \ref{eq:commu2}. Although we use symbolic execution in J-Recover, it is interesting to see how good BMC works in checking the commutativity of reducer examples. In this evaluation, we use the same random reducer program generator. One major different difference is that for the BMC part, we directly generate the corresponding $F$ formula in the BMC-style without going through the Soot framework. So the number of variables in the formula is much less than the symbolic execution version. The results can be found in Table~\ref{tab:bmc}. For symbolic execution, we first use J-Recover to generate the formula for evaluation. For BMC, the formula is directly generated by the random generator. In this evaluation, we see that the performance of using BMC is in general better, less timeout and lower average execution time, so we plan to also include a BMC engine in the next version. However, from the scatter plot we can see there are multiple cases that  can be solved using symbolic execution but are slower or even falied using BMC. So the best strategy should be keep the both engine and switch to another if one fails.
+
+
+
+
+\begin{table}[htb]
+
+\begin{minipage}{0.7\textwidth}	
+	\begin{tabular}{|l||l|l| l||l|l|}
+\hline
+		Java& \multicolumn{2}{c|}{\small BMC}	& Jimple& \multicolumn{2}{c|}{\small Symbolic Exec.} \\
+\hline
+		\small Lines/Vars & \small Average & \small  \small T/O & Lines/Vars& \small Average & \small  \small T/O \\
+\hline
+\hline
+		50/5	&	0.063		&	0	&	72.85/65.7	&	0.139	&		0	\\
+\hline
+		100/10	&	0.840	&		0	&	129.95/120.85	&	3.052	&	0	\\
+\hline
+		150/15	&	28.459	&		1	&	186.9/175.6	&	36.233	&		1	\\
+\hline
+		200/20	&	76.220	&		2	&	243.75/230.6	&	89.730	&		5	\\
+\hline
+		250/25	&	84.358	&		5	&	300.55/285.85	&	172.482	&		10	\\
+\hline
+	\end{tabular}
+		\end{minipage}		
+	\begin{minipage}{0.29\textwidth}
+\scalebox{0.5}{
 \begin{tikzpicture}
-	\begin{axis}[%
-			xmin=-5, xmax=320,
-			ymin=-5, ymax=320,
-			xlabel=Optimize,
-			ylabel=w/o Optimization
-			]
-	\addplot[scatter,only marks,%
-		scatter src=explicit symbolic, mark=x]%
-		file {plot_data/optimize.data};
+\begin{axis}[%
+xmin=-5, xmax=320,
+ymin=-5, ymax=320,
+xlabel=J-ReCoVer(s),
+ylabel=BMC(s)
+]
+\addplot[scatter,only marks,%
+scatter src=explicit symbolic, mark=x]%
+file {plot_data/bmc.data};
 \draw (-100,-100) -- (400, 400);
 \end{axis}
 \end{tikzpicture}
-
-% BMC table
-Number of (variable):(if-else):(line)=5:1:50. Each number test 20 times.
-\begin{table}
-	\begin{tabular}{|l|l|l|l|l|l|l|l|}
-\hline
-		& \multicolumn{3}{c|}{\small BMC}	& & \multicolumn{3}{c|}{\small J-ReCoVer} \\
-\hline
-		\small Lines/Vars & \small Average & \small Median & \small Timeout & Lines/Vars (jimple)& \small Average & \small Median & \small Timeout \\
-\hline
-\hline
-		50/5	&	0.063	&	0.058	&	0	&	72.85/65.7	&	0.139	&	0.143	&	0	\\
-\hline
-		100/10	&	0.840	&	0.240	&	0	&	129.95/120.85	&	3.052	&	0.374	&	0	\\
-\hline
-		150/15	&	28.459	&	1.752	&	1	&	186.9/175.6	&	36.233	&	2.151	&	1	\\
-\hline
-		200/20	&	76.220	&	14.37	&	2	&	243.75/230.6	&	89.730	&	15.941	&	5	\\
-\hline
-		250/25	&	84.358	&	1.413	&	5	&	300.55/285.85	&	172.482	&	243.845	&	10	\\
-\hline
-	\end{tabular}
-	\caption{....}
+}			
+		\end{minipage}		
+	\caption{The performance of using BMC and symbolic execution. Each table cell is the result obtained from 20 randomly generated cases.}
 	\label{tab:bmc}
+	
 \end{table}
 
-% BMC compare graph
-\begin{tikzpicture}
-	\begin{loglogaxis}[%
-			xmin=-5, xmax=320,
-			ymin=-5, ymax=320,
-			xlabel=J-ReCoVer(s),
-			ylabel=BMC(s)
-			]
-	\addplot[scatter,only marks,%
-		scatter src=explicit symbolic, mark=x]%
-		file {plot_data/bmc.data};
-\draw (-100,-100) -- (400, 400);
-\end{loglogaxis}
-\end{tikzpicture}
+\section{Concluding Remarks}
 
-%Discuss the tool’s practical capabilities with reference to the type and size of problems it can handle
-
-In the other experiments (Table~\ref{}), we compare the efficiency using bounded model checking and symbolic execution we described in Section~\ref{section:optimizations}.
 
 \bibliographystyle{splncs-sorted}
 \bibliography{refs}
