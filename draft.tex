@@ -533,15 +533,16 @@ This data structure is efficient for strong symbolic values of reducer programs 
 
 \section{Evaluation}
 \label{section:exp}
-J-ReCoVer is implemented in JAVA and build on top of the Soot~\cite{soot} 2.5.0 and Z3~\cite{z3} 4.7.1. We run J-Recover on a virtual machine running on a server with AMD Opteron 6376 CPU. 4GB of memory is allocated to this virtual machine. The operation system is Ubuntu 16.04.5 LTS. 
+J-ReCoVer is implemented in JAVA and build on top of Soot~\cite{soot} 2.5.0 and Z3~\cite{z3} 4.7.1. We run J-Recover on a virtual machine running on a server with AMD Opteron 6376 CPU. 4GB of memory is allocated to this virtual machine. The operation system is Ubuntu 16.04.5 LTS. 
 
 
  In order to properly evaluate the performance of J-ReCoVer, we collect benchmark example from three different sources. 
 First, we use the search engine \url{http://searchcode.com}~\cite{searchcode} to collect java programs contains the key strings ``public void reduce('' or ``protected void reduce(''.  Since there is an upper bound in number of returned results in the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of $6$ code length filters $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$ 
 and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total we get $11346$ Java programs. We then filter out cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those uses non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmark.
-The second set of examples are those have been discussed in verification literatures~\cite{ChenHSW15,ChenSW16,SmithA16}. This set is relatively small, we have only $10$ examples. All benchmark examples can be found on the web-site of J-Recover.
+The second set of examples are those have been discussed in verification literatures~\cite{ChenHSW15,ChenSW16,SmithA16}. This set is relatively small, we have only $10$ examples. 
 For the third set of benchmarks, we created a program that randomly generate reducer program in order to test the scalability of J-Recover, which we can give as parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the branch statements, and $A$ is the number of assignment statement. All assignments are in the form of $v_1 := v_2\circ v_3,\circ\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
  The source code of the random generator is available at \url{https://github.com/spencerwuwu/benchmark-generator}.
+All benchmark examples can be found on the web-site of J-Recover.
 
 Our evaluation answers the following three questions:
 \begin{itemize}
@@ -553,9 +554,11 @@ Our evaluation answers the following three questions:
 \subsection{Comparison with competing tools}
 As already pointed out in~\cite{ChenHSW15}, reducer commutativity problems can be reduced to a reachability problem of programs. 
 The examples in~\cite{ChenHSW15}, which includes \textsf{rangesum}\footnote{The sum of the second half of the input list.}, \textsf{avg}, \textsf{max}, \textsf{sep}\footnote{The number of occurrences of even numbers minus that of odd numbers.}, \textsf{sum}, are already included in SV-Comp~\cite{svcomp} (Software Verification Competition) benchmarks.
-Although those examples are tiny and simple, none of the software verifiers are able to verify all of them according to the 2018 results, c.f., Table~\ref{tab:svcomp}. In this tools, the number of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, but the results of J-Recover will not be much different if we run it on other machines. 
+Although those examples are tiny and simple, none of the software verifiers are able to verify all of them according to the 2018 results. In contrast, J-Recover can verify all them very efficiently. 
 
-\begin{table}
+In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, but the results of J-Recover will not be much different if we run it on other machines. The other limitation is that in J-Recover, we analysis Java implementation and in SV-Comp they analyze the C implementations. Since those functions to be analyzed are relatively simple, the difference between C and Java implementation is very small (even syntactically). The main difference in the statistics still comes from the algorithm being used for verification.
+\begin{table}[t]
+\scalebox{0.95}{
 	\begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
 		& \small CBMC\cite{cbmc2} 	& \small CPA-Seq\cite{cpachecker} & \small  ESBMC-kind\cite{esbmc} & \small  UAutomizer\cite{uautomizer} &\small  VeriAbs\cite{veriabs} &\small J-Recover\\
@@ -572,9 +575,11 @@ Although those examples are tiny and simple, none of the software verifiers are 
 \small \textsf{sum}		    &  TO      &  TO		 &  TO				& TO				&  1.7       &9.9\\
 \hline
 	\end{tabular}
-	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list results of tool with better performance in these examples, which includes top three tools in the overall ranking and the reachability safety category.}
+}
+	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list results of competitive tool in this table, which includes top three tools in the overall ranking and the reachability safety category.}
 	\label{tab:svcomp}
 \end{table}
+
 
 
 
@@ -687,6 +692,7 @@ Although those examples are tiny and simple, none of the software verifiers are 
 
 %Discuss the tool’s practical capabilities with reference to the type and size of problems it can handle
 
+In the other experiments (Table~\ref{}), we compare the efficiency using bounded model checking and symbolic execution we described in Section~\ref{section:optimizations}.
 
 \bibliographystyle{splncs-sorted}
 \bibliography{refs}
