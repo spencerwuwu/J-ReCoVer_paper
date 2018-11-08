@@ -613,6 +613,7 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 
 
 % Optimization table
+Number of (variable):(if-else):(line)=5:1:50. Each number test 60 times.
 \begin{table}
 	\begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
@@ -652,10 +653,11 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 \end{tikzpicture}
 
 % BMC table
+Number of (variable):(if-else):(line)=5:1:50. Each number test 20 times.
 \begin{table}
 	\begin{tabular}{|l|l|l|l|l|l|l|l|}
 \hline
-		& \multicolumn{3}{c|}{\small Optimized}	& & \multicolumn{3}{c|}{\small w/o Optimization} \\
+		& \multicolumn{3}{c|}{\small BMC}	& & \multicolumn{3}{c|}{\small J-ReCoVer} \\
 \hline
 		\small Lines/Vars & \small Average & \small Median & \small Timeout & Lines/Vars (jimple)& \small Average & \small Median & \small Timeout \\
 \hline
@@ -672,14 +674,14 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 \hline
 	\end{tabular}
 	\caption{....}
-	\label{tab:opt2}
+	\label{tab:bmc}
 \end{table}
 
 % BMC compare graph
 \begin{tikzpicture}
-	\begin{axis}[%
-			xmin=-5, xmax=150,
-			ymin=-5, ymax=150,
+	\begin{loglogaxis}[%
+			xmin=-5, xmax=320,
+			ymin=-5, ymax=320,
 			xlabel=J-ReCoVer(s),
 			ylabel=BMC(s)
 			]
@@ -687,7 +689,7 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 		scatter src=explicit symbolic, mark=x]%
 		file {plot_data/bmc.data};
 \draw (-100,-100) -- (400, 400);
-\end{axis}
+\end{loglogaxis}
 \end{tikzpicture}
 
 %Discuss the tool’s practical capabilities with reference to the type and size of problems it can handle
