@@ -618,13 +618,13 @@ However, this new program transformation operation is not implemented in J-Recov
 		& &W/O optimization	& With optimization\\
 		\hline
 		\hline
-		\multirow{4}{*}{Open repositories}&Commutative& 8&106\\ 
+		\multirow{4}{*}{Open repositories}&Commutative& 0&106\\ 
 		\cline{2-4}
-		&Non-commutative&9&9\\
+		&Non-commutative&8&9\\
 		\cline{2-4}
-		&Unknown&101&3\\
+		&Unknown&110&3\\
 		\cline{2-4}
-		&Precision& 14.4\% & 97.5\%\\
+		&Precision& 6.8\% & 97.5\%\\
 		\hline
 		\hline
 		\multirow{4}{*}{Literatures}&Commutative& 0&9\\
@@ -653,15 +653,15 @@ For the optimization based on improving the data structure used in symbolic exec
 	\small Lines & \small Average & \small Median & \small T/O & \small Average & \small Median & \small T/O \\
 	\hline
 	\hline
-	50	&	11.104	&	10.446	&	0	&	10.284	&	10.193	&	0	\\
-	\hline                                                                              
-	100	&	19.766	&	11.239	&	1	&	29.544	&	11.172	&	3	\\
-	\hline                                                                             
-	150	&	88.741	&	17.943	&	12	&	63.931	&	13.984	&	7	\\
-	\hline                                                                             
-	200	&	88.741	&	169.456	&	26	&	63.931	&	13.984	&	7	\\
-	\hline                                                                             
-	250	&	232.348	&	300.000	&	43	&	175.976	&	248.998	&	30	\\
+	50	&	4.3	    &   3.7	&	0	&	4.7	&	3.6	&	0	\\
+	\hline                                                                      
+	100	&	35.8	&	5.1&	4	&	37.2	&	4.5	&	6	\\
+	\hline                                                                     
+	150	&	92.3	&	12.3&	13	&	74.0	&	7.5	&	9	\\
+	\hline                                                                     
+	200	&	156.6	&	179.7&	25	&	138.1	&	48.2	&	25	\\
+	\hline                                                                     
+	250	&	196.8	&	300.0&	35	&	175.9	&	274.9	&	30	\\
 	\hline
 \end{tabular}
 	\end{minipage}	
@@ -704,15 +704,15 @@ Bounded model checking (BMC) is another approach to create the $F$ function in E
 		\small Lines/Vars & \small Average & \small  \small T/O & Lines/Vars& \small Average & \small  \small T/O \\
 \hline
 \hline
-		50/5	&	0.063		&	0	&	72.85/65.7	&	0.139	&		0	\\
+		50/5	&	0.1		&	0	&	72.9/65.7	&	0.1	&		0	\\
 \hline
-		100/10	&	0.840	&		0	&	129.95/120.85	&	3.052	&	0	\\
+		100/10	&	0.8	&		0	&	130.0/120.9	&	3.1	&	0	\\
 \hline
-		150/15	&	28.459	&		1	&	186.9/175.6	&	36.233	&		1	\\
+		150/15	&	28.5	&		1	&	186.9/175.6	&	36.2	&		1	\\
 \hline
-		200/20	&	76.220	&		2	&	243.75/230.6	&	89.730	&		5	\\
+		200/20	&	76.2	&		2	&	243.8/230.6	&	89.7	&		5	\\
 \hline
-		250/25	&	84.358	&		5	&	300.55/285.85	&	172.482	&		10	\\
+		250/25	&	84.4	&		5	&	300.6/285.9	&	172.5	&		10	\\
 \hline
 	\end{tabular}
 		\end{minipage}		
@@ -722,7 +722,7 @@ Bounded model checking (BMC) is another approach to create the $F$ function in E
 \begin{axis}[%
 xmin=-5, xmax=320,
 ymin=-5, ymax=320,
-xlabel=J-ReCoVer(s),
+xlabel=Symbolic Exec.(s),
 ylabel=BMC(s)
 ]
 \addplot[scatter,only marks,%
