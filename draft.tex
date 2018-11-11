@@ -170,8 +170,9 @@ Some reducer uses two loops to compute the output. For example, for standard der
 		\begin{algorithm}[H]
 			$m := \cur$; \;
 			\Loop{}{
-				\uIf{ $\cur > m$}{
-					$m := \cur$ 
+				$t:=\cur$;\;
+				\uIf{ $t > m$}{
+					$m := t$ 
 				}
 			};
 			$out(m)$\;
@@ -453,10 +454,6 @@ Since the new reducer has all the possible outputs of the original one, the new 
 
 For the general case, we first rewrite the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ to the form 
 $$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m, $$ where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then we produce the reducer in Figure~\ref{fig:general_program_transformation}, which is an over-approximation of the original reducer satisfying all assumptions required for the Prover. Hence the Equation~(\ref{eq:commu}) can then be applied to prove its commutativity.
-
-\subsection{Limitations and assumptions}
-At the back-end, we use SMT theory of integer arithmetics as the reasoning tool. In this implementation, we do not handle more advanced data-types such as string and floating point. 
-The problem of variable overflow is not handled by this tool. In fact, if we consider all possible inputs of a reducer, almost all reducer programs will run into the problem of overflow. Even the basic example that computes the sum of all input values, overflow can occur when a list contains two maximal 64-bit integer values is used as the input. Nevertheless, such example might not be of the interests of MapReduce programmers, who usually care only about the data set they want to analyze. We are planing to build another tool that estimates a safe bound of data size such that overflow will not occur. The programmer can than check if their data set fits the computed bound and use lager data type in the program when needed. So overflow will not occurs in the data set of interests.
 
 \section{Optimizations}
 \label{section:optimizations}
@@ -741,10 +738,15 @@ file {plot_data/bmc.data};
 	
 \end{table}
 }
-%\section{Concluding Remarks}
+\section{Concluding Remarks}
+We believe that simpler but more restricted language/framework will be the trend for parallel program development. It lowers the barrier for writing parallel program. So experts in other domains such as data science and machine learning can use the power of parallel data processing with much less efforts. Many of their applications do not need the full power of message passing programming so they do not need to those build their programs on top of traditional means such as MPI or socket programming. MapReduce framework is a pioneer in this kind of frameworks for data parallel computation. Its successors such as Spark, Flink, Beam, and Google Cloud Dataflow, still share many features of its design. We believe the design of J-Recover will lead to significant impact to the verification/testing of programs under such frameworks. 
+
+The current version of J-Recover shares similar limitation with SMT-based software verification tools.
+We use SMT theory of integer and real number arithmetics as the reasoning tool. In this implementation. We do not handle more advanced data-types such as string and floating point. The problem of variable overflow is not handled by this tool. In fact, if we consider all possible inputs of a reducer, almost all reducer programs will run into the problem of overflow. Even the basic example that computes the sum of all input values, overflow can occur when a list contains two maximal 64-bit integer values is used as the input. Nevertheless, such example might not be of the interests of MapReduce programmers, who usually care only about the data set they want to analyze. We are planing to build another tool that estimates a safe bound of data size such that overflow will not occur. The programmer can than check if their data set fits the computed bound and use lager data type in the program when needed. So overflow will not occurs in the data set of interests.
 
 
-\bibliographystyle{splncs-sorted}
+
+%\bibliographystyle{splncs-sorted}
 \bibliography{refs}
 
 \end{document}
