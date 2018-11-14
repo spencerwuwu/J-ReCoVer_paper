@@ -535,7 +535,7 @@ F(n_1, F(n_2,x_1,x_2,\ldots,x_k) )=_{PosF(V_2\cup V_3)} F(n_2, F(n_1,x_1,x_2,\ld
 The function $PosF(X)$ returns the corresponding positions of variables in $X$ in the output of $F(n,x_1,\ldots,x_k) $. E.g., if $X = \{x_1,x_4,y\}$, where $y\notin \{x_1,\ldots,x_k\}$, then $PosF(X)=\{1,4\}$.
 The use of Equation~(\ref{eq:commu2}) is critical to the success of our approach. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$. The details of the evaluation can be found in Section~\ref{section:exp}.
 
-\subsection{Computing the $F$ function using symbolic execution with efficient data structure}
+\subsection{Computing the $F$ function using symbolic execution with an efficient data structure}
 \label{section:opt2}
 
 The computation of $F$ in Equation~(\ref{eq:commu2}) can be done in several different ways. For example, one can construct a formula in the style of bounded model checking. Here we apply \emph{symbolic execution} to generate $F$. Below we first review the standard symbolic execution algorithm and then explain how we use it to construct the formula $F$.
@@ -551,7 +551,7 @@ One can compute the next symbolic state of $\langle pc, val, c;cmds \rangle$ acc
 
 Here we lift the $val$ function from variables to expressions in the standard way and $val[v \rightarrow val(e) ]$ is obtained by reassigning the value of $v$ in $val$ to $val(e)$. The execution from a symbolic state terminates when its path condition is conflict or the commands to be executed become empty, i.e., all commands have been processed. So far it is standard.
 
-For the loop body $s_2$, symbolic execution is guaranteed to terminate because there is no commands in $s_2$ that may lead to infinite computations.
+For the loop body $s_2$, symbolic execution is guaranteed to terminate because there exist no commands in $s_2$ that may lead to infinite computations.
 When the execution terminates, we collect all states with empty commands $\langle pc, val, \emptyset \rangle$ as a set $T$ and use them to create the function $F$ in Equation~(\ref{eq:commu2}).
 First, we create for each variable $x\in\Var$ a formula $f_x$ whose value is $\bigvee_{\langle pc, val, \emptyset \rangle \in T} (pc \wedge val(x))$.
 The function $F(n,x_1,x_2,\ldots,x_k)$ simply returns the tuple $(f_{x_1},f_{x_2},\ldots, f_{x_k})$.
@@ -578,11 +578,11 @@ J-ReCoVer is implemented in Java and built on top of Soot~\cite{soot} 2.5.0 and 
 
 
 In order to properly evaluate the performance of J-ReCoVer, we collect benchmark example from two different sources.
-First, we use the search engine \emph{searchcode.com}~\cite{searchcode} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$
-and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmarks.
+First, we use the search engine \emph{searchcode.com}~\cite{searchcode} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on the number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$
+and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total, we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmarks.
 The second set of examples are those have been discussed in verification literature~\cite{ChenHSW15,ChenSW16}. This set is relatively small, we have only $10$ examples.
-We also created a program that randomly generate reducer program in order to test the scalability of J-ReCoVer.
-All benchmark examples can be found on the web-site of J-ReCoVer.
+We also created a program that randomly generates reducer programs in order to test the scalability of J-ReCoVer.
+All benchmark examples can be found on the website of J-ReCoVer.
 
 Our evaluation answers the following two questions:
 \begin{itemize}
@@ -595,7 +595,7 @@ As already pointed out in~\cite{ChenHSW15}, a reducer commutativity problem can 
 The examples in~\cite{ChenHSW15}, which includes \textsf{rangesum}\footnote{The sum of the second half of the input list.}, \textsf{avg}, \textsf{max}, \textsf{sep}\footnote{The number of occurrences of even numbers minus that of odd numbers.}, \textsf{sum}, are already included in SV-Comp~\cite{svcomp} (Software Verification Competition) benchmarks.
 Although those examples are tiny and simple, none of the software verifiers can verify all of those examples according to the 2018 results. In contrast, J-ReCoVer can verify all of them very efficiently.
 
-In Table~\ref{tab:svcomp}, the statistics of tools other than J-ReCoVer are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, the results of J-ReCoVer will not be much different if we run it on other machines. The other issue of this experiment is that in J-ReCoVer, we analyze the Java implementations and in SV-Comp they analyze the C implementations of the same functions. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programming language the reducer is written in.
+In Table~\ref{tab:svcomp}, the statistics of tools other than J-ReCoVer are taken directly from the SV-Comp~\cite{svcomp} website. Although the machines we used are different, the results of J-ReCoVer will not be much different if we run it on other machines. The other issue of this experiment is that in J-ReCoVer, we analyze the Java implementations and in SV-Comp they analyze the C implementations of the same functions. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programming language the reducer is written in.
 \begin{table}[t]
 \scalebox{0.95}{
 	\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -615,7 +615,7 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-ReCoVer are take
 \hline
 	\end{tabular}
 }
-	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list results of competitive tool in this table, which includes top three tools in the overall ranking and the reachability safety category.}\vspace{-1cm}
+	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list the results of competitive tools in this table, which includes top three tools in the overall ranking and the reachability safety category.}\vspace{-1cm}
 	\label{tab:svcomp}
 \end{table}
 
@@ -626,10 +626,10 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-ReCoVer are take
 \subsection{The performance of J-ReCoVer with and without optimizations}
 
 For the optimization based on data flow analysis (Section~\ref{section:opt1}), we evaluate them based on real-world benchmark sets collected from open repositories (118 examples) and also literature (10 examples). The difference between the version with and without this optimization is very clear. The results are presented in table~\ref{tab:opt1}. The first column is the result without optimization, i.e., using Equation~(\ref{eq:commu}) and the second column is the result with optimization, i.e., using Equation~(\ref{eq:commu2}). The precision of the analysis is improved from $6.8\%$ to $97.5\%$ for examples from open repositories and
-$10\%$ to $100\%$ for examples from literature. There are only three cases that J-ReCoVer with data flow analysis cannot handle. The reason that J-ReCoVer fails is that the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
+$10\%$ to $100\%$ for examples from literature. There are only three cases that J-ReCoVer with data flow analysis cannot handle. The reason that J-ReCoVer fails is that the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such a program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
 However, this new program transformation task is not implemented in J-ReCoVer yet.
 
-If we look into scrutiny, we failed to verify any example using Equation~(\ref{eq:commu}). The reason is that when Soot convert a Java program to the Jimple format, it always uses a temporary variable to store the value of $\cur$ in the loop body (similar to the example in Figure~\ref{fig:reducer_opt}). We tried a simpler heuristics approach that only ignores the temporary variables and the result is not as good as using data flow analysis, because the values of the temporary variables often also propagate to other variables.
+If we look into scrutiny, we failed to verify any example using Equation~(\ref{eq:commu}). The reason is that when Soot converts a Java program to the Jimple format, it always uses a temporary variable to store the value of $\cur$ in the loop body (similar to the example in Figure~\ref{fig:reducer_opt}). We tried a simpler heuristics approach that only ignores the temporary variables and the result is not as good as using data flow analysis, because the values of the temporary variables often also propagate to other variables.
 \begin{table}[htb]
 	\centering
 	\begin{tabular}{|l|l|l|l|}
@@ -660,7 +660,7 @@ If we look into scrutiny, we failed to verify any example using Equation~(\ref{e
 \end{table}
 
 For the optimization based on improving the data structure used in symbolic execution (Section~\ref{section:opt2}), the main focus is on the improvement in scalability. So we use a random reducer program generator to produce examples of different sizes for this evaluation.
-For the generator, we can give as parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statements. All assignments are in the form of $v_1 := v_2\odot v_3,\odot\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
+For the generator, we can give as a parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statements. All assignments are in the form of $v_1 := v_2\odot v_3,\odot\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
 The source code of the random generator is available at \url{https://github.com/spencerwuwu/benchmark-generator}.
 In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and produce random reducers from $50$ lines $250$ lines. The most difficult cases might have $5$ to $6$ nested branches and $25$ integer variables in a reducer program. Those programs will be processed by Soot and translated to the Jimple format. In our experience, this will increase the number of lines by $20\%$ and variables by $11$ times. The results are presented in Figure~\ref{tab:opt2} in the form of a table and also a scatter plot. From there we can see that the optimization is helpful in improving the statistics in particular for larger programs (average, median execution time and the number of cases that cannot be finished within 300 seconds). Also from the scatter plot we can see that much more cases are solved with the new optimization.
 
@@ -706,7 +706,7 @@ In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and produce random reducer
 	\end{minipage}
 
 
-	\caption{The improvement in scalability using the better data structure for symbolic execution. Each cell in the table is the summary of 60 randomly generated programs. In the table T/O stands for timeout and W/O is without. }
+	\caption{The improvement in scalability using a better data structure for symbolic execution. Each cell in the table is the summary of 60 randomly generated programs. In the table T/O stands for timeout and W/O is without. }
 	\label{tab:opt2}
 \end{figure}
 
@@ -766,9 +766,9 @@ file {plot_data/bmc.data};
 \section{Concluding Remarks}
 
 The current version of J-ReCoVer shares similar limitation with SMT-based software verification tools.
-We use SMT theory of integer and real number arithmetics as the reasoning tool. In this implementation, we do not handle more advanced data-types such as string and floating point. The problem of variable overflow is also not handled. In fact, if we consider all possible inputs of a reducer, almost all reducer programs will run into the problem of overflow. Even the basic example that computes the sum of all input values, overflow can occur when a list [\textsf{MaxInt};\textsf{MaxInt}] is used as the input. Nevertheless, such example might not be of the interests of MapReduce programmers, who usually care only about the data set they want to analyze. We are planing to build another tool to estimate a safe bound of data size such that overflow will not occur if data size is within the bound. The programmer can then check if their data set fits in the computed bound and switch to use larger data types in the program when needed. So overflow will not occurs in the data set of interests.
+We use SMT theory of integer and real number arithmetics as the reasoning tool. In this implementation, we do not handle more advanced data-types such as string and floating point. The problem of variable overflow is also not handled. In fact, if we consider all possible inputs of a reducer, almost all reducer programs will run into the problem of overflow. Even the basic example that computes the sum of all input values, overflow can occur when a list [\textsf{MaxInt};\textsf{MaxInt}] is used as the input. Nevertheless, such example might not be of the interests of MapReduce programmers, who usually care only about the data set they want to analyze. We are planning to build another tool to estimate a safe bound of data size such that overflow will not occur if the data size is within the bound. The programmer can then check if their data set fits in the computed bound and switch to use larger data types in the program when needed. So overflow will not occur in the data set of interests.
 
-We believe that simpler but more restricted domain specific language/frameworks will be the trend for the development of parallel programs. It lowers the barrier for writing correct yet efficient parallel program. Complicated issues such as fault torrence, load balancing, and security are handled by the frameworks automatically. Programmers only need to focus on their program logic. So experts in other domains such as data science and machine learning can enjoy the power of parallel data processing with much less efforts. Many of their applications do not need the full power of message passing programming. So they do not need to build their programs on top of traditional means such as MPI or socket programming. MapReduce framework is a pioneer in this kind of domain specific language/frameworks for data parallel computation. Its successors such as Spark, Flink, Beam, and Google Cloud Dataflow, still share many features of its design. We believe the design of J-ReCoVer will lead to significant impact to the verification/testing of programs under such frameworks.
+We believe that simpler but more restricted domain specific language/frameworks will be the trend for the development of parallel programs. It lowers the barrier for writing correct yet efficient parallel program. Complicated issues such as fault tolerance, load balancing, and security are handled by the frameworks automatically. Programmers only need to focus on their program logic. So experts in other domains such as data science and machine learning can enjoy the power of parallel data processing with much less efforts. Many of their applications do not need the full power of message passing programming. So they do not need to build their programs on top of traditional means such as MPI or socket programming. MapReduce framework is a pioneer in this kind of domain specific language/frameworks for data parallel computation. Its successors such as Spark, Flink, Beam, and Google Cloud Dataflow, still share many features of its design. We believe the design of J-ReCoVer will lead to significant impacts to the verification/testing of programs under such frameworks.
 
 
 
