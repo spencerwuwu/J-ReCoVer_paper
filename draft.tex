@@ -123,17 +123,17 @@ In this paper, we propose effective heuristics for reducer commutativity analysi
 \label{section:introduction}
 
 MapReduce is one of the most popular framework for data parallel computation.
-A MapReduce~\cite{dean04,hadoop} program consists of several pairs of \emph{mappers} and \emph{reducers} running on a machine cluster for handling big data in parallel. Usually mappers and reducers are the only components in a MapReduce program that involves concurrency. Mappers read data from a distributed database and output a sequence of \emph{key-value} pairs. The sequence elements (key-value pairs) with the same key will be sent to the same reducer for further processing. Due to scheduling polices and network latency, the same inputs may arrive at a reducer in different order in different executions, which results in the so-called \emph{commutativity problem} of reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}, that is, if the outputs of a reducer is independent of the order of its inputs. 
+A MapReduce~\cite{dean04,hadoop} program consists of several pairs of \emph{mappers} and \emph{reducers} running on a machine cluster for handling big data in parallel. Usually mappers and reducers are the only components in a MapReduce program that involves concurrency. Mappers read data from a distributed database and output a sequence of \emph{key-value} pairs. The sequence elements (key-value pairs) with the same key will be sent to the same reducer for further processing. Due to scheduling polices and network latency, the same inputs may arrive at a reducer in different order in different executions, which results in the so-called \emph{commutativity problem} of reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}, that is, if the output of a reducer is independent of the order of its inputs. 
 If all reducers are commutative, they will have the same external behavior under all possible schedules. In such a case, by fixing a schedule, the verification problem of a MapReduce program can be reduced to the verification problem of a sequential program, which is known to be much easier then the verification problem of concurrent programs. One needs to consider only a particular interleaving of input values instead of all of them.
 
 
 \hide{More concretely, for the verification of a MapReduce program, we propose to do it in two phases. First, ensuring if all reducers are commutative. If some reducers are non-commutative, modifying them to commutative ones. Usually, the modification is not a difficult task~\cite{xiao14mr}, and can be done without affecting their functionality and performance. For example, assume that the task of a reducer is to find the name of the person with highest score. Such a reducer is non-commutative when the input include two people with the same highest score. This reducer can be made commutative, by also comparing the ID number of people with the same score. Once all reducers are made commutative, we reduce the verification problem to sequential verification by fixing a scheduler. In this two-phase approach, the key enabling technique is an efficient procedure for checking reducer commutativity.}
 
-On the other hand, in many cases, the non-commutative behavior of a reducer can be the source of some very tricky bugs. A study conducted by Microsoft investigated the commutativity problem of $508$ reducers running on their MapReduce server~\cite{xiao14mr}. The reducer programs have been checked carefully using all traditional means such as code review, testing, and experiments with real data for months. Still, among them, five programs contain very subtle bugs caused by non-commutativity (confirmed by the programmers).
+On the other hand, in many cases, the non-commutative behavior of a reducer is the source of very tricky bugs. A study conducted by Microsoft investigated the commutativity problem of $508$ reducers running on their MapReduce server~\cite{xiao14mr}. The reducer programs have been checked carefully using all traditional means such as code review, testing, and experiments with real data for months. Still, among them, five programs contain very subtle bugs caused by non-commutativity (confirmed by the programmers).
 
 However, checking reducer commutativity is a difficult problem on its own right~\cite{ChenHSW15,ChenSW16,ChenLTW17}. Even for a simple case that all values are mathematical integers, it is proved undecidable in~\cite{ChenHSW15}. For the case that all values are machine integer (e.g, 64-bits integer), the problem is decidable, but the only available algorithm that was proposed in the same paper is of very high complexity and hence is only of theoretical interests.
 
-In this paper, we propose heuristics for the commutativity problem that works very efficiently on a large set of practical integer reducer programs. We reduce the commutativity problem to a SMT problem in a sound but incomplete manner. We also propose optimizations to enable the approach working on real world examples. For the case that the reducer is not proven commutative, we complement the approach by using testing to find concrete counterexamples. We implement all these heuristics as a tool called J-ReCoVer (Java Reducer Commutativity Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|.
+In this paper, we propose heuristics for the commutativity problem that works very efficiently on a large set of practical integer reducer programs. We reduce the commutativity problem to an SMT problem in a sound but incomplete manner. We also propose optimizations to enable the approach working on real world examples. For the case that the reducer is not proven commutative, we complement the approach by using testing to find concrete counterexamples. We implement all these heuristics as a tool called J-ReCoVer (Java Reducer Commutativity Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|.
 
 We use two sets of integer reducer benchmarks to evaluate J-ReCoVer. The first set is collected from open repositories such as Github and Bitbuckect. With the help of a search engine~\cite{searchcode} over those repositories, we collected 118 examples. J-ReCoVer is able to correctly analyze all but 3 of them. We also tried all 10 integer reducers descried in verification literature~\cite{ChenHSW15,ChenSW16} and J-ReCoVer can handle all of them.
 
@@ -350,7 +350,7 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 \textbf{The BugFinder component} randomly generated 1500 pairs of lists. The lists in a pair are permutations of each other. A concrete counterexample is reported if inputting any pair of lists from the 1500 generated ones to the reducer generates different results.
 Our procedure for generating random pairs is quite naive. We use five different input list of lengths 5, 7, 9 ,11, and 13. For each length, we generate 300 lists and pick uniformly at random one of its permutations. Although the approach is simple, in practice it finds counterexamples in all of our non-commutative benchmarks.
 
-\textbf{The Prover component} reduces the commutativity problem to a SMT formula satisfiability problem. At a high level, we check equivalence between a reducer program and its variant that has two consecutive inputs swapped. We show that this can be reduced to a SMT problem and give it to the SMT solver Z3~\cite{z3} for solving. In case that Z3 proved the formula unsatisfiable, we know that swapping any two consecutive inputs of the reducer will not change its output. Because all permutations of a list can be obtained by swapping consecutive elements finitely many times, it follows that the reducer outputs the same value for all permutations of the same list of inputs.
+\textbf{The Prover component} reduces the commutativity problem to an SMT formula satisfiability problem. At a high level, we check equivalence between a reducer program and its variant that has two consecutive inputs swapped. We show that this can be reduced to an SMT problem and give it to the SMT solver Z3~\cite{z3} for solving. In case that Z3 proved the formula unsatisfiable, we know that swapping any two consecutive inputs of the reducer will not change its output. Because all permutations of a list can be obtained by swapping consecutive elements finitely many times, it follows that the reducer outputs the same value for all permutations of the same list of inputs.
 In this case,  J-ReCoVer stops and reports that the reducer is commutative. 
 However, if we run the approach in a naive manner, it does not scale to large programs and is very imprecise.  We will introduce two critical optimizations that enables the proposed approach working for real-world examples in Section~\ref{section:optimizations}: a data flow analysis to extract critical variables and an improved symbolic execution algorithm to generate SMT formulae. More details of the algorithms used in the Preprocessor and the Prover components will be explained in Section~\ref{sec:preprocessor_prover} and the optimizations will be introduced in~\ref{section:optimizations}. 
 
@@ -361,7 +361,7 @@ However, if we run the approach in a naive manner, it does not scale to large pr
 \label{sec:preprocessor_prover}
 
 Before entering the Prover component, the Preprocessor first performs a few program transformation tasks to simplify the verification task.
-We assume the reducer $s_1;\rloop\{s_2\};s_3$ is given. The section begins with an introduction to the first program transformation task (Section~\ref{sec:program_trans1}) that handles the case when $s_2$ contains $out$ commands. The output of the first transformation task is a commutativity-equivalent reducer program where $out$ does not occur in $s_2$.  Then the algorithm of the Prover is explained in Section~\ref{sec:prover}. This algorithm works only in a special case where no read from input occurs in $s_1$. For general reducer programs, we introduce the second program transformation task (Section~\ref{sec:program_trans2}) whose output is a reducer program that falls in the special case required by the Prover and ``over-approximates'' all input/output behaviors of the original reducer. The commutative of the produced reducer implies the commutative of the original one, but not vice verse.
+We assume the reducer $s_1;\rloop\{s_2\};s_3$ is given. The section begins with an introduction to the first program transformation task (Section~\ref{sec:program_trans1}) that handles the case when $s_2$ contains $out$ commands. The output of the first transformation task is a commutativity-equivalent reducer program where $out$ does not occur in $s_2$.  Then the algorithm of the Prover is explained in Section~\ref{sec:prover}. This algorithm works only in a special case where no read from input occurs in $s_1$. For general reducer programs, we introduce the second program transformation task (Section~\ref{sec:program_trans2}) whose output is a reducer program that falls in the special case required by the Prover and ``over-approximates'' all input/output behaviors of the original reducer. The commutativity of the produced reducer implies the commutativity of the original one, but not vice verse.
 
 \subsection{The First Program Transformation Task in the Preprocessor}
 \label{sec:program_trans1}
@@ -383,8 +383,9 @@ Using the reducer that computes average (Figure~\ref{fig:reducer_example}(b)) as
 The validity of Equation~(\ref{eq:commu}) implies that swapping any two consecutive input values does not change the final variable valuation. Informally, it says that starting from the same initial valuations of variables and with two different input orders, $[n_1;n_2]$ and $[n_2;n_1]$, the values of all program variables are the same after we execute the loop body twice. The first execution reads $n_1$ and then reads $n_2$. The other execution reads the two inputs in the reverse order.
 
 In the example of ``average'', the values of $s$ and $c$ are the same no matter the reducer first reads $n_1$ and then $n_2$ or reads the two values in the swapped order.
-So it computes the same value for the input [1;2;3;4;5] and any other input with two consecutive values being swapped, e.g., [1;2;\textbf{4};\textbf{3};5].
-The swap operation can be applied arbitrarily many times to produce all possible permutations of the input. It follows that that starting from the same variable valuation, the loop ends with the same valuation for any permutation of input values, e.g., the reducer will output the same value for [1;2;\textbf{3};\textbf{4};5], [1;\textbf{2};\textbf{4};3;5], [\textbf{1};\textbf{4};2;3;5], [4;1;2;3;5], etc. 
+So it computes the same value for the input [1;2;\textbf{3};\textbf{4};5] and any other input with two consecutive values being swapped, e.g., [1;2;4;3;5].
+The swap operation can be applied arbitrarily many times to produce all possible permutations of the input.
+It follows that that starting from the same variable valuation, the loop ends with the same valuation for any permutation of input values, e.g., the reducer will output the same value for [1;2;3;4;5], [1;2;4;3;5], [1;4;2;3;5], [4;1;2;3;5], etc. 
 Recall that the first program transformation task stores all output values in variables that will stay unchanged until the end of the loop. The validity of Equation~(\ref{eq:commu}) also implies that the execution of the loop produces the same sequence of outputs.
 
 We explain why that the validity of Equation~(\ref{eq:commu}) is sufficient to prove the commutativity of the reducer $s_1;\rloop\{s_2\};s_3$. Notice that $s_1$ does not read from the input (assumed at the beginning of this subsection). The execution of $s_1$ is deterministic in the sense that from the same initial valuation, it outputs the same sequence of values and ends at the same valuation. For the execution of $\rloop\{s_2\}$, from the validity of Equation~(\ref{eq:commu}), any permutation of input values leads the reducer to the same final valuation and the same sequence of outputs at the end of the loop. 
@@ -469,7 +470,7 @@ $s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$, where $\cur$ never o
 
 \section{Optimizations}
 \label{section:optimizations}
-In this section we explain how data flow analysis is used in J-Recover to improve the precision of commutativity checking and the algorithm we used to construct the $F$ function in Equation~(\ref{eq:commu}).
+In this section we explain how data flow analysis is used in J-ReCoVer to improve the precision of commutativity checking and the algorithm we used to construct the $F$ function in Equation~(\ref{eq:commu}).
 
 \subsection{Improving the precision of commutativity verification using data flow analysis}
 \label{section:opt1}
@@ -485,12 +486,13 @@ $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t)) = (c_1+c_2, c_2)$.
 				$t:=\cur$;
 				$s:= s + t$\;
 			};
-			$out(s)$\;\;
+			$out(s)$\;\;\;
 		\end{algorithm}
 		\caption{A commutative reducer with an invalid Equation~(\ref{eq:commu}).}
 		\label{fig:reducer_opt}
 	\end{minipage}
-	\begin{minipage}{0.55\textwidth}
+	\ \ \ \ \ \ \ \ 
+	\begin{minipage}{0.5\textwidth}
 		\LinesNumbered
 		\centering
 		\begin{minipage}{0.75\textwidth}
@@ -503,7 +505,7 @@ $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t)) = (c_1+c_2, c_2)$.
 			\lElse{ $\ldots$}
 		\end{algorithm}
 	\end{minipage}
-		\caption{$out(v)$ in nested branches of $s_3$.}
+		\caption{The $s_3$ command with an $out(v)$ command in nested branches.}
 		\label{fig:nested_out}
 	\end{minipage}
 \end{figure}
@@ -517,7 +519,7 @@ We perform a simple backward data flow analysis to collect all variables whose v
 We unfold all concatenation of commands, so now the commands $c_1\ldots c_n$ are either assignment commands $w:=e$ or branch command $\ite{g}{c'_1}{c'_2}$, and the only output command stays in the $m$-th layer of the branch command after $c_i$. For the case that $m=0$, the entire branch command in Lines 2-6 of Figure~\ref{fig:nested_out} is replaced with $out(v)$.
 
 The data flow analysis algorithm works as follows.
-A set $V_3$ whose value is initially a singleton set $\{v\}$ is used to remember important variables that might flow to the output command $out(v)$ in $s_3$ (in Figure~\ref{fig:nested_out}).
+A set $V_3$ whose value is initially a singleton set $\{v\}$ is used to remember the variables that might flow to the output command $out(v)$ in $s_3$ (in Figure~\ref{fig:nested_out}).
 The commands and guards will be inspected in the following order $c_{n}$,$\ldots$,$c_{i+1}$, $g_m$, $g_{m-1}$, $\ldots$, $g_1$, $c_i$, $\ldots$, $c_2$, $c_1$. For the case that a guard $g_j$ for $j\in [1,m]$ is being processed, we simply add all variables occurred in $g_j$ to $V_3$. 
 For the case that a command $c_j$ for $j\in [1,n]$ is being processed, we need to handle two different cases:
 \begin{itemize}
@@ -531,19 +533,19 @@ F(n_1, F(n_2,x_1,x_2,\ldots,x_k) )=_{PosF(V_2\cup V_3)} F(n_2, F(n_1,x_1,x_2,\ld
 \label{eq:commu2}
 \end{equation}
 The function $PosF(X)$ returns the corresponding positions of variables in $X$ in the output of $F(n,x_1,\ldots,x_k) $. E.g., if $X = \{x_1,x_4,y\}$, where $y\notin \{x_1,\ldots,x_k\}$, then $PosF(X)=\{1,4\}$.
-The use of equation~(\ref{eq:commu2}) is critical to the success of our approach. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$. The details of the evaluation can be found in Section~\ref{section:exp}.
+The use of Equation~(\ref{eq:commu2}) is critical to the success of our approach. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$. The details of the evaluation can be found in Section~\ref{section:exp}.
 
 \subsection{Computing the $F$ function using symbolic execution with efficient data structure}
 \label{section:opt2}
 
-The computation of $F$ in equation~(\ref{eq:commu2}) can be done in several different ways. For example, one can construct a formula in the style of bounded model checking. Here we apply \emph{symbolic execution} to generate $F$. Below we first review the standard symbolic execution algorithm and then explain how we use it to construct the formula $F$.
+The computation of $F$ in Equation~(\ref{eq:commu2}) can be done in several different ways. For example, one can construct a formula in the style of bounded model checking. Here we apply \emph{symbolic execution} to generate $F$. Below we first review the standard symbolic execution algorithm and then explain how we use it to construct the formula $F$.
 
 
 First, we define the set $\Var_0=\{v_0 \mid v \in \Var \}\cup \{c_0\}$ as the set of initial symbolic values of all variables, where $c_0$ is used to denote the symbolic value from the input.
 A \emph{symbolic state} is a triple $\langle pc, val, cmds \rangle$, where the \emph{path condition} $pc$ is a guard in $\Grd$ over $\Var_0$, the \emph{symbolic valuation} is a mapping from variables in $\Var$ to an expression in $\Exp$ over $\Var_0$, and $cmds\in \Cmd$ is the remaining commands to be executed. The \emph{initial symbolic state} is $\langle \true, val_0, s_2\rangle$, where $val_0(v) = v_0$ for all $v\in\Var$ and $s_2$ is the loop body of the reducer. 
-One can compute the next symbolic state of $\langle pc, val, c;cmds \rangle$ according to the following transition rules. Recall that $c$ is either in the form of $(v:= e)$ or $\ite{g}{c_1}{c_2}$ after the program transformation tasks are performed:
+One can compute the next symbolic state of $\langle pc, val, c;cmds \rangle$ according to the following transition rules. Recall that $c$ is either in the form of $v:= e$ or $\ite{g}{c_1}{c_2}$ after the program transformation tasks are performed:
 \begin{enumerate}
-	\item If $c$ is $(v:= e)$, the next symbolic state is $\langle pc, val[v \rightarrow val(e) ], cmds \rangle$.
+	\item If $c$ is $v:= e$, the next symbolic state is $\langle pc, val[v \rightarrow val(e) ], cmds \rangle$.
 	\item If $c$ is $\ite{g}{c_1}{c_2}$, the next symbolic states are $\langle pc\wedge g, val, c_1.cmds \rangle$ and $\langle pc\wedge not\  g, val, c_2.cmds \rangle$. 
 \end{enumerate}
 
@@ -552,7 +554,7 @@ Here we lift the $val$ function from variables to expressions in the standard wa
 For the loop body $s_2$, symbolic execution is guaranteed to terminate because there is no commands in $s_2$ that may lead to infinite computations.
 When the execution terminates, we collect all states with empty commands $\langle pc, val, \emptyset \rangle$ as a set $T$ and use them to create the function $F$ in Equation~(\ref{eq:commu2}). 
 First, we create for each variable $x\in\Var$ a formula $f_x$ whose value is $\bigvee_{\langle pc, val, \emptyset \rangle \in T} (pc \wedge val(x))$.
-The function $F(n,x_1,x_2,\ldots,x_k)$ simply returns the tuple $\{f_{x_1},f_{x_2},\ldots, f_{x_k}\}$.
+The function $F(n,x_1,x_2,\ldots,x_k)$ simply returns the tuple $(f_{x_1},f_{x_2},\ldots, f_{x_k})$.
  
 However, doing symbolic execution in a naive way can be extremely inefficient. 
 The length of the formula $val(v)$ can grow exponentially w.r.t. the input commands. For example, consider a simple command $u:=x+y;u:=u+u;u:=u+u$, each execution of $u:= u+ u$ will double the length of the expression representing the symbolic value of $u$. More concretely, after the execution of $u:=x+y$, the symbolic value of $u$ is $x_0+y_0$. After the two executions of $u:=u+u$, the value of $u$ changes to $x_0+y_0+x_0+y_0$ and $x_0+y_0+x_0+y_0+x_0+y_0+x_0+y_0$, respectively. One way to alleviate the problem is to apply formula simplification algorithms, e.g., those implemented in Z3~\cite{z3}. 
@@ -566,39 +568,39 @@ Initially, $sv_x(x_0) = 1$ and $sv_x (e) =0$ for all $e\neq x$. Assume that the 
 	\item For the case that $\circ \in\{+,-\}$, we have $sv'_x(z) = sv_p(z)\circ  sv_q(z)$.
 	\item For the case that $\circ \notin\{+,-\}$, we define $sv'_x(val(p) \circ val(q)) =1$ and $sv'_x(e) = 0$ for all $e\neq val(p) \circ val(q)$.
 \end{itemize}
-To make the definition complete for our simple reducer program commands, we further define (1) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (2) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
+To make the definition complete for our simple reducer program commands, we further define (I) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (II) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
 This data structure is efficient for strong symbolic values of reducer programs mainly for reason that the operations $+$ and $-$ are quite heavily used in such programs. 
 Here we give a tiny example. Initially, $sv_x(x_0)=1$. After the commands $x:=x*x;x:=x+x$, we get $sv_x(x_0*x_0)=1$ and $sv_x(x_0*x_0)=2$, respectively.  
 
 \section{Evaluation}
 \label{section:exp}
-J-ReCoVer is implemented in Java and built on top of Soot~\cite{soot} 2.5.0 and Z3~\cite{z3} 4.7.1. We run J-Recover on a virtual machine running on a server with AMD Opteron 6376 CPU. 4GB of memory is allocated to this virtual machine. The operation system is Ubuntu 16.04.5 LTS. 
+J-ReCoVer is implemented in Java and built on top of Soot~\cite{soot} 2.5.0 and Z3~\cite{z3} 4.7.1. We run J-ReCoVer on a virtual machine running on a server with AMD Opteron 6376 CPU. 4GB of memory is allocated to this virtual machine. The operation system is Ubuntu 16.04.5 LTS. 
 
 
 In order to properly evaluate the performance of J-ReCoVer, we collect benchmark example from two different sources. 
-First, we use the search engine \url{http://searchcode.com}~\cite{searchcode} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$ 
-and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those uses non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmark.
+First, we use the search engine \emph{searchcode.com}~\cite{searchcode} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$ 
+and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmarks.
 The second set of examples are those have been discussed in verification literature~\cite{ChenHSW15,ChenSW16}. This set is relatively small, we have only $10$ examples. 
-We also created a program that randomly generate reducer program in order to test the scalability of J-Recover.
-All benchmark examples can be found on the web-site of J-Recover.
+We also created a program that randomly generate reducer program in order to test the scalability of J-ReCoVer.
+All benchmark examples can be found on the web-site of J-ReCoVer.
 
 Our evaluation answers the following two questions:
 \begin{itemize}
-	\item Is J-Recover better than other competing tools?
+	\item Is J-ReCoVer better than other competing tools?
 	\item Are the two optimizations proposed in Section~\ref{section:optimizations} critical and effective?
 \end{itemize}
 
 \subsection{Comparison with competing tools}
 As already pointed out in~\cite{ChenHSW15}, a reducer commutativity problem can be reduced to a reachability problem of a program. 
 The examples in~\cite{ChenHSW15}, which includes \textsf{rangesum}\footnote{The sum of the second half of the input list.}, \textsf{avg}, \textsf{max}, \textsf{sep}\footnote{The number of occurrences of even numbers minus that of odd numbers.}, \textsf{sum}, are already included in SV-Comp~\cite{svcomp} (Software Verification Competition) benchmarks.
-Although those examples are tiny and simple, none of the software verifiers can verify all of those examples according to the 2018 results. In contrast, J-Recover can verify all them very efficiently.
+Although those examples are tiny and simple, none of the software verifiers can verify all of those examples according to the 2018 results. In contrast, J-ReCoVer can verify all of them very efficiently.
 
-In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, the results of J-Recover will not be much different if we run it on other machines. The other limitation is that in J-Recover, we analyze Java implementations and in SV-Comp they analyze the C implementations of the same functions. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programming language the reducer is written in.
+In Table~\ref{tab:svcomp}, the statistics of tools other than J-ReCoVer are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, the results of J-ReCoVer will not be much different if we run it on other machines. The other issue of this experiment is that in J-ReCoVer, we analyze the Java implementations and in SV-Comp they analyze the C implementations of the same functions. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programming language the reducer is written in.
 \begin{table}[t]
 \scalebox{0.95}{
 	\begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
-		& \small CBMC\cite{cbmc2} 	& \small CPA-Seq\cite{cpachecker} & \small  ESBMC-kind\cite{esbmc} & \small  UAutomizer\cite{uautomizer} &\small  VeriAbs\cite{veriabs} &\small J-Recover\\
+		& \small CBMC\cite{cbmc2} 	& \small CPA-Seq\cite{cpachecker} & \small  ESBMC-kind\cite{esbmc} & \small  UAutomizer\cite{uautomizer} &\small  VeriAbs\cite{veriabs} &\small J-ReCoVer\\
 \hline
 \hline
 \small \textsf{rangesum}	& 0.96 	   & 30 		 & 2.2 				 &  10				 & 180       &9.9\\
@@ -621,13 +623,13 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 
 
 
-\subsection{The performance of J-Recover with and without optimizations}
+\subsection{The performance of J-ReCoVer with and without optimizations}
 
-For the optimization based on data flow analysis (Section~\ref{section:opt1}), we evaluation them based on real-world benchmark sets collected from open repositories (118 examples) and also literature (10 examples). The difference between the version with and without this optimization is very clear. The results are presented in table~\ref{tab:opt1}. The first column is the result without optimization, i.e., using Equation~(\ref{eq:commu}) and the second column is the result with optimization, i.e., using Equation~(\ref{eq:commu2}). The precision of the analysis is improved from $6.8\%$ to $97.5\%$ for examples from open repositories and
-$10\%$ to $100\%$ for examples from literature. There are only three cases that J-Recover with data flow analysis cannot handle. The reason that J-Recover fails is that the three reducers use more complicated structure than what J-Recover currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such program can be handled by more sophisticated program transformation operations. For example, we can merge the two loops and push the outer branch condition inside the merged loop. 
-However, this new program transformation task is not implemented in J-Recover yet.
+For the optimization based on data flow analysis (Section~\ref{section:opt1}), we evaluate them based on real-world benchmark sets collected from open repositories (118 examples) and also literature (10 examples). The difference between the version with and without this optimization is very clear. The results are presented in table~\ref{tab:opt1}. The first column is the result without optimization, i.e., using Equation~(\ref{eq:commu}) and the second column is the result with optimization, i.e., using Equation~(\ref{eq:commu2}). The precision of the analysis is improved from $6.8\%$ to $97.5\%$ for examples from open repositories and
+$10\%$ to $100\%$ for examples from literature. There are only three cases that J-ReCoVer with data flow analysis cannot handle. The reason that J-ReCoVer fails is that the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop. 
+However, this new program transformation task is not implemented in J-ReCoVer yet.
 
-If we look into scrutiny, we failed to verify any example using Equation~(\ref{eq:commu}). The reason is that when Soot convert a Java program to the Jimple format, it always uses a temporary variable to store the value of $\cur$ in the loop body (similar to the example in Figure~\ref{fig:reducer_opt}). We tried a simpler heuristics approach that only ignores the temporary variables and the results is not as good as using data flow analysis, because the value of the temporary variable often also propagates to other variables. 
+If we look into scrutiny, we failed to verify any example using Equation~(\ref{eq:commu}). The reason is that when Soot convert a Java program to the Jimple format, it always uses a temporary variable to store the value of $\cur$ in the loop body (similar to the example in Figure~\ref{fig:reducer_opt}). We tried a simpler heuristics approach that only ignores the temporary variables and the result is not as good as using data flow analysis, because the values of the temporary variables often also propagate to other variables. 
 \begin{table}[htb]
 	\centering
 	\begin{tabular}{|l|l|l|l|}
@@ -653,14 +655,14 @@ If we look into scrutiny, we failed to verify any example using Equation~(\ref{e
 		&Precision& 10\% & 100\%\\
 		\hline
 	\end{tabular}
-	\caption{The improvement of precision using data flow analysis. The row ``Precision'' is calculated as the number of examples that J-Recover returns commutative or non-commutative divided by the total number of example.}
+	\caption{The improvement of precision using data flow analysis. The row ``Precision'' is calculated as the number of examples that J-ReCoVer returns commutative or non-commutative divided by the total number of example.}
 	\label{tab:opt1}
 \end{table}
 
 For the optimization based on improving the data structure used in symbolic execution (Section~\ref{section:opt2}), the main focus is on the improvement in scalability. So we use a random reducer program generator to produce examples of different sizes for this evaluation.
-For the generator, we can give as parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statement. All assignments are in the form of $v_1 := v_2\odot v_3,\odot\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
+For the generator, we can give as parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statements. All assignments are in the form of $v_1 := v_2\odot v_3,\odot\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
 The source code of the random generator is available at \url{https://github.com/spencerwuwu/benchmark-generator}.
-In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and uses lines numbers from $50$ to $250$. The most difficult cases might have $5$ to $6$ nested branches and $25$ integer variables in a reducer program. Those programs will be processed by Soot and translated to the Jimple format. In our experience, this will increase the number of lines by $20\%$ and variables by $11$ times. The results are presented in Figure~\ref{tab:opt2} in the form of a table and also a scatter plot. Form there we can see that the optimization is helpful in improving all the statistics (average, median execution time and the number of cases that cannot be finished within 300 seconds). Also from the scatter plot we can see that much more cases are solved with the new optimization.
+In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and produce random reducers from $50$ lines $250$ lines. The most difficult cases might have $5$ to $6$ nested branches and $25$ integer variables in a reducer program. Those programs will be processed by Soot and translated to the Jimple format. In our experience, this will increase the number of lines by $20\%$ and variables by $11$ times. The results are presented in Figure~\ref{tab:opt2} in the form of a table and also a scatter plot. From there we can see that the optimization is helpful in improving the statistics in particular for larger programs (average, median execution time and the number of cases that cannot be finished within 300 seconds). Also from the scatter plot we can see that much more cases are solved with the new optimization.
 
 
 \begin{figure}[htb]
@@ -712,7 +714,7 @@ In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and uses lines numbers fro
 
 \hide{
 % Optimization compare graph
-Bounded model checking (BMC) is another approach to create the $F$ function in Equations~\ref{eq:commu} and \ref{eq:commu2}. Although we use symbolic execution in J-Recover, it is interesting to see how good BMC works in checking the commutativity of reducer examples. In this evaluation, we use the same random reducer program generator. One major different difference is that for the BMC part, we directly generate the corresponding $F$ formula in the BMC-style without going through the Soot framework. So the number of variables in the formula is much less than the symbolic execution version. The results can be found in Table~\ref{tab:bmc}. For symbolic execution, we first use J-Recover to generate the formula for evaluation. For BMC, the formula is directly generated by the random generator. In this evaluation, we see that the performance of using BMC is in general better, less timeout and lower average execution time, so we plan to also include a BMC engine in the next version. However, from the scatter plot we can see there are multiple cases that  can be solved using symbolic execution but are slower or even failed using BMC. So the best strategy should be keep the both engine and switch to another if one fails.
+Bounded model checking (BMC) is another approach to create the $F$ function in Equations~\ref{eq:commu} and \ref{eq:commu2}. Although we use symbolic execution in J-ReCoVer, it is interesting to see how good BMC works in checking the commutativity of reducer examples. In this evaluation, we use the same random reducer program generator. One major different difference is that for the BMC part, we directly generate the corresponding $F$ formula in the BMC-style without going through the Soot framework. So the number of variables in the formula is much less than the symbolic execution version. The results can be found in Table~\ref{tab:bmc}. For symbolic execution, we first use J-ReCoVer to generate the formula for evaluation. For BMC, the formula is directly generated by the random generator. In this evaluation, we see that the performance of using BMC is in general better, less timeout and lower average execution time, so we plan to also include a BMC engine in the next version. However, from the scatter plot we can see there are multiple cases that  can be solved using symbolic execution but are slower or even failed using BMC. So the best strategy should be keep the both engine and switch to another if one fails.
 
 
 
@@ -762,10 +764,11 @@ file {plot_data/bmc.data};
 \end{table}
 }
 \section{Concluding Remarks}
-We believe that simpler but more restricted domain specific language/frameworks will be the trend for the development of parallel programs. It lowers the barrier for writing correct yet efficient parallel program. Complicated issues such as fault torrence, load balancing, and security are handled by the frameworks automatically. Programmers only need to focus on their program logic. So experts in other domains such as data science and machine learning can enjoy the power of parallel data processing with much less efforts. Many of their applications do not need the full power of message passing programming. So they do not need to build their programs on top of traditional means such as MPI or socket programming. MapReduce framework is a pioneer in this kind of domain specific language/frameworks for data parallel computation. Its successors such as Spark, Flink, Beam, and Google Cloud Dataflow, still share many features of its design. We believe the design of J-Recover will lead to significant impact to the verification/testing of programs under such frameworks.
 
-The current version of J-Recover shares similar limitation with SMT-based software verification tools.
-We use SMT theory of integer and real number arithmetics as the reasoning tool. In this implementation. We do not handle more advanced data-types such as string and floating point. The problem of variable overflow is also not handled by this tool. In fact, if we consider all possible inputs of a reducer, almost all reducer programs will run into the problem of overflow. Even the basic example that computes the sum of all input values, overflow can occur when a list [\textsf{MaxInt};\textsf{MaxInt}] is used as the input. Nevertheless, such example might not be of the interests of MapReduce programmers, who usually care only about the data set they want to analyze. We are planing to build another tool to estimate a safe bound of data size such that overflow will not occur if data size is within bound. The programmer can then check if their data set fits in the computed bound and switch to use larger data type in the program when needed. So overflow will not occurs in the data set of interests.
+The current version of J-ReCoVer shares similar limitation with SMT-based software verification tools.
+We use SMT theory of integer and real number arithmetics as the reasoning tool. In this implementation, we do not handle more advanced data-types such as string and floating point. The problem of variable overflow is also not handled. In fact, if we consider all possible inputs of a reducer, almost all reducer programs will run into the problem of overflow. Even the basic example that computes the sum of all input values, overflow can occur when a list [\textsf{MaxInt};\textsf{MaxInt}] is used as the input. Nevertheless, such example might not be of the interests of MapReduce programmers, who usually care only about the data set they want to analyze. We are planing to build another tool to estimate a safe bound of data size such that overflow will not occur if data size is within the bound. The programmer can then check if their data set fits in the computed bound and switch to use larger data types in the program when needed. So overflow will not occurs in the data set of interests.
+
+We believe that simpler but more restricted domain specific language/frameworks will be the trend for the development of parallel programs. It lowers the barrier for writing correct yet efficient parallel program. Complicated issues such as fault torrence, load balancing, and security are handled by the frameworks automatically. Programmers only need to focus on their program logic. So experts in other domains such as data science and machine learning can enjoy the power of parallel data processing with much less efforts. Many of their applications do not need the full power of message passing programming. So they do not need to build their programs on top of traditional means such as MPI or socket programming. MapReduce framework is a pioneer in this kind of domain specific language/frameworks for data parallel computation. Its successors such as Spark, Flink, Beam, and Google Cloud Dataflow, still share many features of its design. We believe the design of J-ReCoVer will lead to significant impact to the verification/testing of programs under such frameworks.
 
 
 
