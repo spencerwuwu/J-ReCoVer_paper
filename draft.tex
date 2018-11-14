@@ -470,11 +470,11 @@ $s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$, where $\cur$ never o
 
 \section{Optimizations}
 \label{section:optimizations}
-In this section we explain how data flow analysis is used in J-ReCoVer to improve the precision of commutativity checking and the algorithm we used to construct the $F$ function in Equation~(\ref{eq:commu}).
+In this section, we explain how data flow analysis is used in J-ReCoVer to improve the precision of commutativity checking and the algorithm we used to construct the $F$ function in Equation~(\ref{eq:commu}).
 
 \subsection{Improving the precision of commutativity verification using data flow analysis}
 \label{section:opt1}
-We find that in many cases, Equation~(\ref{eq:commu}) is a condition that is too strong for the reducer to be commutative. For instance, consider the example in Figure~\ref{fig:reducer_opt}. In the loop body, the input is first stored in a variable $t$ and then added to $s$. In this case, the $F$ function returns the updated values of both $s$ and $t$ after the execution of loop body. Observe that 
+We find that in many cases, Equation~(\ref{eq:commu}) is a condition that is too strong for the reducer to be commutative. For instance, consider the example in Figure~\ref{fig:reducer_opt}. In the loop body, the input is first stored in a variable $t$ and then added to $s$. In this case, the $F$ function returns the updated values of both $s$ and $t$ after the execution of the loop body. Observe that 
 $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t)) = (c_1+c_2, c_2)$. It follows that the corresponding Equation~(\ref{eq:commu}) is invalid. The second component of the returned tuples corresponds to the value of $t$ after executing the loop body twice. Their values are $c_1$ and $c_2$, respectively, in $F(c_1, F(c_2,s,t))$ and $F(c_2, F(c_1,s,t))$. However, in this case, the value of $t$ will not affect the output of this reducer. 
 
 
