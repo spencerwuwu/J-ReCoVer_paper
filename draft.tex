@@ -255,7 +255,7 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			\centering
 			Dummy\\
 			Hadoop\\
-			Enviorment
+			Environment
 			\end{minipage}
 			};
 
@@ -662,7 +662,7 @@ If we look into scrutiny, we failed to verify any example using Equation~(\ref{e
 For the optimization based on improving the data structure used in symbolic execution (Section~\ref{section:opt2}), the main focus is on the improvement in scalability. So we use a random reducer program generator to produce examples of different sizes for this evaluation.
 For the generator, we can give as a parameter a tuple $(N,B,A)$, where $N$ is the number of variables, $B$ is the number of branch statements, and $A$ is the number of assignment statements. All assignments are in the form of $v_1 := v_2\odot v_3,\odot\in\{+,-,\times\}$ and all guards are in the form of $v_1 \circ v_2, \circ\in\{\geq, >,=, \neq, <,\leq \}$.
 The source code of the random generator is available at \url{https://github.com/spencerwuwu/benchmark-generator}.
-In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and produce random reducers from $50$ lines $250$ lines. The most difficult cases might have $5$ to $6$ nested branches and $25$ integer variables in a reducer program. Those programs will be processed by Soot and translated to the Jimple format. In our experience, this will increase the number of lines by $20\%$ and variables by $11$ times. The results are presented in Figure~\ref{tab:opt2} in the form of a table and also a scatter plot. From there we can see that the optimization is helpful in improving the statistics in particular for larger programs (average, median execution time and the number of cases that cannot be finished within 300 seconds). Also from the scatter plot we can see that much more cases are solved with the new optimization.
+In the evaluation, we keep the ratio $N:B:A = 5:1:50$ and produce random reducers from $50$ lines $250$ lines. The most difficult cases might have $5$ to $6$ nested branches and $25$ integer variables in a reducer program. Those programs will be processed by Soot and translated to the Jimple format. In our experience, this will increase the number of lines by $20\%$ and variables by $11$ times. The results are presented in Figure~\ref{tab:opt2} in the form of a table and also a scatter plot. From there we can see that the optimization is helpful in improving the statistics in particular for larger programs (average, median execution time and the number of cases that cannot be finished within 300 seconds). Also from the scatter plot, we can see that much more cases are solved with the new optimization.
 
 
 \begin{figure}[htb]
