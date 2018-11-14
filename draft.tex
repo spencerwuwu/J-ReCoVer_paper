@@ -165,7 +165,7 @@ A \emph{guard} in $\Grd$ can be a comparison between two expressions or boolean 
 A \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$, where $s_1,s_2,s_3 \in \Cmd$, and $s_2$ is assumed to have at most one $\cur$ expression in each \emph{branch}\footnote{We define a \emph{branch} of a command $s$ as a sequence obtained by replacing every branch statement $\ite{g}{s_1}{s_2}$ in $s$ with either $(g); s_1$ or $(not\ g) ;s_2$. For example, the loop body of Figure~\ref{fig:reducer_example}(a) has two branches $t:=\cur; (t>0); m:=t$ and $t:=\cur;(not\ t>0)$ }. According to our observation over hundreds  of reducer programs in open repositories, reducer programs are almost always in this form. The $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until the entire input list is consumed. A few examples of reducer programs in this model can be found in Figure~\ref{fig:reducer_example}. 
 
 
-Some reducer uses two loops to compute the output. For example, for calculating standard deviation, one first computes the average of inputs and then uses it to compute the standard deviation. In that case, we can still verify the reducer by first partitioning it into two reducers and then verifying them separately. One reducer computes the average (Figure~\ref{fig:reducer_example}(b)) and the other reducer uses a non-deterministic value to over-approximate the computed average ($a := *$) and then use it in the computation of standard deviation (Figure~\ref{fig:reducer_example}(c)). The reducer in Figure~\ref{fig:reducer_example}(c) ``over-approximates''  all possible outputs of the standard deviation computation; it computes an output even if $a$ is not the average of inputs. However, the reducer is still commutative and its commutativity verification can still be done.
+Some reducer uses two loops to compute the output. For example, for calculating standard deviation, one first computes the average of inputs and then uses it to compute the standard deviation. In that case, we can still verify the reducer by first partitioning it into two reducers and then verifying them separately. One reducer computes the average (Figure~\ref{fig:reducer_example}(b)) and the other reducer uses a non-deterministic value to over-approximate the computed average ($a := *$) (Figure~\ref{fig:reducer_example}(c)). The reducer in Figure~\ref{fig:reducer_example}(c) ``over-approximates''  all possible outputs of the standard deviation computation; it computes an output even if $a$ is not the average of inputs. However, the reducer is still commutative and its commutativity verification can still be done.
 
 
 \begin{figure}
@@ -378,7 +378,7 @@ We check if the formula below is valid for all possible values of $n_1,n_2, x_1,
 \label{eq:commu}
 \end{equation}
 
-Using the reducer that computes average (Figure~\ref{fig:reducer_example} (b)) as an example. It has two variables $s$ and $c$. It is not difficult to compute that $F_{average}(n,s,c)=(s+n, c+1)$. In this case, the corresponding Equation~(\ref{eq:commu}) is valid because $F_{average}(n_1, F_{average}(n_2,s,c)) =F_{average}(n_1, s+n_2, c+1)= (s+n_1+n_2,c+2)=F_{average}(n_2, s+n_1, c+1)=F_{average}(n_2, F_{average}(n_1,s,c))$.
+Using the reducer that computes average (Figure~\ref{fig:reducer_example}(b)) as an example. It has two variables $s$ and $c$. It is not difficult to compute that $F_{average}(n,s,c)=(s+n, c+1)$. In this case, the corresponding Equation~(\ref{eq:commu}) is valid because $F_{average}(n_1, F_{average}(n_2,s,c)) =F_{average}(n_1, s+n_2, c+1)= (s+n_1+n_2,c+2)=F_{average}(n_2, s+n_1, c+1)=F_{average}(n_2, F_{average}(n_1,s,c))$.
 
 The validity of Equation~(\ref{eq:commu}) implies that swapping any two consecutive input values does not change the final variable valuation. Informally, it says that starting from the same initial valuations of variables and with two different input orders, $[n_1;n_2]$ and $[n_2;n_1]$, the values of all program variables are the same after we execute the loop body twice. The first execution reads $n_1$ and then reads $n_2$. The other execution reads the two inputs in the reverse order.
 
@@ -390,7 +390,7 @@ Recall that the first program transformation task stores all output values in va
 We explain why that the validity of Equation~(\ref{eq:commu}) is sufficient to prove the commutativity of the reducer $s_1;\rloop\{s_2\};s_3$. Notice that $s_1$ does not read from the input (assumed at the beginning of this subsection). The execution of $s_1$ is deterministic in the sense that from the same initial valuation, it outputs the same sequence of values and ends at the same valuation. For the execution of $\rloop\{s_2\}$, from the validity of Equation~(\ref{eq:commu}), any permutation of input values leads the reducer to the same final valuation and the same sequence of outputs at the end of the loop. 
 Before executing the commands $s_3$, all inputs have been read (the loop exit condition) already. Similar to the case of $s_1$, $s_3$ does not read from the input and hence the execution of $s_3$ is deterministic. It follows that for all permutations of inputs, the reducer outputs the same sequence of values. 
 
-In the next part, we explain how to generalize our approach to support general reducer programs (those without the restriction on $s_1$) using program transformation.
+In the next part, we explain how to generalize our approach to support general reducers (without the restriction on $s_1$) using program transformation.
 
 \subsection{The Second Program Transformation Task in the Preprocessor}
 \label{sec:program_trans2}
@@ -434,14 +434,14 @@ In the next part, we explain how to generalize our approach to support general r
 
 
 
-In real-world examples, it is often that the $s_1$ part of the reducer also reads from the input. In the example in Figure~\ref{fig:reducer_max} (a), the reducer program remembers the first input value in the variable $m$, increases its value by 10, and then updates its value to bigger ones if any occurs in the loop. The corresponding Equation~(\ref{eq:commu}) is valid in this case. However, the reducer is not commutative. A counterexample can be easily found. With the list $[1,2,3,4,5]$ and its permutation $[5,4,3,2,1]$ as the inputs, the reducer respectively outputs $11$ and $15$. 
+In real-world examples, it is often that the $s_1$ part of the reducer also reads from the input. In the example in Figure~\ref{fig:reducer_max}(a), the reducer program remembers the first input value in the variable $m$, increases its value by 10, and then updates its value to bigger ones if any occurs in the loop. The corresponding Equation~(\ref{eq:commu}) is valid in this case. However, the reducer is not commutative. A counterexample can be easily found. With the list $[1,2,3,4,5]$ and its permutation $[5,4,3,2,1]$ as the inputs, the reducer respectively outputs $11$ and $15$. 
 
-We handle the problem again by program transformation. To deal with the example in Figure~\ref{fig:reducer_max} (a), we move the prefix $s_1$ into the loop body and use a new variable $s$ to force that the execution of $s_1$ is always before the original loop body. The result after the transformation is demonstrated in Figure~\ref{fig:reducer_max} (b). The new reducer program over-approximates all possible inputs/outputs of the original one. For the case that $s=1$ at the beginning, its output sequence is the same as the original reducer. When $s\neq 1$, it may produce outputs that are not possible by the original reducer.
+We handle the problem again by program transformation. To deal with the example in Figure~\ref{fig:reducer_max}(a), we move the prefix $s_1$ into the loop body and use a new variable $s$ to force that the execution of $s_1$ is always before the original loop body. The result after the transformation is demonstrated in Figure~\ref{fig:reducer_max}(b). The new reducer program over-approximates all possible inputs/outputs of the original one. When $s=1$, its output sequence is the same as the original reducer. When $s\neq 1$, it may produce outputs that are not possible by the original reducer.
 It also satisfies all assumptions required for the Prover component: 
 (I) the commands before entering the loop does not have any $\cur$ expression, 
 (II) each branch (recall that ``branch'' is formally defined in Section~\ref{section:integer-reducers}) of the loop body has at most one $\cur$, and 
 (III) $out(v)$ command does not occur inside the loop body\footnote{We need to apply the first program transformation again to fulfill this assumption.}. So we can apply Equation~(\ref{eq:commu}) to prove its commutativity.
-Since the new reducer has all the possible outputs of the original one, the new reducer being commutative implies that the original one is also commutative. 
+Since the new reducer has all behaviors of the original one, the new reducer being commutative implies that the original one is also commutative. 
 
 \begin{figure}[htb]
 	\centering
@@ -464,7 +464,7 @@ Since the new reducer has all the possible outputs of the original one, the new 
 
 
 For the general case, we first rewrite the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ to the form 
-$$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m, $$ where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then we produce the reducer in Figure~\ref{fig:general_program_transformation}, which is an over-approximation of the original reducer for the same reason: the case that $s=1$ has the same output sequence to the original reducer and when $s\neq 1$, it may produce additional behavior. Observe that the reducer in Figure~\ref{fig:general_program_transformation} satisfies all assumptions required for the Prover. Hence the Equation~(\ref{eq:commu}) can then be applied to prove its commutativity.
+$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$, where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then we produce the reducer in Figure~\ref{fig:general_program_transformation}, which is an over-approximation of the original reducer for the same reason: the case that $s=1$ has the same output sequence to the original reducer and when $s\neq 1$, it may produce additional behavior. Observe that the reducer in Figure~\ref{fig:general_program_transformation} satisfies all assumptions required for the Prover. Hence the Equation~(\ref{eq:commu}) can then be applied to prove its commutativity.
 
 
 \section{Optimizations}
@@ -568,8 +568,7 @@ Initially, $sv_x(x_0) = 1$ and $sv_x (e) =0$ for all $e\neq x$. Assume that the 
 \end{itemize}
 To make the definition complete for our simple reducer program commands, we further define (1) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (2) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
 This data structure is efficient for strong symbolic values of reducer programs mainly for reason that the operations $+$ and $-$ are quite heavily used in such programs. 
-
-
+Here we give a tiny example. Initially, $sv_x(x_0)=1$. After the commands $x:=x*x;x:=x+x$, we get $sv_x(x_0*x_0)=1$ and $sv_x(x_0*x_0)=2$, respectively.  
 
 \section{Evaluation}
 \label{section:exp}
@@ -594,7 +593,7 @@ As already pointed out in~\cite{ChenHSW15}, a reducer commutativity problem can 
 The examples in~\cite{ChenHSW15}, which includes \textsf{rangesum}\footnote{The sum of the second half of the input list.}, \textsf{avg}, \textsf{max}, \textsf{sep}\footnote{The number of occurrences of even numbers minus that of odd numbers.}, \textsf{sum}, are already included in SV-Comp~\cite{svcomp} (Software Verification Competition) benchmarks.
 Although those examples are tiny and simple, none of the software verifiers can verify all of those examples according to the 2018 results. In contrast, J-Recover can verify all them very efficiently.
 
-In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, the results of J-Recover will not be much different if we run it on other machines. The other limitation is that in J-Recover, we analyze Java implementations and in SV-Comp they analyze the C implementations of the same functions. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programing language the reducer is written in.
+In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are taken directly from the SV-Comp~\cite{svcomp} web-site. Although the machine we used are different, the results of J-Recover will not be much different if we run it on other machines. The other limitation is that in J-Recover, we analyze Java implementations and in SV-Comp they analyze the C implementations of the same functions. Since those functions to be analyzed are relatively simple, the syntactical difference between C and Java implementation is very small. The difference in the statistics mainly comes from the verification algorithm being used, not the programming language the reducer is written in.
 \begin{table}[t]
 \scalebox{0.95}{
 	\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -614,7 +613,7 @@ In Table~\ref{tab:svcomp}, the statistics of tools other than J-Recover are take
 \hline
 	\end{tabular}
 }
-	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list results of competitive tool in this table, which includes top three tools in the overall ranking and the reachability safety category.}
+	\caption{SV-Comp 2018 results on reducer commutativity. For space reason, we only list results of competitive tool in this table, which includes top three tools in the overall ranking and the reachability safety category.}\vspace{-1cm}
 	\label{tab:svcomp}
 \end{table}
 
