@@ -30,6 +30,8 @@
 \usepackage{appendix}
 \usepackage{amssymb}
 \usepackage{times}
+\usepackage{fullpage}
+
 %\usepackage{cancel}
 %\usepackage{verbatim}
 %\usepackage{chngpage}
@@ -220,8 +222,9 @@ In the next section, we give a brief overview of J-ReCoVer,  our tool for reduce
 The input of J-ReCoVer is a reducer program written in Java, which is the most popular programming language used in the Hadoop~\cite{hadoop} MapReduce framework.
 The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name suggests, the Preprocessor reads as input a reducer program and performs the required preprocessing.  The goal of Prover is to show that a given reducer is commutative and the goal of BugFinder is the opposite. The architecture of J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input a reducer program to J-ReCoVer either through our web-interface or binary application installed on their own machine.
 
-\begin{figure}[h]
 
+\begin{figure}[h]
+\centering
 	\scalebox{0.9}{
 		\begin{tikzpicture}
 
@@ -346,6 +349,7 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 \end{figure}
 
 
+
 \textbf{The Preprocessor component} first compiles a reducer program to bytecode and use the tool Soot~\cite{soot} to further convert it to the so-called ``Jimple'' format, which is an intermediate language that is designed to simplify the analysis of Java programs. Under the Hadoop MapReduce framework, the permutation of the input is handled by the scheduler/shuffler component and is affected by things like network latency, which is not controllable by programmers. In order to deal with this issue, we wrote our own dummy Hadoop environment for the reducer as a part of the Preprocessor component so that the input order of the reducer is now controlled by J-ReCoVer. Finally, we perform in the Preprocessor some program transformation tasks to simplify the analysis. For example, we convert all output commands $out(e)$ inside loops to a special assignment (will be explained in Section~\ref{sec:program_trans1} and~\ref{sec:program_trans2}).
 
 \textbf{The BugFinder component} randomly generated 1500 pairs of lists. The lists in a pair are permutations of each other. A concrete counterexample is reported if inputting any pair of lists from the 1500 generated ones to the reducer generates different results.
@@ -389,7 +393,7 @@ The swap operation can be applied arbitrarily many times to produce all possible
 It follows that that starting from the same variable valuation, the loop ends with the same valuation for any permutation of input values, e.g., the reducer will output the same value for [1;2;3;4;5], [1;2;4;3;5], [1;4;2;3;5], [4;1;2;3;5], etc.
 Recall that the first program transformation task stores all output values in variables that will stay unchanged until the end of the loop. The validity of Equation~(\ref{eq:commu}) also implies that the execution of the loop produces the same sequence of outputs.
 
-We explain why that the validity of Equation~(\ref{eq:commu}) is sufficient to prove the commutativity of the reducer $s_1;\rloop\{s_2\};s_3$. Notice that $s_1$ does not read from the input (assumed at the beginning of this subsection). The execution of $s_1$ is deterministic in the sense that from the same initial valuation, it outputs the same sequence of values and ends at the same valuation. For the execution of $\rloop\{s_2\}$, from the validity of Equation~(\ref{eq:commu}), any permutation of input values leads the reducer to the same final valuation and the same sequence of outputs at the end of the loop.
+We explain why that the validity of Equation~(\ref{eq:commu}) is sufficient to prove the reducer $s_1;\rloop\{s_2\};s_3$ commutative. Notice that $s_1$ does not read from the input (assumed at the beginning of this subsection). The execution of $s_1$ is deterministic in the sense that from the same initial valuation, it outputs the same sequence of values and ends at the same valuation. For the execution of $\rloop\{s_2\}$, from the validity of Equation~(\ref{eq:commu}), any permutation of input values leads the reducer to the same final valuation and the same sequence of outputs at the end of the loop.
 Before executing the commands $s_3$, all inputs have been read (the loop exit condition) already. Similar to the case of $s_1$, $s_3$ does not read from the input and hence the execution of $s_3$ is deterministic. It follows that for all permutations of inputs, the reducer outputs the same sequence of values.
 
 In the next part, we explain how to generalize our approach to support general reducers (without the restriction on $s_1$) using program transformation.
@@ -466,7 +470,7 @@ Since the new reducer has all behaviors of the original one, the new reducer bei
 
 
 For the general case, we first rewrite the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ to the form
-$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$, where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then we produce the reducer in Figure~\ref{fig:general_program_transformation}, which is an over-approximation of the original reducer for the same reason: the case that $s=1$ has the same output sequence to the original reducer and when $s\neq 1$, it may produce additional behavior. Observe that the reducer in Figure~\ref{fig:general_program_transformation} satisfies all assumptions required for the Prover. Hence the Equation~(\ref{eq:commu}) can then be applied to prove its commutativity.
+$$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$$, where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then we produce the reducer in Figure~\ref{fig:general_program_transformation}, which is an over-approximation of the original reducer for the same reason: the case that $s=1$ has the same output sequence to the original reducer and when $s\neq 1$, it may produce additional behavior. Observe that the reducer in Figure~\ref{fig:general_program_transformation} satisfies all assumptions required for the Prover. Hence the Equation~(\ref{eq:commu}) can then be applied to prove its commutativity.
 
 
 \section{Optimization: Live Variable Analysis}
