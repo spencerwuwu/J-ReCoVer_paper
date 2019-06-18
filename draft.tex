@@ -449,7 +449,7 @@ It also satisfies all assumptions required for the Prover component:
 (III) $out(v)$ command does not occur inside the loop body\footnote{We need to apply the first program transformation again to fulfill this assumption.}. So we can apply Equation~(\ref{eq:commu}) to prove its commutativity.
 Since the new reducer has all behaviors of the original one, the new reducer being commutative implies that the original one is also commutative.
 
-\begin{figure}[htb]
+\begin{wrapfigure}{r}{9cm}
 	\centering
 	\begin{minipage}{0.8\textwidth}
 
@@ -466,7 +466,7 @@ Since the new reducer has all behaviors of the original one, the new reducer bei
 	\end{minipage}
 	\caption{The second transformation task}
 	\label{fig:general_program_transformation}
-\end{figure}
+\end{wrapfigure}
 
 
 For the general case, we first rewrite the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ to the form
