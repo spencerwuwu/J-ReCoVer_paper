@@ -142,9 +142,9 @@ We collected benchmarks from open repositories such as Github and Bitbucket to e
 
 
 \subsection*{Related Works}
-Reducer commutativity problem can be reduced to a program equivalence problem. One creates another program $R'$ that first non-deterministically swaps two consecutive input values and then executes the code of $R$. If $R'$ and $R$ are equivalent, using the fact that all permutations of a list can be obtained by swapping consecutive list elements finitely many times\footnote{Here is an example to produce [3;2;5;1;4] from [1;2;3;4;5] by swapping consecutive elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$ [2;\textbf{1};\textbf{3};4;5] $\rightarrow$ [2;3;1;\textbf{4};\textbf{5}]$\rightarrow$ [2;3;\textbf{1};\textbf{5};4]$\rightarrow$ [\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to be commutative. There is a series of research results on program equivalence checking (or closely related topics such as regression verification and translation validation)~\cite{Pnueli:1998:TV,symdiff,fedyukovich2015automated,sharma2013data,godlin2009regression,fedyukovich2016property,felsing2014automating,KieferKlebanovUlbrich2017,lahiri2013differential,grossman2017verifying,barthe2011relational,KlebanovRuemmerUlbrich2017}. At a high level, checking equivalence of two programs $P$ and $P'$ can be reduced to a sequential verification problem by executing $P'$ after $P$ and at the end checking if they always have the same outputs. It can be made more efficient by finding the right~\emph{synchronization points} and combining the code of $P$ and $P'$ in an interleaved manner. A lot of research effort in this direction is in finding good synchronization points. For the case of commutativity analysis, one can simply use the beginning of the loop as the synchronization point. However, in our experience, if we naively reduce the commutativity problem to equivalence problem and check it in a precise manner, many examples cannot be solved. In this paper, we propose a good over-approximation (c.f. Section~\ref{sec:prover}) of the reducer's behavior. The approximation allows a much more efficient yet precise enough commutativity analysis.
+Reducer commutativity problem can be reduced to a program equivalence problem. One creates another program $R'$ that first non-deterministically swaps two consecutive input values and then executes the code of $R$. If $R'$ and $R$ are equivalent, using the fact that all permutations of a list can be obtained by swapping consecutive list elements finitely many times\footnote{Here is an example to produce [3;2;5;1;4] from [1;2;3;4;5] by swapping consecutive elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$ [2;\textbf{1};\textbf{3};4;5] $\rightarrow$ [2;3;1;\textbf{4};\textbf{5}]$\rightarrow$ [2;3;\textbf{1};\textbf{5};4]$\rightarrow$ [\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to be commutative. There is a series of research results on program equivalence checking (or closely related topics such as regression verification and translation validation), to name a few~\cite{Pnueli:1998:TV,fedyukovich2015automated,barthe2011relational,KlebanovRuemmerUlbrich2017}. At a high level, checking equivalence of two programs $P$ and $P'$ can be reduced to a sequential verification problem by executing $P'$ after $P$ and at the end checking if they always have the same outputs. It can be made more efficient by finding the right~\emph{synchronization points} and combining the code of $P$ and $P'$ in an interleaved manner. A lot of research effort in this direction is in finding good synchronization points. For the case of commutativity analysis, one can simply use the beginning of the loop as the synchronization point. However, in our experience, if we naively reduce the commutativity problem to equivalence problem and check it in a precise manner, many examples cannot be solved. In this paper, we propose a good over-approximation (c.f. Section~\ref{sec:prover}) of the reducer's behavior. The approximation allows a much more efficient yet precise enough commutativity analysis.
 
-One main motivation of commutativity analysis is to reduce the verification problem of a concurrent program to a sequential one. There are several pieces of research sharing the similar motivation, e.g., the concept of \emph{robustness} of event-driven asynchronous programs~\cite{ahmed2017:robustness}, the \emph{robustness} of program running under relaxed memory model~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}, and \emph{synchronizability} of communicating finite state machines~\cite{FinkelL17,basu2012synchronizability,basu2011choreography}. However, their computation models are quite different from that of reducers and hence the result cannot be directly applied. Besides verification, another interesting research direction is the synthesis of MapReduce programs~\cite{SmithA16}. Commutativity analysis is used as a component under the synthesis framework.
+One main motivation of commutativity analysis is to reduce the verification problem of a concurrent program to a sequential one. There are several pieces of research sharing the similar motivation, e.g., the concept of \emph{robustness} of event-driven asynchronous programs~\cite{ahmed2017:robustness} and program running under relaxed memory model~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their computation models are quite different from that of reducers and hence the result cannot be directly applied. Besides verification, another interesting research direction is the synthesis of MapReduce programs~\cite{SmithA16}. Commutativity analysis is used as a component under the synthesis framework.
 
 \section{Notations and Definitions}
 \label{section:integer-reducers}
@@ -153,6 +153,7 @@ We lift the equality $=$ operation to tuples in the standard way.
 Let $S\subseteq [1,k]$, the equality $(v_1,\ldots,v_k)=_{S} (v'_1,\ldots,v'_k)$ between tuples holds if and only if $\bigwedge_{i\in S} v_i=v'_i$.
 For presentation purpose, we describe a highly simplified model to characterize the essence of reducers. The model allows to describe the computation of reducers and investigate their commutativity.
 
+\hide{
 \begin{equation*}
 \begin{array}{rclcl}
 \multicolumn{3}{l}{v\in \Var\mbox{, and }c \in \Z}&&\textmd{Variable and Constant}\\
@@ -161,31 +162,24 @@ g\in \Grd  & {\triangleq}  & e < e \mid not\ g \mid g \wedge g  \mid \ldots& & \
 s\in \Cmd  & {\triangleq}  & v:= e \mid out(v) \mid \ite{g}{s}{s} \mid s;s && \textmd{Command}\\
 p\in \Prg  & {\triangleq}  & s;\rloop\{s\};s&& \textmd{Reducer Program}\\
 \end{array}
-\end{equation*}
-
-Here any $v\in \Var$ is a variable and any $c \in \Z$ is a constant integer value. An \emph{integer expression} in $\Exp$ can be either a variable, constant value, a call to the $\cur$ function that reads and consumes an input value of the reducer, their combinations over basic arithmetic operations, or a non-deterministically chosen integer value $*$.
-A \emph{guard} in $\Grd$ can be a comparison between two expressions or boolean combinations of several guards. A \emph{command} in $\Cmd$ can be an assignment, a branch statement, concatenation of a sequence of commands, or $out(v)$ that outputs the value of $v$.
-A \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$, where $s_1,s_2,s_3 \in \Cmd$, and $s_2$ is assumed to have at most one $\cur$ expression in each \emph{branch}\footnote{We define a \emph{branch} of a command $s$ as a sequence obtained by replacing every branch statement $\ite{g}{s_1}{s_2}$ in $s$ with either $(g); s_1$ or $(not\ g) ;s_2$. For example, the loop body of Figure~\ref{fig:reducer_example}(a) has two branches $t:=\cur; (t>0); m:=t$ and $t:=\cur;(not\ t>0)$ }. According to our observation over hundreds  of reducer programs in open repositories, reducer programs are almost always in this form. The $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until the entire input list is consumed. A few examples of reducer programs in this model can be found in Figure~\ref{fig:reducer_example}.
-
-
-Some reducer uses two loops to compute the output. For example, for calculating standard deviation, one first computes the average of inputs and then uses it to compute the standard deviation. In that case, we can still verify the reducer by first partitioning it into two reducers and then verifying them separately. One reducer computes the average (Figure~\ref{fig:reducer_example}(b)) and the other reducer uses a non-deterministic value to over-approximate the computed average ($a := *$) (Figure~\ref{fig:reducer_example}(c)). The reducer in Figure~\ref{fig:reducer_example}(c) ``over-approximates''  all possible outputs of the standard deviation computation; it computes an output even if $a$ is not the average of inputs. However, the reducer is still commutative and its commutativity verification can still be done.
-
-
-\begin{figure}
-	\begin{minipage}{0.32\textwidth}
-		\begin{algorithm}[H]
-			$m := \cur$; \;
-			\Loop{}{
-				$t:=\cur$;\;
-				\uIf{ $t > m$}{
-					$m := t$
-				}
-			};
-			$out(m)$\;
-		\end{algorithm}
-		\caption*{(a) max}
-	\end{minipage}
-	\hspace{-0.5cm}
+\end{equation*}}
+\begin{wrapfigure}{r}{3cm}
+	\hide{
+		\begin{minipage}{0.32\textwidth}
+			\begin{algorithm}[H]
+				$m := \cur$; \;
+				\Loop{}{
+					$t:=\cur$;\;
+					\uIf{ $t > m$}{
+						$m := t$
+					}
+				};
+				$out(m)$\;
+			\end{algorithm}
+			\caption*{(a) max}
+		\end{minipage}
+		\hspace{-0.5cm}
+	}
 	\begin{minipage}{0.3\textwidth}
 		\begin{algorithm}[H]
 			$s := 0;c:=0$; \;
@@ -196,25 +190,34 @@ Some reducer uses two loops to compute the output. For example, for calculating 
 			$o := s/c$;\;
 			$out(o)$\;
 		\end{algorithm}
-		\caption*{(b) average}
 	\end{minipage}
-	\begin{minipage}{0.4\textwidth}
-		\begin{algorithm}[H]
-			$a:=*;s := 0; c:=0$;\;
-			\Loop{}{
-				$s := s+(\cur-a)^2$; \;
-				$c := c+1$
-			};
-			$o := s/c$;\;
-			$out(o)$
-		\end{algorithm}
-		\caption*{(c) standard deviation}
-	\end{minipage}
-	\caption{Example of reducer programs}
+	\hide{
+		\begin{minipage}{0.4\textwidth}
+			\begin{algorithm}[H]
+				$a:=*;s := 0; c:=0$;\;
+				\Loop{}{
+					$s := s+(\cur-a)^2$; \;
+					$c := c+1$
+				};
+				$o := s/c$;\;
+				$out(o)$
+			\end{algorithm}
+			\caption*{(c) standard deviation}
+		\end{minipage}
+	}
+	\caption{Average}
 	\label{fig:reducer_example}
-\end{figure}
+\end{wrapfigure}
+Let $\Var$ be the set of variables and $\Z$ the set of integers. An \emph{integer expression} in $\Exp$ can be either a variable, constant value, a call to the $\cur$ function that reads and consumes an input value of the reducer, their combinations over basic arithmetic operations, or a non-deterministically chosen integer value $*$.
 
-In the next section, we give a brief overview of J-ReCoVer,  our tool for reducer commutativity verification.
+A \emph{command} in $\Cmd$ can be an assignment, a branch statement, concatenation of a sequence of commands, or $out(v)$ that outputs the value of $v$.
+A \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$, where $s_1,s_2,s_3 \in \Cmd$, and $s_2$ is assumed to have at most one $\cur$ expression in each \emph{branch}\footnote{We define a \emph{branch} of a command $s$ as a sequence obtained by replacing every branch statement $\ite{g}{s_1}{s_2}$ in $s$ with either $(g); s_1$ or $(not\ g) ;s_2$. For example, the loop body of Figure~\ref{fig:reducer_example}(a) has two branches $t:=\cur; (t>0); m:=t$ and $t:=\cur;(not\ t>0)$ }. According to our observation over hundreds  of reducer programs in open repositories, reducer programs are almost always in this form. The $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until the entire input list is consumed. One example can be found in Figure~\ref{fig:reducer_example}.
+
+\hide{
+Some reducer uses two loops to compute the output. For example, for calculating standard deviation, one first computes the average of inputs and then uses it to compute the standard deviation. In that case, we can still verify the reducer by first partitioning it into two reducers and then verifying them separately. One reducer computes the average (Figure~\ref{fig:reducer_example}(b)) and the other reducer uses a non-deterministic value to over-approximate the computed average ($a := *$) (Figure~\ref{fig:reducer_example}(c)). The reducer in Figure~\ref{fig:reducer_example}(c) ``over-approximates''  all possible outputs of the standard deviation computation; it computes an output even if $a$ is not the average of inputs. However, the reducer is still commutative and its commutativity verification can still be done.
+
+
+In the next section, we give a brief overview of J-ReCoVer,  our tool for reducer commutativity verification.}
 
 \section{Overview of the J-ReCoVer tool}
 \label{sec:overview}
@@ -222,20 +225,22 @@ In the next section, we give a brief overview of J-ReCoVer,  our tool for reduce
 The input of J-ReCoVer is a reducer program written in Java, which is the most popular programming language used in the Hadoop~\cite{hadoop} MapReduce framework.
 The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name suggests, the Preprocessor reads as input a reducer program and performs the required preprocessing.  The goal of Prover is to show that a given reducer is commutative and the goal of BugFinder is the opposite. The architecture of J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input a reducer program to J-ReCoVer either through our web-interface or binary application installed on their own machine.
 
+\textbf{The Preprocessor component} first compiles a reducer program to bytecode and use the tool Soot~\cite{soot} to further convert it to the so-called ``Jimple'' format, which is an intermediate language that is designed to simplify the analysis of Java programs. Under the Hadoop MapReduce framework, the permutation of the input is handled by the scheduler/shuffler component and is affected by things like network latency, which is not controllable by programmers. In order to deal with this issue, we wrote our own dummy Hadoop environment for the reducer as a part of the Preprocessor component so that the input order of the reducer is now controlled by J-ReCoVer. Finally, we perform in the Preprocessor some program transformation tasks to simplify the analysis. For example, we convert all output commands $out(e)$ inside loops to a special assignment (will be explained in Section~\ref{sec:program_trans1} and~\ref{sec:program_trans2}).
 
-\begin{figure}[h]
+\begin{wrapfigure}{r}{7cm}
+	\vspace{-0.5cm}
 \centering
-	\scalebox{0.9}{
+	\scalebox{0.7}{
 		\begin{tikzpicture}
 
 
 		%J-ReCoVer
-		\node[draw=red!30, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=9cm,fill=red!10,minimum height=8cm] (jrecover) at (5.5,0.8) {};
-		\node at (5.5,0.4) {\textbf{J-ReCoVer}};
+		\node[draw=red!30, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=8cm,fill=red!10,minimum height=8cm] (jrecover) at (5,0.8) {};
+		\node at (5,0.4) {\textbf{J-ReCoVer}};
 
 		%JAVA reducer
-		\node[draw=yellow!80, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=1cm,fill=yellow!20,minimum height=4cm] (reducer) at (0,-1.6) {};
-		\node[rotate=270, align = center] at (0,-3.6) {Java Reducer};
+		\node[draw=yellow!80, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=0.6cm,fill=yellow!20,minimum height=4cm] (reducer) at (0.5,-1.6) {};
+		\node[rotate=270, align = center] at (0.5,-3.6) {Java Reducer};
 
 
 		%JPreprocessor
@@ -260,7 +265,7 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			Dummy\\
 			Hadoop\\
 			Environment
-			\end{minipage}
+			\end{minipage}		
 			};
 
 			\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (prog_trans) at (3.2,-5) {};
@@ -273,13 +278,13 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			};
 
 		%JProver
-		\node[draw=blue!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=3cm,fill=blue!20,minimum height=5.5cm] (prover) at (7,0) {};
-		\node[] at (7,-0.4) {Prover};
+		\node[draw=blue!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=3cm,fill=blue!20,minimum height=5.5cm] (prover) at (6.5,0) {};
+		\node[] at (6.5,-0.4) {Prover};
 
 		%JProver->Technologies
-		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (7,-1) {};
+		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-1) {};
 
-		\node at (7,-1.6) {
+		\node at (6.5,-1.6) {
 			\begin{minipage}[t]{0.222\textwidth}
 			\centering
 			Z3 SMT \\
@@ -287,9 +292,9 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			\end{minipage}
 		};
 
-		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (7,-2.5) {};
+		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-2.5) {};
 
-		\node at (7,-3.1) {
+		\node at (6.5,-3.1) {
 			\begin{minipage}[t]{0.222\textwidth}
 			\centering
 			Symbolic \\
@@ -297,9 +302,9 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			\end{minipage}
 		};
 
-		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (7,-4.) {};
+		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-4.) {};
 
-		\node at (7,-4.6) {
+		\node at (6.5,-4.6) {
 			\begin{minipage}[t]{0.222\textwidth}
 			\centering
 			Data Flow \\
@@ -308,49 +313,52 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 		};
 
 		%JBugFinder
-		\node[draw=blue!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=3cm,fill=blue!20,minimum height=1cm] (learner) at (7,-6) {};
-		\node[] at (7,-6.5) {BugFinder};
+		\node[draw=blue!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=3cm,fill=blue!20,minimum height=0.5cm] (learner) at (6.5,-6.2) {};
+		\node[] at (6.5,-6.5) {BugFinder};
 
 
 		%JResults
 
-		\node at (12,-1) {
+
+		\node[rotate=270, align = center] at (9.5,-1) {
 			Commutative
 		};
 
-		\node at (12,-3.5) {
+		\node[rotate=270, align = center] at (9.5,-3.5) {
 			Unknown
 		};
 
-		\node at (12,-6.5) {
+		\node[rotate=270, align = center] at (9.6,-6) {
 			\begin{minipage}[t]{0.25\textwidth}
 			\centering
 			Non-Commutative	 \\
-			+\\
-			Counterexample
+			+ Counterexample
 			\end{minipage}
 
 		};
 
 
-		\draw [->] (8.5,-6.8) -- (10.5,-6.8) ;
-		\draw [->] (8.5,-1) -- (10.5,-1) ;
-		\draw [-] (8.5,-6.2) -- (9.5,-6.2) --(9.5,-3.5);
-		\draw [->] (8.5,-3.5) -- (10.5,-3.5) ;
+		\draw [->] (8,-6.6) -- (9.2,-6.6) ;
+		\draw [->] (8,-1) -- (9.2,-1) ;
+		\draw [-] (8,-6.3) -- (8.5,-6.3) --(8.5,-3.5);
+		\draw [->] (8,-3.5) -- (9.2,-3.5) ;
 
-		\draw [->] (4.5,-3) -- (5.5,-3) ;
-		\draw [->] (4.5,-6.5) -- (5.5,-6.5) ;
+		\draw [->] (4.5,-3) -- (5,-3) ;
+		\draw [->] (4.5,-6.5) -- (5,-6.5) ;
 
-		\draw [->] (0.5,-4) -- (1.5,-4) ;
+		\draw [->] (0.8,-4) -- (1.5,-4) ;
 
 		\end{tikzpicture}
 	}
+		\vspace{-1cm}
 	\caption{Overview of the J-ReCoVer Tool. }\label{fig:overview-jrecover}
-\end{figure}
+		\vspace{-0.8cm}
+	
+\end{wrapfigure}
 
 
 
-\textbf{The Preprocessor component} first compiles a reducer program to bytecode and use the tool Soot~\cite{soot} to further convert it to the so-called ``Jimple'' format, which is an intermediate language that is designed to simplify the analysis of Java programs. Under the Hadoop MapReduce framework, the permutation of the input is handled by the scheduler/shuffler component and is affected by things like network latency, which is not controllable by programmers. In order to deal with this issue, we wrote our own dummy Hadoop environment for the reducer as a part of the Preprocessor component so that the input order of the reducer is now controlled by J-ReCoVer. Finally, we perform in the Preprocessor some program transformation tasks to simplify the analysis. For example, we convert all output commands $out(e)$ inside loops to a special assignment (will be explained in Section~\ref{sec:program_trans1} and~\ref{sec:program_trans2}).
+
 
 \textbf{The BugFinder component} randomly generated 1500 pairs of lists. The lists in a pair are permutations of each other. A concrete counterexample is reported if inputting any pair of lists from the 1500 generated ones to the reducer generates different results.
 Our procedure for generating random pairs is quite naive. We use five different input list of lengths 5, 7, 9, 11, and 13. For each length, we generate 300 lists and pick uniformly at random one of its permutations. Although the approach is simple, in practice it finds counterexamples in all of our non-commutative benchmarks.
