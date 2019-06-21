@@ -135,7 +135,7 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 MapReduce framework for data-parallel computation was first proposed by Google~\cite{dean04} and later implemented in the Apache Hadoop project~\cite{hadoop}.
 Under the MapReduce framework, a reducer computes output values from a sequence of input values transmitted over the network.  Due to the non-determinism in data transmission, the order of input values arrives at the reducer is not fixed.
 The \emph{commutativity problem} of reducers asks if the output of a reducer is independent of the order of its inputs. There are several advantages for a reducer being commutative, e.g., the verification problem of a MapReduce program can be reduced to the problem of verifying a sequential program.
-We present a tool J-ReCoVer (Java Reducer Commutativity Verifier) that implements effective heuristics for reducer commutativity analysis. J-ReCoVer is the first tool that is specialized in checking reducer commutativity. Experimental results over 118 benchmark examples collected from open repositories are very positive; J-ReCoVer correctly handles over 97\% of them.
+We present the tool J-ReCoVer (Java Reducer Commutativity Verifier) that implements effective heuristics for reducer commutativity analysis. J-ReCoVer is the first tool that is specialized in checking reducer commutativity. Experimental results over 118 benchmark examples collected from open repositories are very positive; J-ReCoVer correctly handles over 97\% of them.
 
 \end{abstract}
 
@@ -153,7 +153,8 @@ On the other hand, the non-commutative behavior of a reducer is often the source
 
 However, checking reducer commutativity is a difficult problem on its own right~\cite{ChenHSW15,ChenSW16,ChenLTW17}. Even for a simple case that all values are mathematical integers, it is proved undecidable in~\cite{ChenHSW15}. For the case that all values are machine integer (e.g, 64-bits integer), the problem is decidable, but the only available algorithm that was proposed in the same paper is of very high complexity and hence is only of theoretical interests.
 
-In this paper, we propose heuristics for the commutativity problem that works very efficiently on a large set of practical integer reducer programs. We reduce the commutativity problem to an SMT problem in a sound but incomplete manner. We also propose optimizations to enable the approach that works on real-world examples. For the case that the reducer is not proven commutative, we complement the approach by using testing to find concrete counterexamples. We implement all these heuristics as a tool called J-ReCoVer (Java Reducer Commutativity Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|.
+In this paper, we present the tool J-ReCoVer (Java Reducer Commutativity Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|. It implements
+heuristics for the commutativity problem that works very efficiently on a large set of practical integer reducer programs. The heuristics reduce the commutativity problem to an SMT problem in a sound but incomplete manner. We also propose optimizations to enable the approach that works on real-world examples. For the case that the reducer is not proven commutative, we complement the approach by using testing to find concrete counterexamples. 
 We collected benchmarks from open repositories such as Github and Bitbucket to evaluate J-ReCoVer. With the help of a search engine \emph{searchcode.com} over those repositories, we collected 118 examples. J-ReCoVer is able to correctly analyze all but 3 of them.
 
 
@@ -377,8 +378,7 @@ In this case,  J-ReCoVer stops and reports that the reducer is commutative.
 \section{The Preprocessor and the Prover}
 \label{sec:preprocessor_prover}
 
-Before entering the Prover component, the Preprocessor first performs a few program transformation tasks to simplify the verification task.
-Assume a reducer $s_1;\rloop\{s_2\};s_3$ is given. The section begins with an introduction to the first program transformation task (Section~\ref{sec:program_trans1}) that handles the case when the loop body $s_2$ contains $out$ commands. The output of the first transformation task is a commutativity-equivalent reducer program where $out$ does not occur in $s_2$.  Then the algorithm of the Prover is explained in Section~\ref{sec:prover}. This algorithm works only in a special case where no read from input occurs in $s_1$. For general reducer programs, we introduce the second program transformation task (Section~\ref{sec:program_trans2}) whose output is a reducer program that falls in the special case required by the Prover and ``over-approximates'' all input/output behaviors of the original reducer. The commutativity of the produced reducer implies the commutativity of the original one, but not vice verse.
+Before entering the Prover component, the Preprocessor first performs a few program transformation tasks to simplify the verification task (Section~\ref{sec:program_trans1}). The output of the preprocessor is a commutativity-equivalent reducer program.  Then the algorithm of the Prover is explained in Section~\ref{sec:prover}. 
 
 \subsection{The Program Transformation Task in the Preprocessor}
 \label{sec:program_trans1}
