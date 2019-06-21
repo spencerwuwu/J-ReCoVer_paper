@@ -249,8 +249,8 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 
 
 		%J-ReCoVer
-		\node[draw=red!30, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=8cm,fill=red!10,minimum height=8cm] (jrecover) at (5,0.8) {};
-		\node at (5,0.4) {\textbf{J-ReCoVer}};
+		\node[draw=red!30, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=8cm,fill=red!10,minimum height=7cm] (jrecover) at (5,0) {};
+		\node at (5,-.5) {\textbf{J-ReCoVer}};
 
 		%JAVA reducer
 		\node[draw=yellow!80, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=0.6cm,fill=yellow!20,minimum height=4cm] (reducer) at (0.5,-1.6) {};
@@ -292,13 +292,13 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			};
 
 		%JProver
-		\node[draw=blue!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=3cm,fill=blue!20,minimum height=5.5cm] (prover) at (6.5,0) {};
-		\node[] at (6.5,-0.4) {Prover};
+		\node[draw=blue!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=3cm,fill=blue!20,minimum height=5cm] (prover) at (6.5,-0.8) {};
+		\node[] at (6.5,-1.2) {Prover};
 
 		%JProver->Technologies
-		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-1) {};
+		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-2.4) {};
 
-		\node at (6.5,-1.6) {
+		\node at (6.5,-3) {
 			\begin{minipage}[t]{0.222\textwidth}
 			\centering
 			Z3 SMT \\
@@ -306,14 +306,6 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 			\end{minipage}
 		};
 
-		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-2.5) {};
-
-		\node at (6.5,-3.1) {
-			\begin{minipage}[t]{0.222\textwidth}
-			\centering
-			Equation~\ref{eq:commu}
-			\end{minipage}
-		};
 
 		\node[draw=green!50, inner sep=0, anchor=north,rounded corners, fill opacity=0.85,text width=2cm,fill=green!10,minimum height=1.2cm] (z3) at (6.5,-4.) {};
 
@@ -352,7 +344,7 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 
 
 		\draw [->] (8,-6.6) -- (9.2,-6.6) ;
-		\draw [->] (8,-1) -- (9.2,-1) ;
+		\draw [->] (8,-1.4) -- (9.2,-1.4) ;
 		\draw [-] (8,-6.3) -- (8.5,-6.3) --(8.5,-3.5);
 		\draw [->] (8,-3.5) -- (9.2,-3.5) ;
 
