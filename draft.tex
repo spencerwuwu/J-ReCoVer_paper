@@ -393,18 +393,39 @@ values. However, this reducer is still commutative, and its commutativity can be
 verified.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Overview of the J-ReCoVer tool} \label{sec:overview}
+\vspace*{-2mm}
+\section{Overview of the J-ReCoVer Tool} \label{sec:overview}
+\vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Hadoop, Java;
 
-The input of J-ReCoVer is a reducer program written in Java, which is the most popular programming language used in the Hadoop~\cite{hadoop} MapReduce framework.
-The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name suggests, the Preprocessor reads as input a reducer program and performs the required preprocessing.  The goal of Prover is to show that a given reducer is commutative and the goal of BugFinder is the opposite. The architecture of J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input a reducer program to J-ReCoVer either through our web-interface or binary application installed on their own machine.
+The input of J-ReCoVer is a reducer program written in Java, which is the most
+popular programming language used in the Hadoop~\cite{hadoop} MapReduce
+framework. The J-ReCoVer tool has three main components, the
+\emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name
+suggests, the Preprocessor reads as input a reducer program and performs the
+required preprocessing. The goal of Prover is to show that a given reducer is
+commutative, and the goal of BugFinder is the opposite. The architecture of
+J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input
+a reducer program to J-ReCoVer either through our web-interface or use a binary
+application installed on his/her own machine.
 
-\textbf{The Preprocessor component} first compiles a reducer program to bytecode and use the tool Soot to further convert it to the so-called ``Jimple'' format, which is an intermediate language that is designed to simplify the analysis of Java programs. Under the Hadoop MapReduce framework, the permutation of the input is handled by the scheduler/shuffler component and is affected by things like network latency, which is not controllable by programmers. In order to deal with this issue, we wrote our own dummy Hadoop environment for the reducer as a part of the Preprocessor component so that the input order of the reducer is now controlled by J-ReCoVer. Finally, we perform in the Preprocessor some program transformation tasks to simplify the analysis. For example, we convert all output commands $out(e)$ inside loops to a special assignment (will be explained in Section~\ref{sec:program_trans1}).
+The \emph{Preprocessor component} first compiles a reducer program to bytecode
+and uses the tool Soot to further convert it to the so-called ``Jimple'' format,
+which is an intermediate language designed to simplify the analysis of Java
+programs. Under the Hadoop MapReduce framework, the permutation of the input is
+handled by the scheduler/shuffler component and is affected by issues like
+network latency, which are not controllable by programmers. In order to deal
+with such issues, we wrote our own dummy Hadoop environment for the reducer as a
+part of the Preprocessor component so that the input order of the reducer is now
+controlled by J-ReCoVer. Finally, the Preprocessor performs some program
+transformation tasks to simplify the analysis. For example, it converts all
+output commands $out(e)$ inside loops to a special assignment (as explained in
+Section~\ref{sec:program_trans1}).
 
 \begin{wrapfigure}{r}{7cm}
-	\vspace{-0.5cm}
+	\vspace{-8mm}
 \centering
 	\scalebox{0.7}{
 		\begin{tikzpicture}
@@ -523,18 +544,29 @@ The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph
 	
 \end{wrapfigure}
 
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+\enlargethispage{4mm}
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+The \emph{BugFinder component} randomly generates pairs of lists. The lists in a
+pair are permutations of each other. A concrete counterexample is reported if
+inputting any pair of lists from the generated ones to the reducer generates
+different results. Our procedure for generating random pairs is quite naive. We
+use five different input list of lengths 5, 7, 9, 11, and 13. For each length,
+we generate 300 lists and pick uniformly at random one of its permutations.
+Although the approach is simple; in practice, it finds counterexamples in all of
+our non-commutative benchmarks in a few seconds. 
 
-
-
-\textbf{The BugFinder component} randomly generates pairs of lists. The lists in a pair are permutations of each other. A concrete counterexample is reported if inputting any pair of lists from the generated ones to the reducer generates different results.
-Our procedure for generating random pairs is quite naive. We use five different input list of lengths 5, 7, 9, 11, and 13. For each length, we generate 300 lists and pick uniformly at random one of its permutations. Although the approach is simple, in practice it finds counterexamples in all of our non-commutative benchmarks in a few seconds. 
-
-\textbf{The Prover component} reduces the commutativity problem to an SMT formula satisfiability problem. At a high level, we check equivalence between a reducer program and its variant that has two consecutive inputs swapped. We show that this can be reduced to an SMT problem and give it to the SMT solver Z3 for solving. In case that Z3 proved the formula unsatisfiable, we know that swapping any two consecutive inputs of the reducer will not change its output. Because all permutations of a list can be obtained by swapping consecutive elements finitely many times, it follows that the reducer outputs the same value for all permutations of the same list of inputs.
-In this case,  J-ReCoVer stops and reports that the reducer is commutative.
-
-
-
+The \emph{Prover component} reduces the commutativity problem to an SMT
+satisfiability problem. From a high-level point of view, we check equivalence
+between a reducer program and its variant that has two consecutive inputs
+swapped. We show that this can be reduced to a first-order formula and give it
+to the SMT solver Z3 for solving. In case that Z3 proves the formula
+unsatisfiable, we know that swapping any two consecutive inputs of the reducer
+will not change its output. Since all permutations of a list can be obtained by
+swapping consecutive elements finitely many times, it follows that the reducer
+outputs the same value for all permutations of the same list of inputs. In this
+case, J-ReCoVer stops and reports that the reducer is commutative.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Preprocessor and the Prover} \label{sec:preprocessor_prover}
