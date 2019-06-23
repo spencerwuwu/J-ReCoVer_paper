@@ -135,30 +135,94 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 
 \begin{abstract}
 
-MapReduce framework for data-parallel computation was first proposed by Google~\cite{dean04} and later implemented in the Apache Hadoop project~\cite{hadoop}.
-Under the MapReduce framework, a reducer computes output values from a sequence of input values transmitted over the network.  Due to the non-determinism in data transmission, the order of input values arrives at the reducer is not fixed.
-The \emph{commutativity problem} of reducers asks if the output of a reducer is independent of the order of its inputs. There are several advantages for a reducer being commutative, e.g., the verification problem of a MapReduce program can be reduced to the problem of verifying a sequential program.
-We present the tool J-ReCoVer (Java Reducer Commutativity Verifier) that implements effective heuristics for reducer commutativity analysis. J-ReCoVer is the first tool that is specialized in checking reducer commutativity. Experimental results over 118 benchmark examples collected from open repositories are very positive; J-ReCoVer correctly handles over 97\% of them.
+The MapReduce framework for data-parallel computation was first proposed by
+Google~\cite{dean04} and later implemented in the Apache Hadoop
+project~\cite{hadoop}. Under the MapReduce framework, a reducer computes output
+values from a sequence of input values transmitted over the network. Due to
+non-determinism in data transmission, the order in which input values arrive at
+the reducer is not fixed. In relation to this, the \emph{commutativity problem}
+of reducers asks if the output of a reducer is independent of the order of its
+inputs. Indeed, there are several advantages for a reducer to be commutative,
+e.g., the verification problem of a MapReduce program can be reduced to the
+problem of verifying a sequential program. We present the tool J-ReCoVer (Java
+Reducer Commutativity Verifier) that implements effective heuristics for reducer
+commutativity analysis. J-ReCoVer is the first tool that is specialized in
+checking reducer commutativity. Our experimental results over 118 benchmark
+examples collected from open repositories are very positive; J-ReCoVer correctly
+handles over 97~\% of them.
 
 \end{abstract}
 
-\section{Introduction}
-\label{section:introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction} \label{section:introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-MapReduce is one of the most popular frameworks for data parallel computation.
-A MapReduce~\cite{dean04,hadoop} program consists of several pairs of \emph{mappers} and \emph{reducers} running on a machine cluster for handling big data in parallel. Usually, mappers and reducers are the only components in a MapReduce program that involves concurrency. Mappers read data from a distributed database and output a sequence of \emph{key-value} pairs. The sequence elements (key-value pairs) with the same key will be sent to the same reducer for further processing. Due to scheduling policies and network latency, the same inputs may arrive at a reducer in a different order in different executions, which results in the so-called \emph{commutativity problem} of reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}, that is, if the output of a reducer is independent of the order of its inputs.
-If all reducers are commutative, they will have the same external behavior under all possible schedules. In such a case, by fixing a schedule, the verification problem of a MapReduce program can be reduced to the verification problem of a sequential program, which is known to be much easier than the verification problem of concurrent programs. One needs to consider only a particular interleaving of input values instead of all of them.
+MapReduce belongs among the most popular frameworks for data parallel
+computation. A MapReduce program~\cite{dean04,hadoop} consists of several pairs
+of \emph{mappers} and \emph{reducers} running on a machine cluster for handling
+big data in parallel. Usually, mappers and reducers are the only components in a
+MapReduce program that involve concurrency. Mappers read data from a distributed
+database and output a sequence of \emph{key-value} pairs. The elements of the
+sequence (i.e., key-value pairs) with the same key are sent to the same reducer
+for further processing. Due to scheduling policies and network latency, the same
+inputs may arrive at a reducer in different orders in different executions.
+Therefore, reducers are typically required to be \emph{commutative}, that is,
+the output of a reducer is required to be independent of the order of its
+inputs. The problem of checking whether this is indeed the case is known as the
+\emph{commutativity problem} of
+reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}. If all reducers
+are commutative, they will have the same external behavior under all possible
+schedules. In such a case, by fixing a schedule, the verification problem of a
+MapReduce program can be reduced to the verification problem of a sequential
+program, which is known to be much easier than the verification problem of
+concurrent programs. One then suffices with considering any chosen interleaving
+of input values instead of all of them.
 
+\hide{More concretely, for the verification of a MapReduce program, we propose
+to do it in two phases. First, ensuring if all reducers are commutative. If some
+reducers are non-commutative, modifying them to commutative ones. Usually, the
+modification is not a difficult task~\cite{xiao14mr}, and can be done without
+affecting their functionality and performance. For example, assume that the task
+of a reducer is to find the name of the person with highest score. Such a
+reducer is non-commutative when the input include two people with the same
+highest score. This reducer can be made commutative, by also comparing the ID
+number of people with the same score. Once all reducers are made commutative, we
+reduce the verification problem to sequential verification by fixing a
+scheduler. In this two-phase approach, the key enabling technique is an
+efficient procedure for checking reducer commutativity.}
 
-\hide{More concretely, for the verification of a MapReduce program, we propose to do it in two phases. First, ensuring if all reducers are commutative. If some reducers are non-commutative, modifying them to commutative ones. Usually, the modification is not a difficult task~\cite{xiao14mr}, and can be done without affecting their functionality and performance. For example, assume that the task of a reducer is to find the name of the person with highest score. Such a reducer is non-commutative when the input include two people with the same highest score. This reducer can be made commutative, by also comparing the ID number of people with the same score. Once all reducers are made commutative, we reduce the verification problem to sequential verification by fixing a scheduler. In this two-phase approach, the key enabling technique is an efficient procedure for checking reducer commutativity.}
+On the other hand, the non-commutative behavior of a reducer is often the source
+of very tricky bugs. A study conducted by Microsoft investigated the
+commutativity problem of $508$ reducers running on their MapReduce
+server~\cite{xiao14mr}. These reducers were carefully checked using all
+traditional means such as code review, testing, and experiments with real data
+for months. Still, five of these programs contained very subtle bugs caused by
+non-commutativity (which was confirmed by the programmers).
 
-On the other hand, the non-commutative behavior of a reducer is often the source of very tricky bugs. A study conducted by Microsoft investigated the commutativity problem of $508$ reducers running on their MapReduce server~\cite{xiao14mr}. The reducer programs have been checked carefully using all traditional means such as code review, testing, and experiments with real data for months. Still, among them, five programs contain very subtle bugs caused by non-commutativity (confirmed by the programmers).
+However, checking reducer commutativity is a difficult problem on its own
+right~\cite{ChenHSW15,ChenSW16,ChenLTW17}. Even for a simple case in which all
+values are mathematical integers, it is proved undecidable in~\cite{ChenHSW15}.
+For the case when all values are machine integers (e.g., 64-bits integers), the
+problem is decidable, but the only available algorithm, which was proposed
+in~\cite{ChenHSW15} too, is of very high complexity and hence of theoretical
+interest only.
 
-However, checking reducer commutativity is a difficult problem on its own right~\cite{ChenHSW15,ChenSW16,ChenLTW17}. Even for a simple case that all values are mathematical integers, it is proved undecidable in~\cite{ChenHSW15}. For the case that all values are machine integer (e.g, 64-bits integer), the problem is decidable, but the only available algorithm that was proposed in the same paper is of very high complexity and hence is only of theoretical interests.
+In this paper, we present the J-ReCoVer tool (Java Reducer Commutativity
+Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|. The
+tool implements a heuristic approach for checking the commutativity problem
+that---despite its simplicity---works very efficiently on a large set of
+practical integer reducer programs as shown by our experiments. The main
+ingredient of the approach is a reduction from the commutativity problem to an
+SMT problem. The reduction is incomplete but sound. It is accompanied with
+several heuristics which enable the approach to scale to real-world examples.
+For the case when the reducer is not proven commutative, we complement the
+approach by using testing to find concrete counterexamples.
 
-In this paper, we present the tool J-ReCoVer (Java Reducer Commutativity Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|. It implements
-heuristics for the commutativity problem that works very efficiently on a large set of practical integer reducer programs. The heuristics reduce the commutativity problem to an SMT problem in a sound but incomplete manner. We also propose optimizations to enable the approach that works on real-world examples. For the case that the reducer is not proven commutative, we complement the approach by using testing to find concrete counterexamples. 
-We collected benchmarks from open repositories such as Github and Bitbucket to evaluate J-ReCoVer. With the help of a search engine \emph{searchcode.com} over those repositories, we collected 118 examples. J-ReCoVer is able to correctly analyze all but 3 of them.
+We collected benchmarks from open repositories such as Github and Bitbucket to
+evaluate J-ReCoVer. With the help of a search engine \emph{searchcode.com} over
+those repositories, we collected 118 programs. We provide this collection of
+programs to other interested researchers as a side contribution of the paper.
+Our tool J-ReCoVer is able to correctly analyze all but three of the programs.
 
 
 \subsection*{Related Works}
