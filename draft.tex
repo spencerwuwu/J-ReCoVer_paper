@@ -224,17 +224,72 @@ those repositories, we collected 118 programs. We provide this collection of
 programs to other interested researchers as a side contribution of the paper.
 Our tool J-ReCoVer is able to correctly analyze all but three of the programs.
 
-
+%=============================================================================
 \subsection*{Related Works}
-Reducer commutativity problem can be reduced to a program equivalence problem. One creates another program $R'$ that first non-deterministically swaps two consecutive input values and then executes the code of $R$. If $R'$ and $R$ are equivalent, using the fact that all permutations of a list can be obtained by swapping consecutive list elements finitely many times\footnote{Here is an example to produce [3;2;5;1;4] from [1;2;3;4;5] by swapping consecutive elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$ [2;\textbf{1};\textbf{3};4;5] $\rightarrow$ [2;3;1;\textbf{4};\textbf{5}]$\rightarrow$ [2;3;\textbf{1};\textbf{5};4]$\rightarrow$ [\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to be commutative. There is a series of research results on program equivalence checking (or closely related topics such as regression verification and translation validation), to name a few~\cite{Pnueli:1998:TV,fedyukovich2015automated,barthe2011relational,KlebanovRuemmerUlbrich2017}. At a high level, checking equivalence of two programs $P$ and $P'$ can be reduced to a sequential verification problem by executing $P'$ after $P$ and at the end checking if they always have the same outputs. It can be made more efficient by finding the right~\emph{synchronization points} and combining the code of $P$ and $P'$ in an interleaved manner. A lot of research effort in this direction is in finding good synchronization points. For the case of commutativity analysis, one can simply use the beginning of the loop as the synchronization point. However, in our experience, if we naively reduce the commutativity problem to equivalence problem and check it in a precise manner, many examples cannot be solved. In this paper, we propose a good over-approximation (c.f. Section~\ref{sec:prover}) of the reducer's behavior. The approximation allows a much more efficient yet precise enough commutativity analysis.
-Our approach uses some form of sequentialization which is, however, specialized for the reducer commutativity problem and different from the sequentialisation approaches proposed for verifying common multithreaded programs\cite{XXX}: indeed, in MapReduce programs there is no notion of threads and context switches.
+%=============================================================================
 
-One main motivation of commutativity analysis is to reduce the verification problem of a concurrent program to a sequential one. There are several pieces of research sharing the similar motivation, e.g., the concept of \emph{robustness} of event-driven asynchronous programs~\cite{ahmed2017:robustness} and program running under relaxed memory model~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their computation models are quite different from that of reducers and hence the result cannot be directly applied. Besides verification, another interesting research direction is the synthesis of MapReduce programs~\cite{SmithA16}. Commutativity analysis is used as a component under the synthesis framework.
+The reducer commutativity problem can be reduced to a \emph{program equivalence}
+problem. One creates another program $R'$ that first non-deterministically swaps
+two consecutive input values and then executes the code of $R$. If $R'$ and $R$
+are equivalent, using the fact that all permutations of a list can be obtained
+by swapping consecutive list elements finitely many times\footnote{Here is an
+example to produce [3;2;5;1;4] from [1;2;3;4;5] by swapping consecutive
+elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$
+[2;\textbf{1};\textbf{3};4;5] $\rightarrow$
+[2;3;1;\textbf{4};\textbf{5}]$\rightarrow$
+[2;3;\textbf{1};\textbf{5};4]$\rightarrow$
+[\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to
+be commutative. There is a series of research results on program equivalence
+checking (or closely related topics such as regression verification and
+translation validation): see, e.g.,
+\cite{Pnueli:1998:TV,fedyukovich2015automated,barthe2011relational,KlebanovRuemmerUlbrich2017}
+to name a few. 
 
-\section{Notations and Definitions}
-\label{section:integer-reducers}
-We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift the equality $=$ operation to tuples in the standard way.
+From a high-level view, checking equivalence of two programs $P$ and $P'$ can be
+reduced to a sequential verification problem by executing $P'$ after $P$,
+followed by checking whether the two programs always produce the same outputs.
+The approach can be made more efficient by finding the
+right~\emph{synchronization points} and combining the code of $P$ and $P'$ in an
+interleaved manner. A lot of research effort in this direction is in finding
+good synchronization points. In this work, we propose the \emph{head of the
+top-level reducer loop} as the synchronization point suitable for reducer
+commutativity analysis. According to our experience discussed later on, the
+reducers usually contain just a single such loop. Moreover, for the case when
+there are more top-level loops in a reducer, we propose a way of breaking such a
+reducer into several ones to be checked independently.
 
+However, in our experience, if one naively reduces the commutativity problem to
+an equivalence problem and checks it in a precise manner, many reducers cannot
+be verified. Therefore, J-ReCoVer uses an over-approximation of the reducer's
+behavior. This approximation allows for a much more efficient, yet---according
+to our experiments---precise enough commutativity analysis.
+
+Our approach can be seen as using some form of \emph{sequentialisation} of the
+concurrent behaviour. Sequentialisation is the key approach behind many current
+successful approaches for verifying multithreaded
+programs~\cite{LalReps:Seq:08,LazyCSeq14}. However, our sequentialisation
+approach is specialised for the case of reducers and quite different from what
+is used in sequentialisation of multithreaded programs: indeed, in MapReduce
+programs there is no notion of threads nor context switches.
+
+Various forms of sequentialisation are behind further research works too, such
+as, e.g., works dealing with the concept of \emph{robustness} of event-driven
+asynchronous programs~\cite{ahmed2017:robustness} or those dealing with programs
+running under some \emph{relaxed memory
+models}~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their
+computation models are again quite different from that of reducers, and hence
+the results cannot be directly applied.
+
+Besides verification, another interesting research direction is the
+\emph{synthesis} of MapReduce programs~\cite{SmithA16}. Commutativity analysis
+is used as a component under the synthesis framework.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Notations and Definitions} \label{section:integer-reducers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift
+the equality $=$ operation to tuples in the standard way.
 
 \hide{
 \begin{equation*}
