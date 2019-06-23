@@ -128,8 +128,9 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 \author{}
 \institute{}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \maketitle
 
@@ -178,18 +179,18 @@ program, which is known to be much easier than the verification problem of
 concurrent programs. One then suffices with considering any chosen interleaving
 of input values instead of all of them.
 
-\hide{More concretely, for the verification of a MapReduce program, we propose
-to do it in two phases. First, ensuring if all reducers are commutative. If some
-reducers are non-commutative, modifying them to commutative ones. Usually, the
-modification is not a difficult task~\cite{xiao14mr}, and can be done without
-affecting their functionality and performance. For example, assume that the task
-of a reducer is to find the name of the person with highest score. Such a
-reducer is non-commutative when the input include two people with the same
-highest score. This reducer can be made commutative, by also comparing the ID
-number of people with the same score. Once all reducers are made commutative, we
-reduce the verification problem to sequential verification by fixing a
-scheduler. In this two-phase approach, the key enabling technique is an
-efficient procedure for checking reducer commutativity.}
+% More concretely, for the verification of a MapReduce program, we propose to do
+% it in two phases. First, ensuring if all reducers are commutative. If some
+% reducers are non-commutative, modifying them to commutative ones. Usually, the
+% modification is not a difficult task~\cite{xiao14mr}, and can be done without
+% affecting their functionality and performance. For example, assume that the
+% task of a reducer is to find the name of the person with highest score. Such a
+% reducer is non-commutative when the input include two people with the same
+% highest score. This reducer can be made commutative, by also comparing the ID
+% number of people with the same score. Once all reducers are made commutative,
+% we reduce the verification problem to sequential verification by fixing a
+% scheduler. In this two-phase approach, the key enabling technique is an
+% efficient procedure for checking reducer commutativity.
 
 On the other hand, the non-commutative behavior of a reducer is often the source
 of very tricky bugs. A study conducted by Microsoft investigated the
@@ -291,34 +292,38 @@ is used as a component under the synthesis framework.
 We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift
 the equality $=$ operation to tuples in the standard way.
 
-\hide{
-\begin{equation*}
-\begin{array}{rclcl}
-\multicolumn{3}{l}{v\in \Var\mbox{, and }c \in \Z}&&\textmd{Variable and Constant}\\
-e \in \Exp    &\ \ \  {\triangleq}\ \ \   & v \mid c \mid \cur \mid e + e \mid e - e \mid e \times e \mid *\mid\ldots & &\textmd{Integer Expression}\\
-g\in \Grd  & {\triangleq}  & e < e \mid not\ g \mid g \wedge g  \mid \ldots& & \textmd{Guard}\\
-s\in \Cmd  & {\triangleq}  & v:= e \mid out(v) \mid \ite{g}{s}{s} \mid s;s && \textmd{Command}\\
-p\in \Prg  & {\triangleq}  & s;\rloop\{s\};s&& \textmd{Reducer Program}\\
-\end{array}
-\end{equation*}}
+% \begin{equation*}
+% \begin{array}{rclcl}
+% \multicolumn{3}{l}{v\in \Var\mbox{, and }c \in \Z}&&\textmd{Variable and 
+%   Constant}\\
+% e \in \Exp    &\ \ \  {\triangleq}\ \ \   & v \mid c \mid \cur \mid e + e \mid
+%   e - e \mid e \times e \mid *\mid\ldots & &\textmd{Integer Expression}\\
+% g\in \Grd  & {\triangleq}  & e < e \mid not\ g \mid g \wedge g  \mid \ldots& & 
+%   \textmd{Guard}\\
+% s\in \Cmd  & {\triangleq}  & v:= e \mid out(v) \mid \ite{g}{s}{s} \mid s;s && 
+%   \textmd{Command}\\
+% p\in \Prg  & {\triangleq}  & s;\rloop\{s\};s&& \textmd{Reducer Program}\\
+% \end{array}
+% \end{equation*}
+
 \begin{wrapfigure}{r}{3cm}
 		\vspace{-0.8cm}
-	\hide{
-		\begin{minipage}{0.32\textwidth}
-			\begin{algorithm}[H]
-				$m := \cur$; \;
-				\Loop{}{
-					$t:=\cur$;\;
-					\uIf{ $t > m$}{
-						$m := t$
-					}
-				};
-				$out(m)$\;
-			\end{algorithm}
-			\caption*{(a) max}
-		\end{minipage}
-		\hspace{-0.5cm}
-	}
+
+%		\begin{minipage}{0.32\textwidth}
+%			\begin{algorithm}[H]
+%				$m := \cur$; \;
+%				\Loop{}{
+%					$t:=\cur$;\;
+%					\uIf{ $t > m$}{
+%						$m := t$
+%					}
+%				};
+%				$out(m)$\;
+%			\end{algorithm}
+%			\caption*{(a) max}
+%		\end{minipage}
+%		\hspace{-0.5cm}
+	
 	\begin{minipage}{0.3\textwidth}
 		\begin{algorithm}[H]
 			$s := 0;c:=0$; \;
@@ -330,35 +335,69 @@ p\in \Prg  & {\triangleq}  & s;\rloop\{s\};s&& \textmd{Reducer Program}\\
 			$out(o)$\;
 		\end{algorithm}
 	\end{minipage}
-	\hide{
-		\begin{minipage}{0.4\textwidth}
-			\begin{algorithm}[H]
-				$a:=*;s := 0; c:=0$;\;
-				\Loop{}{
-					$s := s+(\cur-a)^2$; \;
-					$c := c+1$
-				};
-				$o := s/c$;\;
-				$out(o)$
-			\end{algorithm}
-			\caption*{(c) standard deviation}
-		\end{minipage}
-	}
-	\caption{Average}
+
+% 		\begin{minipage}{0.4\textwidth}
+% 			\begin{algorithm}[H]
+% 				$a:=*;s := 0; c:=0$;\;
+% 				\Loop{}{
+% 					$s := s+(\cur-a)^2$; \;
+% 					$c := c+1$
+% 				};
+% 				$o := s/c$;\;
+% 				$out(o)$
+% 			\end{algorithm}
+% 			\caption*{(c) standard deviation}
+% 		\end{minipage}
+
+	\caption{A reducer that computes the average value.}
 	\vspace{-0.8cm}
 	\label{fig:reducer_example}
 \end{wrapfigure}
-For presentation purpose, we describe a highly simplified language to characterize the essence of reducers. The model allows to describe the computation of reducers and investigate their commutativity.
-Let $\Var$ be the set of variables. An \emph{integer expression} in $\Exp$ can be either a variable, constant value, a call to the $\cur$ function that reads and consumes an input value of the reducer, their combinations over basic arithmetic operations, or a non-deterministically chosen integer value $*$.
-A \emph{command} in $\Cmd$ can be an assignment, a branch statement, concatenation of a sequence of commands, or $out(v)$ that outputs the value of $v$.
-A \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$, where $s_1,s_2,s_3 \in \Cmd$. According to our observation over hundreds  of reducer programs in open repositories, reducer programs are almost always in this form. The $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until the entire input list is consumed. An example is in Figure~\ref{fig:reducer_example}.
 
-Some reducer uses two loops to compute the output. For example, for calculating standard deviation, one first computes the average of inputs and then uses it to compute the final result. In that case, we can still verify the reducer by first partitioning it into two reducers and then verifying them separately. One reducer computes the average and the other reducer performs the rest of the computation.
-The second reducer replaces the average with a non-deterministic value and thus ``over-approximates''  all possible outputs of the standard deviation computation; it computes an output for all possible ``average'' value. However, this reducer is still commutative and its commutativity verification can still be done.
+For presentation purposes, we provide a sketch of a highly simplified language
+for describing reducers. The language allows us to give examples of reducers and
+to discuss our approach for checking their commutativity. Let $\Var$ be a set of
+\emph{integer variables}. An \emph{integer expression} in $\Exp$ can either be
+a~variable from $\Var$, a constant value, a call to the $\cur$ function that
+reads and consumes an input value of the reducer, their combinations over basic
+arithmetic operations, or a non-deterministically chosen integer value $*$. A
+\emph{command} in $\Cmd$ can be an assignment, a branch statement, a sequence of
+commands, or an $out(v)$ statement that outputs the value of $v \in \Var$. A
+\emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$ where $s_1,s_2,s_3
+\in \Cmd$. According to our observation over hundreds  of reducer programs in
+open repositories, reducer programs are almost always in this form. The
+$\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until
+the entire input list is consumed. An example of a reducer is shown in
+Figure~\ref{fig:reducer_example}.
 
-\section{Overview of the J-ReCoVer tool}
-\label{sec:overview}
+Some reducers use two (or more) top-level loops to compute the output, possibly
+interleaved with some non-looping code. {\color{red} These loops are executed
+sequentially, repeatedly iterating over the input list from its beginning.} For
+example, for calculating the standard deviation, one first computes the average
+of inputs and then uses it to compute the final result (using two passes over
+the input list). In that case, we suggest to verify the reducer by first
+partitioning it into two (or more) reducers, each containing a single top-level
+loop, and then verifying these reducers separately.\footnote{\color{red}Nested
+loops can be transformed into branches of the top-level loop.} The top-level
+loops communicate through shared variables.  After the transformation, reducers
+corresponding to the second top-level loop (and possibly further such loops)
+will work with random values of the shared variable, which over-approximates the
+original behaviour.
+
+For instance, for the case of the standard deviation, the first reducer computes
+the average, and the other reducer performs the rest of the computation. The
+second reducer replaces the average with a non-deterministic value and thus
+``over-approximates'' all possible outputs of the standard deviation
+computation. Equivalently, it computes an output for all possible ``average''
+values. However, this reducer is still commutative, and its commutativity can be
+verified.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overview of the J-ReCoVer tool} \label{sec:overview}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %Hadoop, Java;
+
 The input of J-ReCoVer is a reducer program written in Java, which is the most popular programming language used in the Hadoop~\cite{hadoop} MapReduce framework.
 The J-ReCoVer tool has three main components, the \emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name suggests, the Preprocessor reads as input a reducer program and performs the required preprocessing.  The goal of Prover is to show that a given reducer is commutative and the goal of BugFinder is the opposite. The architecture of J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input a reducer program to J-ReCoVer either through our web-interface or binary application installed on their own machine.
 
@@ -497,13 +536,17 @@ In this case,  J-ReCoVer stops and reports that the reducer is commutative.
 
 
 
-\section{The Preprocessor and the Prover}
-\label{sec:preprocessor_prover}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Preprocessor and the Prover} \label{sec:preprocessor_prover}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Before entering the Prover component, the Preprocessor first performs a few program transformation tasks to simplify the verification task (Section~\ref{sec:program_trans1}). The output of the preprocessor is a commutativity-equivalent reducer program.  Then the algorithm of the Prover is explained in Section~\ref{sec:prover}. 
 
+%=============================================================================
 \subsection{The Program Transformation Task in the Preprocessor}
 \label{sec:program_trans1}
+%=============================================================================
+
 \subsubsection{Handling output inside the loop body} Recall that the reducer program can perform the ouput command $out(e)$ inside the loop body $s_2$. In this case, we remember the output value in a fresh variable $v$ and replace the $out(e)$ command with an assignment $v:=e$.
 Notice that the value of $v$ stays the same from the point it has been assigned a value until the end of the loop body $s_2$.
 If the values of $v$ are the same for all permutations of input lists at the end of $s_2$, we know that the reducer is commutative w.r.t. to all output values produced inside the loop body $s_2$.
@@ -527,41 +570,39 @@ If the values of $v$ are the same for all permutations of input lists at the end
 \end{wrapfigure}	
 
 
-\hide{	
-	\begin{figure}[t]
-		\begin{minipage}{0.4\textwidth}
-			\begin{algorithm}[H]
-				\;\;$m := \cur + 10$; \;
-				\Loop{}{
-					$t:=\cur$\;
-					\uIf{ $t> m$}{
-						$m := t$ \;
-					}
-				};
-				$out(m)$\;\;
-			\end{algorithm}
-			\caption*{(a) Reducer max$^+$}
-		\end{minipage}
-		\begin{minipage}{0.6\textwidth}
-			\begin{algorithm}[H]
-				$s:=*;$\;
-				\Loop{}{
-					\uIf{$s=1$}{$m := \cur + 10; s:= 2$}
-					\uElse{
-						$t:=\cur$\;
-						\uIf{ $t > m$}{
-							$m := t$ \;
-						}
-					}
-				};
-				$out(m)$
-			\end{algorithm}
-			\caption*{(b) Reducer max$^{+\mathtt{fix}}$}
-		\end{minipage}
-		\caption{Reducer examples}
-		\label{fig:reducer_max}
-	\end{figure}
-}
+%	\begin{figure}[t]
+%		\begin{minipage}{0.4\textwidth}
+%			\begin{algorithm}[H]
+%				\;\;$m := \cur + 10$; \;
+%				\Loop{}{
+%					$t:=\cur$\;
+%					\uIf{ $t> m$}{
+%						$m := t$ \;
+%					}
+%				};
+%				$out(m)$\;\;
+%			\end{algorithm}
+%			\caption*{(a) Reducer max$^+$}
+%		\end{minipage}
+%		\begin{minipage}{0.6\textwidth}
+%			\begin{algorithm}[H]
+%				$s:=*;$\;
+%				\Loop{}{
+%					\uIf{$s=1$}{$m := \cur + 10; s:= 2$}
+%					\uElse{
+%						$t:=\cur$\;
+%						\uIf{ $t > m$}{
+%							$m := t$ \;
+%						}
+%					}
+%				};
+%				$out(m)$
+%			\end{algorithm}
+%			\caption*{(b) Reducer max$^{+\mathtt{fix}}$}
+%		\end{minipage}
+%		\caption{Reducer examples}
+%		\label{fig:reducer_max}
+%	\end{figure}
 
 
 
@@ -595,33 +636,39 @@ It also satisfies all assumptions required for the Prover component:
 Since the new reducer has all behaviors of the original one, the new reducer being commutative implies that the original one is also commutative.
 
 
-\hide{
-	\begin{wrapfigure}{r}{9cm}
-		\centering
-		\begin{minipage}{0.8\textwidth}
-			
-			\begin{algorithm}[H]
-				$s'_0;s:=*;$\;
-				\Loop{}{
-					\lIf{$s=1$}{ $x_{i_1} := \cur; s'_1; s:=2$}
-					\lElseIf{ $s =2$}{ $x_{i_2} := \cur; s'_2; s:=3$}
-					\lElseIf{ $s = 3$}{$\ldots$}
-					\lElseIf{ $s = m$}{$x_{i_m} := \cur; s'_m; s:=m+1$}
-					\lElse{ $s_2$}
-				};$s_3$\;
-			\end{algorithm}
-		\end{minipage}
-		\caption{The second transformation task}
-		\label{fig:general_program_transformation}
-\end{wrapfigure}}
+%	\begin{wrapfigure}{r}{9cm}
+%		\centering
+%		\begin{minipage}{0.8\textwidth}
+%			
+%			\begin{algorithm}[H]
+%				$s'_0;s:=*;$\;
+%				\Loop{}{
+%					\lIf{$s=1$}{ $x_{i_1} := \cur; s'_1; s:=2$}
+%					\lElseIf{ $s =2$}{ $x_{i_2} := \cur; 
+%                                           s'_2; s:=3$}
+%					\lElseIf{ $s = 3$}{$\ldots$}
+%					\lElseIf{ $s = m$}{$x_{i_m} := \cur; 
+%                                          s'_m; s:=m+1$}
+%					\lElse{ $s_2$}
+%				};$s_3$\;
+%			\end{algorithm}
+%		\end{minipage}
+%		\caption{The second transformation task}
+%		\label{fig:general_program_transformation}
+%        \end{wrapfigure}
 
 
 This approach can be easily generalize to the situation where $\cur$ occurs multiple times in $s_1$. We first rewrite the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ to the form
 $$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$$, where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then uses a branch statement with garud $s=j$ to handle the case $x_{i_j} := \cur; s'_j; s:=s+1$, for all $j \in [1,m]$.
 
 
+%=============================================================================
 \subsection{The Prover: Reduce Commutativity Checking to SMT Solving}
 \label{sec:prover}
+%=============================================================================
+
+
+
 After the transformation, the reducer $s_1;\rloop\{s_2\};s_3$ never calls the $\cur$ function before enthering the loop (the $s_1$ part) and never output values inside the loop body (the $s_2$ part). The command $s_2$ can be viewed as a function $F$ that reads the values of all variables and the current input before executing $s_2$ and outputs the values of all variables after $s_2$. Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1} \rightarrow \Z^k$ returns a tuple of values $x_1',x_2',\ldots,x_k'$, where $n$ is the current input value of the reducer, $x_i$ and $x_i'$ are the values of variables before and after the execution of $s_2$, respectively, for $i\in[1,k]$. The construction of $F$ from $s_2$ can be done in the standard way. We check if the formula below is valid for all possible values of $n_1,n_2, x_1,x_2,\ldots,x_k$.
 \begin{equation}
  F(n_1, F(n_2,x_1,x_2,\ldots,x_k)) = F(n_2, F(n_1,x_1,x_2,\ldots,x_k) )
@@ -632,21 +679,41 @@ Using the reducer that computes average (Figure~\ref{fig:reducer_example}) as an
 
 The validity of Equation~(\ref{eq:commu}) implies that swapping any two consecutive input values will not change the final variable valuation. Informally, it says that starting from the same initial valuations of variables and with two different input orders, $[n_1;n_2]$ and $[n_2;n_1]$, the values of all program variables are the same after we execute the loop body twice. The first execution reads $n_1$ and then reads $n_2$. The other execution reads the two inputs in the reverse order.
 
-\hide{
 
-In the example of ``average'', the values of $s$ and $c$ are the same no matter the reducer first reads $n_1$ and then $n_2$ or reads the two values in the swapped order.
-So it computes the same value for the input [1;2;\textbf{3};\textbf{4};5] and any other input with two consecutive values being swapped, e.g., [1;2;4;3;5].
-The swap operation can be applied arbitrarily many times to produce all possible permutations of the input.
-It follows that that starting from the same variable valuation, the loop ends with the same valuation for any permutation of input values, e.g., the reducer will output the same value for [1;2;3;4;5], [1;2;4;3;5], [1;4;2;3;5], [4;1;2;3;5], etc.
-Recall that the first program transformation task stores all output values in variables that will stay unchanged until the end of the loop. The validity of Equation~(\ref{eq:commu}) also implies that the execution of the loop produces the same sequence of outputs.
+% In the example of ``average'', the values of $s$ and $c$ are the same no
+% matter the reducer first reads $n_1$ and then $n_2$ or reads the two values in
+% the swapped order.  So it computes the same value for the input
+% [1;2;\textbf{3};\textbf{4};5] and any other input with two consecutive values
+% being swapped, e.g., [1;2;4;3;5].  The swap operation can be applied
+% arbitrarily many times to produce all possible permutations of the input.  It
+% follows that that starting from the same variable valuation, the loop ends
+% with the same valuation for any permutation of input values, e.g., the reducer
+% will output the same value for [1;2;3;4;5], [1;2;4;3;5], [1;4;2;3;5],
+% [4;1;2;3;5], etc.  Recall that the first program transformation task stores
+% all output values in variables that will stay unchanged until the end of the
+% loop. The validity of Equation~(\ref{eq:commu}) also implies that the
+% execution of the loop produces the same sequence of outputs.
+% 
+% We explain why that the validity of Equation~(\ref{eq:commu}) is sufficient to
+% prove the reducer $s_1;\rloop\{s_2\};s_3$ commutative. Notice that $s_1$ does
+% not read from the input (assumed at the beginning of this subsection). The
+% execution of $s_1$ is deterministic in the sense that from the same initial
+% valuation, it outputs the same sequence of values and ends at the same
+% valuation. For the execution of $\rloop\{s_2\}$, from the validity of
+% Equation~(\ref{eq:commu}), any permutation of input values leads the reducer
+% to the same final valuation and the same sequence of outputs at the end of the
+% loop.  Before executing the commands $s_3$, all inputs have been read (the
+% loop exit condition) already. Similar to the case of $s_1$, $s_3$ does not
+% read from the input and hence the execution of $s_3$ is deterministic. It
+% follows that for all permutations of inputs, the reducer outputs the same
+% sequence of values.
+% 
 
-We explain why that the validity of Equation~(\ref{eq:commu}) is sufficient to prove the reducer $s_1;\rloop\{s_2\};s_3$ commutative. Notice that $s_1$ does not read from the input (assumed at the beginning of this subsection). The execution of $s_1$ is deterministic in the sense that from the same initial valuation, it outputs the same sequence of values and ends at the same valuation. For the execution of $\rloop\{s_2\}$, from the validity of Equation~(\ref{eq:commu}), any permutation of input values leads the reducer to the same final valuation and the same sequence of outputs at the end of the loop.
-Before executing the commands $s_3$, all inputs have been read (the loop exit condition) already. Similar to the case of $s_1$, $s_3$ does not read from the input and hence the execution of $s_3$ is deterministic. It follows that for all permutations of inputs, the reducer outputs the same sequence of values.}
 
+%=============================================================================
+\subsection{Optimization: Live Variable Analysis} \label{section:optimizations}
+%=============================================================================
 
-
-\subsection{Optimization: Live Variable Analysis}
-\label{section:optimizations}
 Here we explain how live variable analysis is used in J-ReCoVer to improve the precision of commutativity checking.
 
 We find that in many cases, Equation~(\ref{eq:commu}) is a condition that is too strong for the reducer to be commutative. For instance, consider a simple example. In the loop body, the input is first stored in a variable $t$ and then added to $s$. After the loop, output the value of $s$.
@@ -654,106 +721,110 @@ In this case, the $F$ function returns the updated values of both $s$ and $t$ af
 $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t)) = (c_1+c_2, c_2)$. It follows that the corresponding Equation~(\ref{eq:commu}) is invalid. The second component of the returned tuples corresponds to the value of $t$ after executing the loop body twice. Their values are $c_1$ and $c_2$, respectively, in $F(c_1, F(c_2,s,t))$ and $F(c_2, F(c_1,s,t))$. However, in this case, the value of $t$ will not affect the output of this reducer.
 
 
-\hide{
-\begin{figure}[hbt]
-	\begin{minipage}{0.4\textwidth}
-		\begin{algorithm}[H]
-			$s:= 0$; \;
-			\Loop{}{
-				$t:=\cur$;
-				$s:= s + t$\;
-			};
-			$out(s)$\;\;\;
-		\end{algorithm}
-		\caption{A commutative reducer with an invalid Equation~(\ref{eq:commu}).}
-		\label{fig:reducer_opt}
-	\end{minipage}
-	\ \ \ \ \ \ \ \
-	\begin{minipage}{0.5\textwidth}
-		\LinesNumbered
-		\centering
-		\begin{minipage}{0.75\textwidth}
-		\begin{algorithm}[H]
-			$c_1;c_2;\ldots;c_i$\;
-			\lIf{$g_1$}{$\ldots$}
-			\lElseIf{ $g_2$}{$\ldots$}
-			\lElseIf{ $g_3$}{$\ldots$}
-			\lElseIf{ $g_m$}{$c_{i+1};\ldots ;c_n; out(v);\ldots$}
-			\lElse{ $\ldots$}
-		\end{algorithm}
-	\end{minipage}
-		\caption{The $s_3$ command with an $out(v)$ command in nested branches.}
-		\label{fig:nested_out}
-	\end{minipage}
-\end{figure}
+%\begin{figure}[hbt]
+%	\begin{minipage}{0.4\textwidth}
+%		\begin{algorithm}[H]
+%			$s:= 0$; \;
+%			\Loop{}{
+%				$t:=\cur$;
+%				$s:= s + t$\;
+%			};
+%			$out(s)$\;\;\;
+%		\end{algorithm}
+%		\caption{A commutative reducer with an invalid 
+%                   Equation~(\ref{eq:commu}).}
+%		\label{fig:reducer_opt}
+%	\end{minipage}
+%	\ \ \ \ \ \ \ \
+%	\begin{minipage}{0.5\textwidth}
+%		\LinesNumbered
+%		\centering
+%		\begin{minipage}{0.75\textwidth}
+%		\begin{algorithm}[H]
+%			$c_1;c_2;\ldots;c_i$\;
+%			\lIf{$g_1$}{$\ldots$}
+%			\lElseIf{ $g_2$}{$\ldots$}
+%			\lElseIf{ $g_3$}{$\ldots$}
+%			\lElseIf{ $g_m$}{$c_{i+1};\ldots ;c_n; out(v);\ldots$}
+%			\lElse{ $\ldots$}
+%		\end{algorithm}
+%	\end{minipage}
+%		\caption{The $s_3$ command with an $out(v)$ command in 
+%                   nested branches.}
+%		\label{fig:nested_out}
+%	\end{minipage}
+%\end{figure}
 
-
-To handle such a situation, we need an algorithm to collect a set of variables whose value may affect the output.
-Recall that the first program transformation task uses a set of variables $V_2=\{v_{out_k} \mid k \in [1,l]\}$, where $l$ is the number of output commands occurred in $s_2$, to collect output values occurred in the loop body $s_2$.
-The set $V_2$ is exactly the set of variables that will affect the output inside the loop.}
+% To handle such a situation, we need an algorithm to collect a set of variables
+% whose value may affect the output.  Recall that the first program
+% transformation task uses a set of variables $V_2=\{v_{out_k} \mid k \in
+% [1,l]\}$, where $l$ is the number of output commands occurred in $s_2$, to
+% collect output values occurred in the loop body $s_2$.  The set $V_2$ is
+% exactly the set of variables that will affect the output inside the loop.
 
 We perform a simple backward live variable analysis to collect all variables whose value may propagate to the output command after the loop execution. Only these varaibles are required to be equivalent. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$. The details of the evaluation can be found in Section~\ref{section:exp}.
 
-\hide{
-Without loss of generality, we assume there is only one output command after the loop. Then the code after the loop (i.e., the $s_3$ part of the reducer) can only be in the form of Figure~\ref{fig:nested_out}.
-We unfold all concatenation of commands, so now the commands $c_1\ldots c_n$ are either assignment commands $w:=e$ or branch command $\ite{g}{c'_1}{c'_2}$, and the only output command stays in the $m$-th layer of the branch command after $c_i$. For the case that $m=0$, the entire branch command in Lines 2-6 of Figure~\ref{fig:nested_out} is replaced with $out(v)$.
+% Without loss of generality, we assume there is only one output command after the loop. Then the code after the loop (i.e., the $s_3$ part of the reducer) can only be in the form of Figure~\ref{fig:nested_out}.
+% We unfold all concatenation of commands, so now the commands $c_1\ldots c_n$ are either assignment commands $w:=e$ or branch command $\ite{g}{c'_1}{c'_2}$, and the only output command stays in the $m$-th layer of the branch command after $c_i$. For the case that $m=0$, the entire branch command in Lines 2-6 of Figure~\ref{fig:nested_out} is replaced with $out(v)$.
+% 
+% The data flow analysis algorithm works as follows.
+% A set $V_3$ whose value is initially a singleton set $\{v\}$ is used to remember the variables that might flow to the output command $out(v)$ in $s_3$ (in Figure~\ref{fig:nested_out}).
+% The commands and guards will be inspected in the following order $c_{n}$,$\ldots$,$c_{i+1}$, $g_m$, $g_{m-1}$, $\ldots$, $g_1$, $c_i$, $\ldots$, $c_2$, $c_1$. For the case that a guard $g_j$ for $j\in [1,m]$ is being processed, we simply add all variables occurred in $g_j$ to $V_3$.
+% For the case that a command $c_j$ for $j\in [1,n]$ is being processed, we need to handle two different cases:
+% \begin{itemize}
+% 	\item $c_j$ is an assignment $w:=e$ and $w\in V_3$: all variables in $e$ are added to $V_3$.
+% 	\item $c_j$ is a branch $\ite{g}{c'_1}{c'_2}$: the algorithm starts from the same set $V_3$ and processes $c'_1$ and $c'_2$ individually and independently (in a similar manner) to obtain $V_3^1$ and $V_3^2$. After that, the algorithm takes their union $V_3^1\cup V_3^2$ as the new value of $V_3$.
+% \end{itemize}
+% After the entire $s_3$ is being processed we get the set of important variables that might affect the outputs that happen in $s_3$.
+% Then we modify the Equation~(\ref{eq:commu}) to the one below
+% \begin{equation}
+% F(n_1, F(n_2,x_1,x_2,\ldots,x_k) )=_{PosF(V_2\cup V_3)} F(n_2, F(n_1,x_1,x_2,\ldots,x_k) )
+% \label{eq:commu2}
+% \end{equation}
+% The function $PosF(X)$ returns the corresponding positions of variables in $X$ in the output of $F(n,x_1,\ldots,x_k) $. E.g., if $X = \{x_1,x_4,y\}$, where $y\notin \{x_1,\ldots,x_k\}$, then $PosF(X)=\{1,4\}$.
+% The use of Equation~(\ref{eq:commu2}) is critical to the success of our approach.
+ 
+% \subsection{Computing the $F$ function using symbolic execution with an efficient data structure}
+% \label{section:opt2}
+% 
+% The computation of $F$ in Equation~(\ref{eq:commu2}) can be done in several different ways. For example, one can construct a formula in the style of bounded model checking. Here we apply \emph{symbolic execution} to generate $F$. Below we first review the standard symbolic execution algorithm and then explain how we use it to construct the formula $F$.
+% 
+% 
+% First, we define the set $\Var_0=\{v_0 \mid v \in \Var \}\cup \{c_0\}$ as the set of initial symbolic values of all variables, where $c_0$ is used to denote the symbolic value from the input.
+% A \emph{symbolic state} is a triple $\langle pc, val, cmds \rangle$, where the \emph{path condition} $pc$ is a guard in $\Grd$ over $\Var_0$, the \emph{symbolic valuation} is a mapping from variables in $\Var$ to an expression in $\Exp$ over $\Var_0$, and $cmds\in \Cmd$ is the remaining commands to be executed. The \emph{initial symbolic state} is $\langle \true, val_0, s_2\rangle$, where $val_0(v) = v_0$ for all $v\in\Var$ and $s_2$ is the loop body of the reducer.
+% One can compute the next symbolic state of $\langle pc, val, c;cmds \rangle$ according to the following transition rules. Recall that $c$ is either in the form of $v:= e$ or $\ite{g}{c_1}{c_2}$ after the program transformation tasks are performed:
+% \begin{enumerate}
+% 	\item If $c$ is $v:= e$, the next symbolic state is $\langle pc, val[v \rightarrow val(e) ], cmds \rangle$.
+% 	\item If $c$ is $\ite{g}{c_1}{c_2}$, the next symbolic states are $\langle pc\wedge g, val, c_1.cmds \rangle$ and $\langle pc\wedge not\  g, val, c_2.cmds \rangle$.
+% \end{enumerate}
+% 
+% Here we lift the $val$ function from variables to expressions in the standard way and $val[v \rightarrow val(e) ]$ is obtained by reassigning the value of $v$ in $val$ to $val(e)$. The execution from a symbolic state terminates when its path condition is conflict or the commands to be executed become empty, i.e., all commands have been processed. So far it is standard.
+% 
+% For the loop body $s_2$, symbolic execution is guaranteed to terminate because there exist no commands in $s_2$ that may lead to infinite computations.
+% When the execution terminates, we collect all states with empty commands $\langle pc, val, \emptyset \rangle$ as a set $T$ and use them to create the function $F$ in Equation~(\ref{eq:commu2}).
+% First, we create for each variable $x\in\Var$ a formula $f_x$ whose value is $\bigvee_{\langle pc, val, \emptyset \rangle \in T} (pc \wedge val(x))$.
+% The function $F(n,x_1,x_2,\ldots,x_k)$ simply returns the tuple $(f_{x_1},f_{x_2},\ldots, f_{x_k})$.
+% 
+% However, doing symbolic execution in a naive way can be extremely inefficient.
+% The length of the formula $val(v)$ can grow exponentially w.r.t. the input commands. For example, consider a simple command $u:=x+y;u:=u+u;u:=u+u$, each execution of $u:= u+ u$ will double the length of the expression representing the symbolic value of $u$. More concretely, after the execution of $u:=x+y$, the symbolic value of $u$ is $x_0+y_0$. After the two executions of $u:=u+u$, the value of $u$ changes to $x_0+y_0+x_0+y_0$ and $x_0+y_0+x_0+y_0+x_0+y_0+x_0+y_0$, respectively. One way to alleviate the problem is to apply formula simplification algorithms, e.g., those implemented in Z3.
+% Here we propose in a very simple alternative solution that works quite well in our reducer benchmarks.
+% 
+% We use a more efficient data structure to store symbolic values. At a high level, in a symbolic state, we count the number of occurrences of each symbolic values in $\Var_0$ and update the count when operations such as $+$ and $-$ is applied. For other operations $x\odot y$, we create a new symbolic expression $val(x) \odot val(y)$ and count its number of occurrence as one.
+% More concretely, we use a map $sv_x:\Exp\rightarrow \mathbb{N}$ (symbolic value of $x$) to remember the number of occurrences of each expression in $x$. We have $val(x)= (\Sigma_{z\in \dom{sv_x}} (z\times sv_x(z)) )$, where $\dom{sv}=\{e\mid sv(e)\neq 0\}$.
+% Initially, $sv_x(x_0) = 1$ and $sv_x (e) =0$ for all $e\neq x$. Assume that the symbolic value of $x,y$ are $sv_x,sv_y$ in the current symbolic state. The symbolic value $sv'_x$ of $x$ after the assignment $x:=p\circ q$ is defined as follows.
+% 
+% \begin{itemize}
+% 	\item For the case that $\circ \in\{+,-\}$, we have $sv'_x(z) = sv_p(z)\circ  sv_q(z)$.
+% 	\item For the case that $\circ \notin\{+,-\}$, we define $sv'_x(val(p) \circ val(q)) =1$ and $sv'_x(e) = 0$ for all $e\neq val(p) \circ val(q)$.
+% \end{itemize}
+% To make the definition complete for our simple reducer program commands, we further define (I) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (II) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
+% This data structure is efficient for strong symbolic values of reducer programs mainly for reason that the operations $+$ and $-$ are quite heavily used in such programs.
+% Here we give a tiny example. Initially, $sv_x(x_0)=1$. After the commands $x:=x*x;x:=x+x$, we get $sv_x(x_0*x_0)=1$ and $sv_x(x_0*x_0)=2$, respectively.
 
-The data flow analysis algorithm works as follows.
-A set $V_3$ whose value is initially a singleton set $\{v\}$ is used to remember the variables that might flow to the output command $out(v)$ in $s_3$ (in Figure~\ref{fig:nested_out}).
-The commands and guards will be inspected in the following order $c_{n}$,$\ldots$,$c_{i+1}$, $g_m$, $g_{m-1}$, $\ldots$, $g_1$, $c_i$, $\ldots$, $c_2$, $c_1$. For the case that a guard $g_j$ for $j\in [1,m]$ is being processed, we simply add all variables occurred in $g_j$ to $V_3$.
-For the case that a command $c_j$ for $j\in [1,n]$ is being processed, we need to handle two different cases:
-\begin{itemize}
-	\item $c_j$ is an assignment $w:=e$ and $w\in V_3$: all variables in $e$ are added to $V_3$.
-	\item $c_j$ is a branch $\ite{g}{c'_1}{c'_2}$: the algorithm starts from the same set $V_3$ and processes $c'_1$ and $c'_2$ individually and independently (in a similar manner) to obtain $V_3^1$ and $V_3^2$. After that, the algorithm takes their union $V_3^1\cup V_3^2$ as the new value of $V_3$.
-\end{itemize}
-After the entire $s_3$ is being processed we get the set of important variables that might affect the outputs that happen in $s_3$.
-Then we modify the Equation~(\ref{eq:commu}) to the one below
-\begin{equation}
-F(n_1, F(n_2,x_1,x_2,\ldots,x_k) )=_{PosF(V_2\cup V_3)} F(n_2, F(n_1,x_1,x_2,\ldots,x_k) )
-\label{eq:commu2}
-\end{equation}
-The function $PosF(X)$ returns the corresponding positions of variables in $X$ in the output of $F(n,x_1,\ldots,x_k) $. E.g., if $X = \{x_1,x_4,y\}$, where $y\notin \{x_1,\ldots,x_k\}$, then $PosF(X)=\{1,4\}$.
-The use of Equation~(\ref{eq:commu2}) is critical to the success of our approach. }
-\hide{
-\subsection{Computing the $F$ function using symbolic execution with an efficient data structure}
-\label{section:opt2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluation} \label{section:exp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The computation of $F$ in Equation~(\ref{eq:commu2}) can be done in several different ways. For example, one can construct a formula in the style of bounded model checking. Here we apply \emph{symbolic execution} to generate $F$. Below we first review the standard symbolic execution algorithm and then explain how we use it to construct the formula $F$.
-
-
-First, we define the set $\Var_0=\{v_0 \mid v \in \Var \}\cup \{c_0\}$ as the set of initial symbolic values of all variables, where $c_0$ is used to denote the symbolic value from the input.
-A \emph{symbolic state} is a triple $\langle pc, val, cmds \rangle$, where the \emph{path condition} $pc$ is a guard in $\Grd$ over $\Var_0$, the \emph{symbolic valuation} is a mapping from variables in $\Var$ to an expression in $\Exp$ over $\Var_0$, and $cmds\in \Cmd$ is the remaining commands to be executed. The \emph{initial symbolic state} is $\langle \true, val_0, s_2\rangle$, where $val_0(v) = v_0$ for all $v\in\Var$ and $s_2$ is the loop body of the reducer.
-One can compute the next symbolic state of $\langle pc, val, c;cmds \rangle$ according to the following transition rules. Recall that $c$ is either in the form of $v:= e$ or $\ite{g}{c_1}{c_2}$ after the program transformation tasks are performed:
-\begin{enumerate}
-	\item If $c$ is $v:= e$, the next symbolic state is $\langle pc, val[v \rightarrow val(e) ], cmds \rangle$.
-	\item If $c$ is $\ite{g}{c_1}{c_2}$, the next symbolic states are $\langle pc\wedge g, val, c_1.cmds \rangle$ and $\langle pc\wedge not\  g, val, c_2.cmds \rangle$.
-\end{enumerate}
-
-Here we lift the $val$ function from variables to expressions in the standard way and $val[v \rightarrow val(e) ]$ is obtained by reassigning the value of $v$ in $val$ to $val(e)$. The execution from a symbolic state terminates when its path condition is conflict or the commands to be executed become empty, i.e., all commands have been processed. So far it is standard.
-
-For the loop body $s_2$, symbolic execution is guaranteed to terminate because there exist no commands in $s_2$ that may lead to infinite computations.
-When the execution terminates, we collect all states with empty commands $\langle pc, val, \emptyset \rangle$ as a set $T$ and use them to create the function $F$ in Equation~(\ref{eq:commu2}).
-First, we create for each variable $x\in\Var$ a formula $f_x$ whose value is $\bigvee_{\langle pc, val, \emptyset \rangle \in T} (pc \wedge val(x))$.
-The function $F(n,x_1,x_2,\ldots,x_k)$ simply returns the tuple $(f_{x_1},f_{x_2},\ldots, f_{x_k})$.
-
-However, doing symbolic execution in a naive way can be extremely inefficient.
-The length of the formula $val(v)$ can grow exponentially w.r.t. the input commands. For example, consider a simple command $u:=x+y;u:=u+u;u:=u+u$, each execution of $u:= u+ u$ will double the length of the expression representing the symbolic value of $u$. More concretely, after the execution of $u:=x+y$, the symbolic value of $u$ is $x_0+y_0$. After the two executions of $u:=u+u$, the value of $u$ changes to $x_0+y_0+x_0+y_0$ and $x_0+y_0+x_0+y_0+x_0+y_0+x_0+y_0$, respectively. One way to alleviate the problem is to apply formula simplification algorithms, e.g., those implemented in Z3.
-Here we propose in a very simple alternative solution that works quite well in our reducer benchmarks.
-
-We use a more efficient data structure to store symbolic values. At a high level, in a symbolic state, we count the number of occurrences of each symbolic values in $\Var_0$ and update the count when operations such as $+$ and $-$ is applied. For other operations $x\odot y$, we create a new symbolic expression $val(x) \odot val(y)$ and count its number of occurrence as one.
-More concretely, we use a map $sv_x:\Exp\rightarrow \mathbb{N}$ (symbolic value of $x$) to remember the number of occurrences of each expression in $x$. We have $val(x)= (\Sigma_{z\in \dom{sv_x}} (z\times sv_x(z)) )$, where $\dom{sv}=\{e\mid sv(e)\neq 0\}$.
-Initially, $sv_x(x_0) = 1$ and $sv_x (e) =0$ for all $e\neq x$. Assume that the symbolic value of $x,y$ are $sv_x,sv_y$ in the current symbolic state. The symbolic value $sv'_x$ of $x$ after the assignment $x:=p\circ q$ is defined as follows.
-
-\begin{itemize}
-	\item For the case that $\circ \in\{+,-\}$, we have $sv'_x(z) = sv_p(z)\circ  sv_q(z)$.
-	\item For the case that $\circ \notin\{+,-\}$, we define $sv'_x(val(p) \circ val(q)) =1$ and $sv'_x(e) = 0$ for all $e\neq val(p) \circ val(q)$.
-\end{itemize}
-To make the definition complete for our simple reducer program commands, we further define (I) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (II) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
-This data structure is efficient for strong symbolic values of reducer programs mainly for reason that the operations $+$ and $-$ are quite heavily used in such programs.
-Here we give a tiny example. Initially, $sv_x(x_0)=1$. After the commands $x:=x*x;x:=x+x$, we get $sv_x(x_0*x_0)=1$ and $sv_x(x_0*x_0)=2$, respectively.}
-
-\section{Evaluation}
-\label{section:exp}
 J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We run J-ReCoVer on a virtual machine running on a server with AMD Opteron 6376 CPU. 4GB of memory is allocated to this virtual machine. The operation system is Ubuntu 16.04.5 LTS. 
 
 In order to properly evaluate the performance of J-ReCoVer, We use the search engine \emph{searchcode.com} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on the number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$
@@ -764,37 +835,58 @@ There are only three cases that J-ReCoVer with live variable analysis cannot han
 J-ReCoVer is the first tool specialized to the reducer commutativity problem, although the approach is simple, it solves most of the real benchmarks we collected from repositories
 There is no other tool that could handle the reducers as they are. Perhaps some other tools could be applied on the transformed programs, but the transformations would still be needed, and our SMT-based backend verifier turned out to work efficiently, and so we did not feel a need to replace it by another verification tool. Of course, in the future, this can be done if need be.
 
-\hide{
-For the optimization based on live variable analysis (Section~\ref{section:optimizations}), we evaluate them based on real-world benchmark sets collected from open repositories (118 examples). The difference between the version with and without this optimization is very clear. The results are presented in table~\ref{tab:opt1}. The first column is the result without optimization and the second column is the result with optimization. The precision of the analysis is improved from $6.8\%$ to $97.5\%$. 
-However, this new program transformation task is not implemented in J-ReCoVer yet.
+% For the optimization based on live variable analysis
+% (Section~\ref{section:optimizations}), we evaluate them based on real-world
+% benchmark sets collected from open repositories (118 examples). The difference
+% between the version with and without this optimization is very clear. The
+% results are presented in table~\ref{tab:opt1}. The first column is the result
+% without optimization and the second column is the result with optimization.
+% The precision of the analysis is improved from $6.8\%$ to $97.5\%$.  However,
+% this new program transformation task is not implemented in J-ReCoVer yet.
+%
+% If we look into scrutiny, we failed to verify any example using
+% Equation~(\ref{eq:commu}). The reason is that when Soot converts a Java
+% program to the Jimple format, it always uses a temporary variable to store the
+% value of $\cur$ in the loop body (similar to the example in
+% Figure~\ref{fig:reducer_opt}). We tried a simpler heuristics approach that
+% only ignores the temporary variables and the result is not as good as using
+% live variable analysis, because the values of the temporary variables often
+% also propagate to other variables.
 
-If we look into scrutiny, we failed to verify any example using Equation~(\ref{eq:commu}). The reason is that when Soot converts a Java program to the Jimple format, it always uses a temporary variable to store the value of $\cur$ in the loop body (similar to the example in Figure~\ref{fig:reducer_opt}). We tried a simpler heuristics approach that only ignores the temporary variables and the result is not as good as using live variable analysis, because the values of the temporary variables often also propagate to other variables.
-\begin{table}[htb]
-	\centering
-	\begin{tabular}{|l|l|l|}
-		\hline
-		&W/O optimization	& With optimization\\
-		\hline
-		\hline
-		Commutative& 0&106\\
-		\hline
-		Non-commutative&8&9\\
-		\hline
-		Unknown&110&3\\
-		\hline
-		Precision& 6.8\% & 97.5\%\\
-		\hline
-		
-	\end{tabular}
-	\caption{The improvement of precision using data flow analysis. The row ``Precision'' is calculated as the number of examples that J-ReCoVer returns commutative or non-commutative divided by the total number of example.}
-	\label{tab:opt1}
-\end{table}
-}
+%\begin{table}[htb]
+%	\centering
+%	\begin{tabular}{|l|l|l|}
+%		\hline
+%		&W/O optimization	& With optimization\\
+%		\hline
+%		\hline
+%		Commutative& 0&106\\
+%		\hline
+%		Non-commutative&8&9\\
+%		\hline
+%		Unknown&110&3\\
+%		\hline
+%		Precision& 6.8\% & 97.5\%\\
+%		\hline
+%		
+%	\end{tabular}
+%
+%        \caption{The improvement of precision using data flow analysis. The row
+%        ``Precision'' is calculated as the number of examples that J-ReCoVer
+%        returns commutative or non-commutative divided by the total number of
+%        example.}
+%
+%	\label{tab:opt1}
+%\end{table}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliographystyle{splncs-sorted}
 \bibliography{refs}
 
 \input{appendix}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
