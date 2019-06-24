@@ -932,28 +932,49 @@ We perform a simple backward live variable analysis to collect all variables who
 
 J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We run J-ReCoVer on a virtual machine with 4GB of memeory running Ubuntu 16.04.5 LTS on a server with AMD Opteron 6376 CPU. 
 
-In order to properly evaluate the performance of J-ReCoVer, We use the search engine \emph{searchcode.com} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on the number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$
-and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total, we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmarks.
 
-There are only three cases that J-ReCoVer cannot handle. The reason that J-ReCoVer fails is that the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such a program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
-
-\begin{wrapfigure}{r}{9cm}
-	\begin{tabular}{|c|c|c|c||c|c|c|}
+\begin{wrapfigure}{r}{4cm}
+	\vspace{-0.7cm}
+	\begin{tabular}{|c|c|c|c|}
 		\hline
-		&Compile &Prepossesor &Prover & Lines & Variables & If-branches\\
+		& Line & Variable & Branch\\
 		\hline
-		Min. &6.22   &2.15        &0.032 & 5 & 4 & 0\\
-		Avg. &6.54   &2.44        &0.046 & 20.5 & 14.7 & 1.2\\
-		Max. &7.28   &3.06        &0.101 & 58 & 37 & 5\\
+		Min. & 5 & 4 & 0\\
+		Avg. & 20.5 & 14.7 & 1.2\\
+		Max. & 58 & 37 & 5\\
 		\hline
 	\end{tabular}
-	\caption{Time in each step, size of the reducers}
-\end{wrapfigure}  
-For the $115$ solved cases, $72\%$ of the execution time are spent in compiling JAVA source code to bytecode, which is the input of the Soot tool. Another $27\%$ of the execution time are spent in the Propossesor, in which Soot is used to transform JAVA bytecode to Jimple and perform the program transformations. The time spent in Solver is quite limited, since the real-world integer reducer programs are usually not that big. 
+	\caption{Size of the reducers}
+	\label{fig:benchmark}
+	\vspace{-0.5cm}
+\end{wrapfigure} 
+
+\subsubsection{Benchmark collection} In order to properly evaluate the performance of J-ReCoVer, We use the search engine \emph{searchcode.com} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on the number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$
+and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total, we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ reducers as the final benchmarks. Figure~\ref{fig:benchmark} contains the details of extracted reducer functions.
 
 
-J-ReCoVer is the first tool specialized to the reducer commutativity problem, although the approach is simple, it solves most of the real benchmarks we collected from repositories.
-There is no other tool that could handle the reducers as they are. Perhaps some other tools could be applied on the transformed programs, but the transformations would still be needed, and our SMT-based back-end verifier turned out to work efficiently, and so we did not feel a need to replace it by another verification tool. Of course, in the future, this can be done if need be.
+\subsubsection{Results} J-ReCoVer successfully handled $115$ cases ($97.4\%$). The analysis time ranges between $9.8$ to $8.6$ seconds. 
+On average, $72\%$ of the execution time is in compiling JAVA source code to bytecode, which is the input of the Soot tool. Another $27\%$ of the execution time is in the Propossesor, in which Soot is used to transform JAVA bytecode to Jimple and perform the program transformations. The time spent in Solver is quite limited ($<1\%$), since the real-world integer reducer programs are usually not that big. 
+
+There is no other tool that could handle the reducers as they are. Perhaps some other tools could be applied on the transformed programs, but the transformations would still be needed, and our SMT-based back-end verifier (the Solver) turned out to work efficiently. So we did not feel a need to replace it by another verification tool. Of course, in the future, this can be done if need be.
+
+J-ReCoVer fails in three cases because the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form of  $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such a program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
+
+ 
+%\begin{wrapfigure}{r}{9cm}
+%	\begin{tabular}{|c|c|c|c||c|c|c|}
+%		\hline
+%		&Compile &Prepossesor &Prover & Lines & Variables & If-branches\\
+%		\hline
+%		Min. &6.22   &2.15        &0.032 & 5 & 4 & 0\\
+%		Avg. &6.54   &2.44        &0.046 & 20.5 & 14.7 & 1.2\\
+%		Max. &7.28   &3.06        &0.101 & 58 & 37 & 5\\
+%		\hline
+%	\end{tabular}
+%	\caption{Time in each step, size of the reducers}
+%\end{wrapfigure} 
+
+
 
 % For the optimization based on live variable analysis
 % (Section~\ref{section:optimizations}), we evaluate them based on real-world
