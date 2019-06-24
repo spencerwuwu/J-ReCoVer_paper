@@ -571,22 +571,30 @@ outputs the same value for all permutations of the same list of inputs. In this
 case, J-ReCoVer stops and reports that the reducer is commutative.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace*{-2mm}
 \section{The Preprocessor and the Prover} \label{sec:preprocessor_prover}
+\vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Before entering the Prover component, the Preprocessor first performs a few program transformation tasks to simplify the verification task (Section~\ref{sec:program_trans1}). The output of the preprocessor is a commutativity-equivalent reducer program.  Then the algorithm of the Prover is explained in Section~\ref{sec:prover}. 
+Before entering the Prover component, the Preprocessor first performs two
+program transformations to simplify the verification task
+(Section~\ref{sec:program_trans1}). The output of the preprocessor is a
+commutativity-equivalent reducer program. The algorithm of the Prover is then
+explained in Section~\ref{sec:prover}. 
 
 %=============================================================================
-\subsection{The Program Transformation Task in the Preprocessor}
+\vspace*{-2mm}
+\subsection{The Program Transformations in the Preprocessor}
 \label{sec:program_trans1}
+\vspace*{-1mm}
 %=============================================================================
 
-\subsubsection{Handling output inside the loop body} Recall that the reducer program can perform the ouput command $out(e)$ inside the loop body $s_2$. In this case, we remember the output value in a fresh variable $v$ and replace the $out(e)$ command with an assignment $v:=e$.
-Notice that the value of $v$ stays the same from the point it has been assigned a value until the end of the loop body $s_2$.
-If the values of $v$ are the same for all permutations of input lists at the end of $s_2$, we know that the reducer is commutative w.r.t. to all output values produced inside the loop body $s_2$.
+%-----------------------------------------------------------------------------
+\paragraph*{Handling the access to $\cur$ before entering the loop.}
+%-----------------------------------------------------------------------------
 
-\begin{wrapfigure}{r}{3.5cm}
-	\vspace{-1.5cm}
+\begin{wrapfigure}[11]{r}{3.5cm}
+	\vspace{-17mm}
 	\begin{algorithm}[H]
 		\;\;$m := \cur + 10$; \;
 		\Loop{}{
@@ -598,11 +606,10 @@ If the values of $v$ are the same for all permutations of input lists at the end
 		$out(m)$\;\;
 	\end{algorithm}
 	\vspace{-0.8cm}
-	\caption{Reducer max$^+$}
-	\vspace{-0.8cm}
+	\caption{The max$^+$ reducer with input before the main loop.}
+	\vspace{-12mm}
 	\label{fig:reducer_max1}
 \end{wrapfigure}	
-
 
 %	\begin{figure}[t]
 %		\begin{minipage}{0.4\textwidth}
@@ -638,13 +645,23 @@ If the values of $v$ are the same for all permutations of input lists at the end
 %		\label{fig:reducer_max}
 %	\end{figure}
 
+In real-world reducers, it is often the case that the $s_1$ part of the reducer
+reads from the input. Since our reduction of the commutativity problem to SMT
+solving, which is presented in Section~\ref{sec:prover}, concentrates on the
+influence of the input on the loop $s_2$ only, we need to transform the reducer
+such that any input happens in the loop only. 
 
+In order to be able to explain the transformation that we perform on an example,
+consider the example in Figure~\ref{fig:reducer_max1}. The reducer presented in
+the figure remembers the first input value in the variable $m$, increases its
+value by 10, and then updates its value to bigger ones if any occur in the loop.
+The main loop of the reducer is commutative in this case, but the reducer is not
+commutative. A counterexample can be easily found. With the list $[1,2,3,4,5]$
+and its permutation $[5,4,3,2,1]$ as the inputs, the reducer outputs $11$ and
+$15$, respectively.
 
-
-\subsubsection{Handling the access to $\cur$ before entering the loop} In real-world examples, it is often that the $s_1$ part of the reducer also reads from the input. In the example in Figure~\ref{fig:reducer_max1}, the reducer program remembers the first input value in the variable $m$, increases its value by 10, and then updates its value to bigger ones if any occurs in the loop. The corresponding Equation~(\ref{eq:commu}) is valid in this case. However, the reducer is not commutative. A counterexample can be easily found. With the list $[1,2,3,4,5]$ and its permutation $[5,4,3,2,1]$ as the inputs, the reducer respectively outputs $11$ and $15$.
-
-\begin{wrapfigure}{l}{5.3cm}
-	\vspace{-1cm}
+\begin{wrapfigure}[12]{r}{5.3cm}
+	\vspace{-9mm}
 	\begin{algorithm}[H]
 		$s:=1;$\;
 		\Loop{}{
@@ -658,17 +675,28 @@ If the values of $v$ are the same for all permutations of input lists at the end
 		};
 		$out(m)$
 	\end{algorithm}	
-	\vspace{-0.4cm}
-	\caption{Reducer max$^{+\mathtt{fix}}$}
-	\vspace{-0.4cm}
+	\vspace{-2mm}
+	\caption{The max$^{+\mathtt{fix}}$ reducer.}
+	\vspace{-4mm}
 	\label{fig:reducer_max2}
 \end{wrapfigure}
-We handle the problem again by program transformation. To deal with the example in Figure~\ref{fig:reducer_max1}, we move the prefix $s_1$ into the loop body and use a new variable $s$ to force that the execution of $s_1$ is always before the original loop body. The result after the transformation is demonstrated in Figure~\ref{fig:reducer_max2}. The new reducer program over-approximates all possible inputs/outputs of the original one. When $s=1$, its output sequence is the same as the original reducer. When $s\neq 1$, it may produce outputs that are not possible by the original reducer.
-It also satisfies all assumptions required for the Prover component:
-(I) the commands before entering the loop does not have any $\cur$ expression,
-(II) $out(v)$ command does not occur inside the loop body.
-Since the new reducer has all behaviors of the original one, the new reducer being commutative implies that the original one is also commutative.
 
+To deal with the problem, we use a transformation that we first explain on the
+example from Figure~\ref{fig:reducer_max1}. In particular, we move the prefix
+$s_1$ into the loop body and use a new variable $s$ to force that the execution
+of $s_1$ is always before the original loop body. The result after the
+transformation is demonstrated in Figure~\ref{fig:reducer_max2}. The new reducer
+program over-approximates all possible inputs/outputs of the original one. When
+$s=1$, its output sequence is the same as for the original reducer. When $s\neq
+1$, it may produce outputs that are not possible by the original reducer.
+However, since the new reducer has all behaviors of the original one, if the new
+reducer is commutative, the original one is also commutative.
+
+% TV: The below was removed since the requirements have not even be stated.
+%
+% It also satisfies all assumptions required for the Prover component: (1) the
+% commands before entering the loop do not have any $\cur$ expression, (2) the
+% $out(v)$ command does not occur inside the loop body.
 
 %	\begin{wrapfigure}{r}{9cm}
 %		\centering
@@ -691,9 +719,36 @@ Since the new reducer has all behaviors of the original one, the new reducer bei
 %		\label{fig:general_program_transformation}
 %        \end{wrapfigure}
 
+In general, the problem with the input before the loop can be handled as follows,
+including the case where $\cur$ occurs multiple times in $s_1$. Assume that the
+$s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ has the form
+$$s'_0;x_{i_1}{:=} \cur;s'_1; \ldots; x_{i_{m}}{:=}\cur;s'_m$$ where $\cur$ does
+not occur in $s'_0,s'_1,\ldots, s'_m$. For all $j \in [1,m]$, we replace the
+code $x_{i_j} := \cur; s'_j;$ from $s_1$ by a branch statement with the guard
+$s=j$ and body $x_{i_j} := \cur; s'_j; s:=s+1$ in $s_2$. The original $s_2$ loop
+body becomes the else branch of the newly introduced guard statement.
 
-This approach can be easily generalize to the situation where $\cur$ occurs multiple times in $s_1$. We first rewrite the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ to the form
-$$s'_0;x_{i_1}{:=} \cur;s'_1.\ldots x_{i_{m}}{:=}\cur;s'_m$$, where $\cur$ never occur in $s'_0,s'_1,\ldots, s'_m$. Then uses a branch statement with garud $s=j$ to handle the case $x_{i_j} := \cur; s'_j; s:=s+1$, for all $j \in [1,m]$.
+%-----------------------------------------------------------------------------
+\subsubsection{Handling output inside the loop body} 
+%-----------------------------------------------------------------------------
+
+Another problem for our reduction to SMT is the fact that the reducer program
+can perform the output command $out(e)$ inside the loop body $s_2$. Since our
+SMT-based commutativity checking presented later on will be based on examining
+possible values of the variables that appear in the $s_2$ loop body only (these
+values then determine the output performed in $s_3$), we will replace each such
+$out(e)$ command by the assignment $v:=e$ for a fresh variable $v$. This makes
+the value that will be output visible for our analysis. The fact that we loose
+the output command does not matter since---as already said---we will not track
+the output commands but values of the variables that determine the value of the
+output.  Notice that the value of $v$ stays the same from the point it has been
+assigned a value until the end of the loop body $s_2$. If the value that $v$ can
+have at the end of $s_2$ does not change for any permutation of the input lists,
+we know that the reducer is commutative wrt all output values produced inside
+the loop body $s_2$.
+
+
+
 
 
 %=============================================================================
