@@ -372,7 +372,7 @@ commands, or an $out(v)$ statement that outputs the value of $v \in \Var$. A
 \in \Cmd$. According to our observation over hundreds  of reducer programs in
 open repositories, reducer programs are almost always in this form. The
 $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until
-the entire input list is consumed. An example of a reducer is shown in
+the entire input list is consumed. To simplify presentation, we assume the reducer never output in the loop body $s_2$. An example of a reducer is shown in
 Figure~\ref{fig:reducer_example}.
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
@@ -427,10 +427,9 @@ handled by the scheduler/shuffler component and is affected by issues like
 network latency, which are not controllable by programmers. In order to deal
 with such issues, we wrote our own dummy Hadoop environment for the reducer as a
 part of the Preprocessor component so that the input order of the reducer is now
-controlled by J-ReCoVer. Finally, the Preprocessor performs some program
-transformation tasks to simplify the analysis. For example, it converts all
-output commands $out(e)$ inside loops to a special assignment (as explained in
-Section~\ref{sec:program_trans1}).
+controlled by J-ReCoVer. Finally, the Preprocessor performs  a program transformation to simplify the analysis. 
+
+%For example, it converts all output commands $out(e)$ inside loops to a special assignment (as explained in Section~\ref{sec:program_trans1}).
 
 \begin{wrapfigure}{r}{7cm}
 	\vspace{-8mm}
@@ -582,21 +581,21 @@ case, J-ReCoVer stops and reports that the reducer is commutative.
 \vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Before entering the Prover component, the Preprocessor first performs two
-program transformations to simplify the verification task
+Before entering the Prover component, the Preprocessor first performs a
+program transformation to simplify the verification task
 (Section~\ref{sec:program_trans1}). The output of the preprocessor is a
 commutativity-equivalent reducer program. The algorithm of the Prover is then
 explained in Section~\ref{sec:prover}. 
 
 %=============================================================================
 \vspace*{-2mm}
-\subsection{The Program Transformations in the Preprocessor}
+\subsection{The Program Transformation in the Preprocessor}
 \label{sec:program_trans1}
 \vspace*{-1mm}
 %=============================================================================
 
 %-----------------------------------------------------------------------------
-\paragraph*{Handling the access to $\cur$ before entering the loop.}
+%\paragraph*{Handling the access to $\cur$ before entering the loop.}
 %-----------------------------------------------------------------------------
 
 \begin{wrapfigure}[11]{r}{3.5cm}
@@ -735,32 +734,33 @@ For all $j \in [1,m]$, we add a branch statement $\IF{s=j}{x_{j}:=\cur; c_j; s:=
 We also add $\IF{s=m+1}{s_2}$ for the original loop body.
 
 %-----------------------------------------------------------------------------
-\paragraph*{Handling output inside the loop body} 
+%\paragraph*{Handling output inside the loop body} 
 %-----------------------------------------------------------------------------
 
-Another problem for our reduction to SMT is the fact that the reducer program
-can perform the output command $out(e)$ inside the loop body $s_2$. Since our
-SMT-based commutativity checking presented later on will be based on examining
-possible values of the variables that appear in the $s_2$ loop body only (these
-values then determine the output performed in $s_3$), we will replace each such
-$out(e)$ command by the assignment $v:=e$ for a fresh variable $v$. This makes
-the value that will be output visible for our analysis. The fact that we loose
-the output command does not matter since---as already said---we will not track
-the output commands but values of the variables that determine the value of the
-output.  Notice that the value of $v$ stays the same from the point it has been
-assigned a value until the end of the loop body $s_2$. If the value that $v$ can
-have at the end of $s_2$ does not change for any permutation of the input lists,
-we know that the reducer is commutative wrt all output values produced inside
-the loop body $s_2$.
+%Another problem for our reduction to SMT is the fact that the reducer program
+%can perform the output command $out(e)$ inside the loop body $s_2$. Since our
+%SMT-based commutativity checking presented later on will be based on examining
+%possible values of the variables that appear in the $s_2$ loop body only (these
+%values then determine the output performed in $s_3$), we will replace each such
+%$out(e)$ command by the assignment $v:=e$ for a fresh variable $v$. This makes
+%the value that will be output visible for our analysis. The fact that we loose
+%the output command does not matter since---as already said---we will not track
+%the output commands but values of the variables that determine the value of the
+%output.  Notice that the value of $v$ stays the same from the point it has been
+%assigned a value until the end of the loop body $s_2$. If the value that $v$ can
+%have at the end of $s_2$ does not change for any permutation of the input lists,
+%we know that the reducer is commutative wrt all output values produced inside
+%the loop body $s_2$.
 
 %=============================================================================
 \subsection{The Prover: Reduce Commutativity Checking to SMT Solving}
 \label{sec:prover}
 %=============================================================================
 
-After the transformations described above, the reducer $s_1;\rloop\{s_2\};s_3$
-never calls the $\cur$ function in the $s_1$ part before entering the loop and
-never outputs values inside the loop body (the $s_2$ part). The command $s_2$
+After the transformation described above, the reducer $s_1;\rloop\{s_2\};s_3$
+never calls the $\cur$ function in the $s_1$ part before entering the loop. W.o.l.g, we assume that the reducer reads one input $\cur$ in one loop iteration.
+For the case that multiple reads from input occur in the loop, we can break the multiple reads to several single reads over multiple loop iterations using auxiliary variables and branch statements. 
+The command $s_2$
 can be viewed as a function $F$ that reads the values of all variables and the
 current input before executing $s_2$ and outputs the values of all variables
 after $s_2$. Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1}
@@ -926,7 +926,7 @@ on a server with AMD Opteron 6376 CPU.
 		Max. & 58 & 37 & 5\\
 		\hline
 	\end{tabular}
-	\label{tab:benchmark}
+	\label{fig:benchmark}
 	\vspace{-0.5cm}
 \end{wraptable} 
 
@@ -947,7 +947,7 @@ cases that are not Hadoop MapReduce reducer programs (those do not import the
 Hadoop library, do not extend or implement the reducer interface) and obtain
 $1273$ examples. We further remove those that cannot be compiled, those that are
 identical to each other, or those with non-numerical data types (e.g, string)
-and obtained $118$ reducers as the final benchmarks. Figure~\ref{fig:benchmark}
+and obtained $118$ reducers as the final benchmarks. Table~\ref{fig:benchmark}
 contains the details of extracted reducer functions.
 
 %-----------------------------------------------------------------------------
