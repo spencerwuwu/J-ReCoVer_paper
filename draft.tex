@@ -822,17 +822,32 @@ commutative.
 
 
 %=============================================================================
-\subsection{Optimization: Live Variable Analysis} \label{section:optimizations}
+\subsection{An Optimisation by Live Variable Analysis}
+\label{section:optimizations}
 %=============================================================================
 
-Here we explain how live variable analysis is used in J-ReCoVer to improve the precision of commutativity checking.
+We now explain how a simple live variable analysis is used in J-ReCoVer to
+significantly improve the precision of commutativity checking.
 
-We find that in many cases, Equation~(\ref{eq:commu}) is a condition that is too strong for the reducer to be commutative. For instance, consider a simple example. In the loop body, the input is first stored in a variable $t$ and then added to $s$. 
-That is $t:=\cur;s:=t$.
-After the loop, output the value of $s$.
-In this case, the $F$ function returns the updated values of both $s$ and $t$ after the execution of the loop body. Observe that
-$F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t)) = (c_1+c_2, c_2)$. It follows that the corresponding Equation~(\ref{eq:commu}) is invalid. The second component of the returned tuples corresponds to the value of $t$ after executing the loop body twice. Their values are $c_1$ and $c_2$, respectively, in $F(c_1, F(c_2,s,t))$ and $F(c_2, F(c_1,s,t))$. However, in this case, the value of $t$ will not affect the output of this reducer.
-To handle this issue, we perform a simple backward live variable analysis to collect all variables whose value may propagate to the output command after the loop execution. Only these variables are required to be equivalent. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$ with the help of this optimization. 
+In our initial experiments, we realised that Formula~\ref{eq:commu} is a
+condition that is too strong for the reducer to be commutative. To illustrate
+the issue, we present a simple example. In the loop body, the input is first
+stored in a variable $t$ and this is then assigned to $s$, i.e., $t:=\cur;s:=t$.
+After the loop, the value of $s$ is output. In this case, the $F$ function
+returns the updated values of both $s$ and $t$ after the execution of the loop
+body. Observe that $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t))
+= (c_1+c_2, c_2)$. It follows that Formula~\ref{eq:commu} is invalid. The second
+component of the returned tuples, which causes the invalidity, corresponds to
+the value of $t$ after executing the loop body twice. Their values are $c_1$ and
+$c_2$, respectively, in $F(c_1, F(c_2,s,t))$ and $F(c_2, F(c_1,s,t))$. However,
+in this case, the value of $t$ will not affect the output of the reducer.
+
+To handle the above issue, we perform a simple backward live variable analysis
+to collect all variables whose value may propagate to the output command after
+the loop execution. Only these variables are then required to be equivalent. In
+our evaluation, the ratio of reducers that our approach can successfully analyze
+is significantly increased---in particular, from $6.8~\%$ to $97.5~\%$---by
+using this optimisation. 
 
 % Without loss of generality, we assume there is only one output command after the loop. Then the code after the loop (i.e., the $s_3$ part of the reducer) can only be in the form of Figure~\ref{fig:nested_out}.
 % We unfold all concatenation of commands, so now the commands $c_1\ldots c_n$ are either assignment commands $w:=e$ or branch command $\ite{g}{c'_1}{c'_2}$, and the only output command stays in the $m$-th layer of the branch command after $c_i$. For the case that $m=0$, the entire branch command in Lines 2-6 of Figure~\ref{fig:nested_out} is replaced with $out(v)$.
