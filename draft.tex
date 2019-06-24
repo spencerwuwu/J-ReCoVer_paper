@@ -280,7 +280,6 @@ running under some \emph{relaxed memory
 models}~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their
 computation models are again quite different from that of reducers, and hence
 the results cannot be directly applied.
-
 Besides verification, another interesting research direction is the
 \emph{synthesis} of MapReduce programs~\cite{SmithA16}. Commutativity analysis
 is used as a component under the synthesis framework.
@@ -371,26 +370,26 @@ the entire input list is consumed. An example of a reducer is shown in
 Figure~\ref{fig:reducer_example}.
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
-interleaved with some non-looping code. {\color{red} These loops are executed
-sequentially, repeatedly iterating over the input list from its beginning.} For
+interleaved with some non-looping code. These loops are executed
+sequentially, repeatedly iterating over the input list from its beginning. For
 example, for calculating the standard deviation, one first computes the average
 of inputs and then uses it to compute the final result (using two passes over
 the input list). In that case, we suggest to verify the reducer by first
 partitioning it into two (or more) reducers, each containing a single top-level
-loop, and then verifying these reducers separately.\footnote{\color{red}Nested
-loops can be transformed into branches of the top-level loop.} The top-level
+loop, and then verifying these reducers separately.
+\footnote{Nested
+loops can be removed by adding additional branch statements, since both the inner and outer loop are over the same input list.
+In fact, such program construct never occured in examples we have ever seen.} The top-level
 loops communicate through shared variables.  After the transformation, reducers
 corresponding to the second top-level loop (and possibly further such loops)
-will work with random values of the shared variable, which over-approximates the
-original behaviour.
+will work with random initial values of the shared variable, which over-approximates the original behavior. Usually, the second (or further) top-level loop are commutative even with arbitary initial shared variable values and hence J-ReCoVer can be used to prove it.
 
-For instance, for the case of the standard deviation, the first reducer computes
-the average, and the other reducer performs the rest of the computation. The
-second reducer replaces the average with a non-deterministic value and thus
-``over-approximates'' all possible outputs of the standard deviation
-computation. Equivalently, it computes an output for all possible ``average''
-values. However, this reducer is still commutative, and its commutativity can be
-verified.
+%For instance, for the case of the standard deviation, the first reducer computes
+%the average, and the other reducer performs the rest of the computation. The
+%second reducer replaces the average with a non-deterministic value and thus
+%``over-approximates'' all possible outputs of the standard deviation
+%computation. Equivalently, it computes an output for all possible ``average''
+%values. However, this reducer is still commutative, and its commutativity can be verified.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace*{-2mm}
@@ -857,14 +856,14 @@ We perform a simple backward live variable analysis to collect all variables who
 \section{Evaluation} \label{section:exp}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We run J-ReCoVer on a virtual machine running on a server with AMD Opteron 6376 CPU. 4GB of memory is allocated to this virtual machine. The operation system is Ubuntu 16.04.5 LTS. 
+J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We run J-ReCoVer on a virtual machine with 4GB of memeory running on a server with AMD Opteron 6376 CPU.The operation system is Ubuntu 16.04.5 LTS. 
 
 In order to properly evaluate the performance of J-ReCoVer, We use the search engine \emph{searchcode.com} to collect java programs containing the key strings ``public void reduce'' or ``protected void reduce''. Since there is an upper bound on the number of results returned from the search engine, we add different search filters in order to get more data. We tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim 250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$
 and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total, we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ programs as the final benchmarks.
 
-There are only three cases that J-ReCoVer with live variable analysis cannot handle. The reason that J-ReCoVer fails is that the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such a program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
+There are only three cases that J-ReCoVer cannot handle. The reason that J-ReCoVer fails is that the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such a program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
 
-J-ReCoVer is the first tool specialized to the reducer commutativity problem, although the approach is simple, it solves most of the real benchmarks we collected from repositories
+J-ReCoVer is the first tool specialized to the reducer commutativity problem, although the approach is simple, it solves most of the real benchmarks we collected from repositories.
 There is no other tool that could handle the reducers as they are. Perhaps some other tools could be applied on the transformed programs, but the transformations would still be needed, and our SMT-based backend verifier turned out to work efficiently, and so we did not feel a need to replace it by another verification tool. Of course, in the future, this can be done if need be.
 
 % For the optimization based on live variable analysis
