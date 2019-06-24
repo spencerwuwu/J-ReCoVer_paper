@@ -911,11 +911,11 @@ using this optimisation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We
-run J-ReCoVer on a virtual machine with 4GB of memory running Ubuntu 16.04.5 LTS
+ran J-ReCoVer on a virtual machine with 4GB of memory running Ubuntu 16.04.5 LTS
 on a server with AMD Opteron 6376 CPU. 
 
-\begin{wraptable}{r}{4cm}
-	\vspace{-0.7cm}
+\begin{wraptable}[7]{r}{40mm}
+	\vspace{-8mm}
 	\caption{Size of the reducers.}
 	\begin{tabular}{|c|c|c|c|}
 		\hline
@@ -926,42 +926,64 @@ on a server with AMD Opteron 6376 CPU.
 		Max. & 58 & 37 & 5\\
 		\hline
 	\end{tabular}
-	\label{fig:benchmark}
-	\vspace{-0.5cm}
+
+	\label{tab:benchmark}
+	\vspace{-5mm}
+
 \end{wraptable} 
 
 %-----------------------------------------------------------------------------
 \paragraph*{Benchmark collection} 
 %-----------------------------------------------------------------------------
 
-In order to properly evaluate the performance
-of J-ReCoVer, We use the search engine \emph{searchcode.com} to collect java
-programs containing the key strings ``public void reduce'' or ``protected void
-reduce''. Since there is an upper bound on the number of results returned from
-the search engine, we add different search filters in order to get more data. We
-tried all $12$ combinations of six filters on code length $\{<50$, $ 50\sim
-250$, $250\sim 450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim
-1250\}$ and two filters for data sources $\{\url{github.com},
-\url{bitbuckect.com}\}$. In total, we get $11346$ Java programs. We exclude
-cases that are not Hadoop MapReduce reducer programs (those do not import the
-Hadoop library, do not extend or implement the reducer interface) and obtain
-$1273$ examples. We further remove those that cannot be compiled, those that are
-identical to each other, or those with non-numerical data types (e.g, string)
-and obtained $118$ reducers as the final benchmarks. Table~\ref{fig:benchmark}
-contains the details of extracted reducer functions.
+
+In order to properly evaluate the performance of J-ReCoVer, we used the search
+engine \emph{searchcode.com} to collect Java programs containing the key strings
+``public void reduce'' or ``protected void reduce''. Since there is an upper
+bound on the number of results returned from the search engine, we added
+different search filters in order to get more data. We tried all $12$
+combinations of six filters on the code length $\{<50$, $ 50\sim 250$, $250\sim
+450$, $450\sim 650$, $650\sim 850$, $850\sim 1050$, $1050\sim 1250\}$ and two
+filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total,
+we got $11,346$ Java programs. We excluded cases that were not Hadoop MapReduce
+reducer programs (those do not import the Hadoop library, do not extend or
+implement the reducer interface) and obtained $1,273$ examples. We further
+removed those that could not be compiled, those that were identical to each
+other, and those with non-numerical data types (e.g., strings). We obtained
+$118$ reducers as the final benchmarks. Table~\ref{tab:benchmark} contains more
+details of the considered reducer functions.
+
 
 %-----------------------------------------------------------------------------
 \paragraph*{Results} 
 %-----------------------------------------------------------------------------
 
-J-ReCoVer successfully handled $115$ cases ($97.5\%$). The analysis time ranges between $9.8$ to $8.6$ seconds. 
-On average, $72\%$ of the execution time is in compiling JAVA source code to bytecode, which is the input of the Soot tool. Another $27\%$ of the execution time is in the Propossesor, in which Soot is used to transform JAVA bytecode to Jimple and perform the program transformations. The time spent in Solver is quite limited ($<1\%$), since the real-world integer reducer programs are usually not that big. 
+J-ReCoVer successfully handled $115$ cases ($97.5~\%$) out of the considered
+ones. The analysis time ranged between $9.8$ and $8.6$ seconds. On average,
+$72~\%$ of the execution time was spent in compiling Java source code to
+bytecode, which is the input of the Soot tool. Further, $27~\%$ of the execution
+time was spent in the Preprocessor, in which Soot is used to transform Java
+bytecode to Jimple and perform the program transformation. The time spent in
+Solver is quite limited ($<1~\%$) since the real-world integer reducer programs
+are usually not that big. 
 
-There is no other tool that could handle the reducers as they are. Perhaps some other tools could be applied on the transformed programs, but the transformations would still be needed, and our SMT-based back-end verifier (the Solver) turned out to work efficiently. So we did not feel a need to replace it by another verification tool. Of course, in the future, this can be done if need be.
+There is no other tool that could handle the reducers as they are. Perhaps some
+other tools could be applied on the transformed programs, but the
+transformation would still be needed, and our SMT-based back-end verifier (the
+Solver) turned out to work efficiently. Hence, we did not feel a need to replace
+it by another verification tool. Of course, in the future, this can be done if
+need be.
 
-J-ReCoVer fails in three cases because the three reducers use more complicated structure than what J-ReCoVer currently supports; they use a branch statement before entering the loop, i.e., in the form of  $\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such a program can be handled by more sophisticated program transformation tasks. For example, we can merge the two loops and push the outer branch condition into the merged loop.
+J-ReCoVer failed in three cases out of the considered ones because the three
+reducers use more complicated control structures than what J-ReCoVer currently
+supports. Namely, they use a branch statement before entering the loop, i.e.,
+they have the form of
+$\ite{g}{(s_1;\rloop\{s_2\};s_3)}{(s'_1;\rloop\{s'_2\};s'_3)}$. In theory, such
+a program can be handled by more sophisticated program transformation. For
+example, we can merge the two loops and push the outer branch condition into the
+merged loop. Extensions of J-ReCoVer to be able to handle such constructions,
+together with a support for more data types, belong among our future works.
 
- 
 %\begin{wrapfigure}{r}{9cm}
 %	\begin{tabular}{|c|c|c|c||c|c|c|}
 %		\hline
@@ -974,8 +996,6 @@ J-ReCoVer fails in three cases because the three reducers use more complicated s
 %	\end{tabular}
 %	\caption{Time in each step, size of the reducers}
 %\end{wrapfigure} 
-
-
 
 % For the optimization based on live variable analysis
 % (Section~\ref{section:optimizations}), we evaluate them based on real-world
