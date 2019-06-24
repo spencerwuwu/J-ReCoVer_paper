@@ -747,26 +747,42 @@ have at the end of $s_2$ does not change for any permutation of the input lists,
 we know that the reducer is commutative wrt all output values produced inside
 the loop body $s_2$.
 
-
-
-
-
 %=============================================================================
 \subsection{The Prover: Reduce Commutativity Checking to SMT Solving}
 \label{sec:prover}
 %=============================================================================
 
+After the transformations described above, the reducer $s_1;\rloop\{s_2\};s_3$
+never calls the $\cur$ function in the $s_1$ part before entering the loop and
+never outputs values inside the loop body (the $s_2$ part). The command $s_2$
+can be viewed as a function $F$ that reads the values of all variables and the
+current input before executing $s_2$ and outputs the values of all variables
+after $s_2$. Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1}
+\rightarrow \Z^k$ returns a tuple of values $x_1',x_2',\ldots,x_k'$ where $n$ is
+the current input value of the reducer, $x_i$ and $x_i'$ are the values of the
+variables before and after the execution of $s_2$, respectively, for
+$i\in[1,k]$. The construction of $F$ from $s_2$ can be done in the standard way.
 
+We reduce the reducer commutativity checking to checking validity of the
+following formula for all possible values of $n_1,n_2, x_1,x_2,\ldots,x_k$:
+\begin{equation} F(n_1, F(n_2,x_1,x_2,\ldots,x_k)) = F(n_2,
+F(n_1,x_1,x_2,\ldots,x_k) ). \label{eq:commu} \end{equation} Intuitively, the
+formula says that starting from the same initial valuations of variables and
+with two different input orders, $[n_1;n_2]$ and $[n_2;n_1]$, the values of all
+program variables are the same after we execute the loop body twice. The first
+execution reads $n_1$ and then reads $n_2$. The other execution reads the two
+inputs in the reverse order. Since any permutation of the input can be obtained
+by a sequence of permutations of neighbouring inputs, the validity of
+Formula~\ref{eq:commu} implies that the permutations will not change the final
+variable valuation and hence the output in $s_3$. 
 
-After the transformation, the reducer $s_1;\rloop\{s_2\};s_3$ never calls the $\cur$ function before enthering the loop (the $s_1$ part) and never output values inside the loop body (the $s_2$ part). The command $s_2$ can be viewed as a function $F$ that reads the values of all variables and the current input before executing $s_2$ and outputs the values of all variables after $s_2$. Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1} \rightarrow \Z^k$ returns a tuple of values $x_1',x_2',\ldots,x_k'$, where $n$ is the current input value of the reducer, $x_i$ and $x_i'$ are the values of variables before and after the execution of $s_2$, respectively, for $i\in[1,k]$. The construction of $F$ from $s_2$ can be done in the standard way. We check if the formula below is valid for all possible values of $n_1,n_2, x_1,x_2,\ldots,x_k$.
-\begin{equation}
- F(n_1, F(n_2,x_1,x_2,\ldots,x_k)) = F(n_2, F(n_1,x_1,x_2,\ldots,x_k) )
-\label{eq:commu}
-\end{equation}
-
-Using the reducer that computes average (Figure~\ref{fig:reducer_example}) as an example. It has two variables $s$ and $c$. It is not difficult to compute that $F_{average}(n,s,c)=(s+n, c+1)$. The corresponding Equation~(\ref{eq:commu}) is valid because $F_{average}(n_1, F_{average}(n_2,s,c)) =F_{average}(n_1, s+n_2, c+1)= (s+n_1+n_2,c+2)=F_{average}(n_2, s+n_1, c+1)=F_{average}(n_2, F_{average}(n_1,s,c))$.
-
-The validity of Equation~(\ref{eq:commu}) implies that swapping any two consecutive input values will not change the final variable valuation. Informally, it says that starting from the same initial valuations of variables and with two different input orders, $[n_1;n_2]$ and $[n_2;n_1]$, the values of all program variables are the same after we execute the loop body twice. The first execution reads $n_1$ and then reads $n_2$. The other execution reads the two inputs in the reverse order.
+Consider the reducer computing the average value
+(Figure~\ref{fig:reducer_example}) as an example. The reducer has two variables
+$s$ and $c$. We get that $F_{average}(n,s,c)=(s+n, c+1)$. In this case,
+Formula~\ref{eq:commu} is valid since $F_{average}(n_1, F_{average}(n_2,s,c))
+=F_{average}(n_1, s+n_2, c+1)= (s+n_1+n_2,c+2)=F_{average}(n_2, s+n_1,
+c+1)=F_{average}(n_2, F_{average}(n_1,s,c))$. This implies that the reducer is
+commutative.
 
 
 % In the example of ``average'', the values of $s$ and $c$ are the same no
