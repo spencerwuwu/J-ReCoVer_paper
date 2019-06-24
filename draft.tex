@@ -87,6 +87,12 @@
 \newcommand{\maxi}{m}
 \newcommand{\cur}{cur()}
 \newcommand{\dom}[1]{\mathsf{dom}(#1)}
+\newcommand{\IF}[2]{
+	\ifmmode
+	\mathbf{if}\ #1 \ \mathbf{then}\ #2
+	\else
+	\textbf{if}\ #1 \ \textbf{then}\ #2
+	\fi}
 \newcommand{\ite}[3]{
 	 \ifmmode
 	 \mathbf{if}\ #1 \ \mathbf{then}\ #2\  \mathbf{else}\ #3
@@ -138,7 +144,7 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 
 The MapReduce framework for data-parallel computation was first proposed by
 Google~\cite{dean04} and later implemented in the Apache Hadoop
-project~\cite{hadoop}. Under the MapReduce framework, a reducer computes output
+project. Under the MapReduce framework, a reducer computes output
 values from a sequence of input values transmitted over the network. Due to
 non-determinism in data transmission, the order in which input values arrive at
 the reducer is not fixed. In relation to this, the \emph{commutativity problem}
@@ -159,7 +165,7 @@ handles over 97~\% of them.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MapReduce belongs among the most popular frameworks for data parallel
-computation. A MapReduce program~\cite{dean04,hadoop} consists of several pairs
+computation. A MapReduce program~\cite{dean04} consists of several pairs
 of \emph{mappers} and \emph{reducers} running on a machine cluster for handling
 big data in parallel. Usually, mappers and reducers are the only components in a
 MapReduce program that involve concurrency. Mappers read data from a distributed
@@ -226,7 +232,7 @@ programs to other interested researchers as a side contribution of the paper.
 Our tool J-ReCoVer is able to correctly analyze all but three of the programs.
 
 %=============================================================================
-\subsection*{Related Works}
+\paragraph*{Related Works}
 %=============================================================================
 
 The reducer commutativity problem can be reduced to a \emph{program equivalence}
@@ -242,7 +248,7 @@ elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$
 [\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to
 be commutative. There is a series of research results on program equivalence
 checking (or closely related topics such as regression verification and
-translation validation): see, e.g.,
+translation validation): c.f.,
 \cite{Pnueli:1998:TV,fedyukovich2015automated,barthe2011relational,KlebanovRuemmerUlbrich2017}
 to name a few. 
 
@@ -403,7 +409,7 @@ prove it.
 %Hadoop, Java;
 
 The input of J-ReCoVer is a reducer program written in Java, which is the most
-popular programming language used in the Hadoop~\cite{hadoop} MapReduce
+popular programming language used in the Hadoop MapReduce
 framework. The J-ReCoVer tool has three main components, the
 \emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name
 suggests, the Preprocessor reads as input a reducer program and performs the
@@ -541,7 +547,7 @@ Section~\ref{sec:program_trans1}).
 		\end{tikzpicture}
 	}
 		\vspace{-1cm}
-	\caption{Overview of the J-ReCoVer Tool. }\label{fig:overview-jrecover}
+	\caption{Overview of the J-ReCoVer tool. }\label{fig:overview-jrecover}
 		\vspace{-0.8cm}
 	
 \end{wrapfigure}
@@ -722,11 +728,11 @@ reducer is commutative, the original one is also commutative.
 In general, the problem with the input before the loop can be handled as follows,
 including the case where $\cur$ occurs multiple times in $s_1$. Assume that the
 $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ has the form
-$$s'_0;x_{i_1}{:=} \cur;s'_1; \ldots; x_{i_{m}}{:=}\cur;s'_m$$ where $\cur$ does
-not occur in $s'_0,s'_1,\ldots, s'_m$. For all $j \in [1,m]$, we replace the
-code $x_{i_j} := \cur; s'_j;$ from $s_1$ by a branch statement with the guard
-$s=j$ and body $x_{i_j} := \cur; s'_j; s:=s+1$ in $s_2$. The original $s_2$ loop
-body becomes the else branch of the newly introduced guard statement.
+$c_0;x_{1}{:=} \cur;c_1; \ldots; x_{m}{:=}\cur;c_m$, where $\cur$ does
+not occur in $c_0,c_1,\ldots, c_m$. 
+In the transformed reducer, the part before the loop is now $c_0;s:=1$. The loop body contains several branch statements. 
+For all $j \in [1,m]$, we add a branch statement $\IF{s=j}{x_{j}:=\cur; c_j; s:=s+1}$. 
+We also add $\IF{s=m+1}{s_2}$ for the original loop body.
 
 %-----------------------------------------------------------------------------
 \paragraph*{Handling output inside the loop body} 
@@ -821,53 +827,12 @@ commutative.
 
 Here we explain how live variable analysis is used in J-ReCoVer to improve the precision of commutativity checking.
 
-We find that in many cases, Equation~(\ref{eq:commu}) is a condition that is too strong for the reducer to be commutative. For instance, consider a simple example. In the loop body, the input is first stored in a variable $t$ and then added to $s$. After the loop, output the value of $s$.
+We find that in many cases, Equation~(\ref{eq:commu}) is a condition that is too strong for the reducer to be commutative. For instance, consider a simple example. In the loop body, the input is first stored in a variable $t$ and then added to $s$. 
+That is $t:=\cur;s:=t$.
+After the loop, output the value of $s$.
 In this case, the $F$ function returns the updated values of both $s$ and $t$ after the execution of the loop body. Observe that
 $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t)) = (c_1+c_2, c_2)$. It follows that the corresponding Equation~(\ref{eq:commu}) is invalid. The second component of the returned tuples corresponds to the value of $t$ after executing the loop body twice. Their values are $c_1$ and $c_2$, respectively, in $F(c_1, F(c_2,s,t))$ and $F(c_2, F(c_1,s,t))$. However, in this case, the value of $t$ will not affect the output of this reducer.
-
-
-%\begin{figure}[hbt]
-%	\begin{minipage}{0.4\textwidth}
-%		\begin{algorithm}[H]
-%			$s:= 0$; \;
-%			\Loop{}{
-%				$t:=\cur$;
-%				$s:= s + t$\;
-%			};
-%			$out(s)$\;\;\;
-%		\end{algorithm}
-%		\caption{A commutative reducer with an invalid 
-%                   Equation~(\ref{eq:commu}).}
-%		\label{fig:reducer_opt}
-%	\end{minipage}
-%	\ \ \ \ \ \ \ \
-%	\begin{minipage}{0.5\textwidth}
-%		\LinesNumbered
-%		\centering
-%		\begin{minipage}{0.75\textwidth}
-%		\begin{algorithm}[H]
-%			$c_1;c_2;\ldots;c_i$\;
-%			\lIf{$g_1$}{$\ldots$}
-%			\lElseIf{ $g_2$}{$\ldots$}
-%			\lElseIf{ $g_3$}{$\ldots$}
-%			\lElseIf{ $g_m$}{$c_{i+1};\ldots ;c_n; out(v);\ldots$}
-%			\lElse{ $\ldots$}
-%		\end{algorithm}
-%	\end{minipage}
-%		\caption{The $s_3$ command with an $out(v)$ command in 
-%                   nested branches.}
-%		\label{fig:nested_out}
-%	\end{minipage}
-%\end{figure}
-
-% To handle such a situation, we need an algorithm to collect a set of variables
-% whose value may affect the output.  Recall that the first program
-% transformation task uses a set of variables $V_2=\{v_{out_k} \mid k \in
-% [1,l]\}$, where $l$ is the number of output commands occurred in $s_2$, to
-% collect output values occurred in the loop body $s_2$.  The set $V_2$ is
-% exactly the set of variables that will affect the output inside the loop.
-
-We perform a simple backward live variable analysis to collect all variables whose value may propagate to the output command after the loop execution. Only these varaibles are required to be equivalent. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$. The details of the evaluation can be found in Section~\ref{section:exp}.
+To handle this issue, we perform a simple backward live variable analysis to collect all variables whose value may propagate to the output command after the loop execution. Only these variables are required to be equivalent. In our evaluation, the ratio of examples that our approach can successfully analyze is significantly increased from $6.8\%$ to $97.5\%$ with the help of this optimization. 
 
 % Without loss of generality, we assume there is only one output command after the loop. Then the code after the loop (i.e., the $s_3$ part of the reducer) can only be in the form of Figure~\ref{fig:nested_out}.
 % We unfold all concatenation of commands, so now the commands $c_1\ldots c_n$ are either assignment commands $w:=e$ or branch command $\ite{g}{c'_1}{c'_2}$, and the only output command stays in the $m$-th layer of the branch command after $c_i$. For the case that $m=0$, the entire branch command in Lines 2-6 of Figure~\ref{fig:nested_out} is replaced with $out(v)$.
@@ -953,7 +918,7 @@ J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We
 and two filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total, we get $11346$ Java programs. We exclude cases that are not Hadoop MapReduce reducer programs (those do not import the Hadoop library, do not extend or implement the reducer interface) and obtain $1273$ examples. We further remove those that cannot be compiled, those that are identical to each other, or those with non-numerical data types (e.g, string) and obtained $118$ reducers as the final benchmarks. Figure~\ref{fig:benchmark} contains the details of extracted reducer functions.
 
 
-\paragraph*{Results} J-ReCoVer successfully handled $115$ cases ($97.4\%$). The analysis time ranges between $9.8$ to $8.6$ seconds. 
+\paragraph*{Results} J-ReCoVer successfully handled $115$ cases ($97.5\%$). The analysis time ranges between $9.8$ to $8.6$ seconds. 
 On average, $72\%$ of the execution time is in compiling JAVA source code to bytecode, which is the input of the Soot tool. Another $27\%$ of the execution time is in the Propossesor, in which Soot is used to transform JAVA bytecode to Jimple and perform the program transformations. The time spent in Solver is quite limited ($<1\%$), since the real-world integer reducer programs are usually not that big. 
 
 There is no other tool that could handle the reducers as they are. Perhaps some other tools could be applied on the transformed programs, but the transformations would still be needed, and our SMT-based back-end verifier (the Solver) turned out to work efficiently. So we did not feel a need to replace it by another verification tool. Of course, in the future, this can be done if need be.
