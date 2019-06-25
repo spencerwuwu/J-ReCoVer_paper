@@ -673,14 +673,15 @@ solving, which is presented in Section~\ref{sec:prover}, concentrates on the
 influence of the input on the loop $s_2$ only, we need to transform the reducer
 such that any input happens in the loop only. 
 
-In order to explain the problem with further details,
-consider the example in Figure~\ref{fig:reducer_max1}. The reducer presented in
-the figure remembers the first input value in the variable $m$, increases its
-value by 10, and then updates its value to bigger ones if any occur in the loop.
-The main loop of the reducer is commutative in this case, but the reducer is not
-commutative. A counterexample can be easily found. With the list $[1,2,3,4,5]$
-and its permutation $[5,4,3,2,1]$ as the inputs, the reducer outputs $11$ and
-$15$, respectively.
+To illustrate the issue, we consider the reducer shown in
+Figure~\ref{fig:reducer_max1}.
+%
+The reducer presented in the figure remembers the first input value in the
+variable $m$, increases its value by 10, and then updates its value to bigger
+ones if any occur in the loop.  The main loop of the reducer is commutative in
+this case, but the reducer is not commutative. A counterexample can be easily
+found. With the list $[1,2,3,4,5]$ and its permutation $[5,4,3,2,1]$ as the
+inputs, the reducer outputs $11$ and $15$, respectively.
 
 \begin{wrapfigure}[12]{r}{5.3cm}
 	\vspace{-10mm}
@@ -703,12 +704,14 @@ $15$, respectively.
 	\label{fig:reducer_max2}
 \end{wrapfigure}
 
-To deal with the problem, we apply a program transformation on the
-example from Figure~\ref{fig:reducer_max1}. In particular, we move the prefix
-$s_1$ into the loop body and use a new variable $s$ to force that the execution
-of $s_1$ is always before the original loop body. The result after the
-transformation is demonstrated in Figure~\ref{fig:reducer_max2}. The new reducer
-program has the same inputs/outputs as the original one. Therefore, if the new reducer is commutative, the original one~is~also~commutative.
+Our transformation will handle the example from Figure~\ref{fig:reducer_max1} as
+follows.
+%
+We move the prefix $s_1$ into the loop body and use a new variable $s$ to force
+that the execution of $s_1$ is always before the original loop body. The result
+after the transformation is demonstrated in Figure~\ref{fig:reducer_max2}. The
+new reducer program has the same inputs/outputs as the original one. Therefore,
+if the new reducer is commutative, the original one~is~also~commutative.
 
 % TV: The below was removed since the requirements have not even be stated.
 %
@@ -737,11 +740,24 @@ program has the same inputs/outputs as the original one. Therefore, if the new r
 %		\label{fig:general_program_transformation}
 %        \end{wrapfigure}
 
-In general, the problem with the multiple inputs before the loop can be handled as follows. Given a reducer $c_0;x_{1}{:=} \cur;c_1; \ldots; x_{m}{:=}\cur;c_m;\rloop\{s_2\};s_3$, where $m$ inputs are read before the loop and $\cur$ does
-not occur in $c_0,c_1,\ldots, c_m$. 
-In the transformed reducer, the part before the loop is now $c_0;s:=1$. The loop body contains several branch statements. 
-For all $j \in [1,m]$, we add a branch statement $\IF{s=j}{x_{j}:=\cur; c_j; s:=s+1}$. 
-We also add $\IF{s=m+1}{s_2}$ for the original loop body.
+% In general, the problem with the multiple inputs before the loop can be handled
+% as follows. Given a reducer $c_0;x_{1}{:=} \cur;c_1; \ldots;
+% x_{m}{:=}\cur;c_m;\rloop\{s_2\};s_3$, where $m$ inputs are read before the loop
+% and $\cur$ does not occur in $c_0,c_1,\ldots, c_m$.  In the transformed reducer,
+% the part before the loop is now $c_0;s:=1$. The loop body contains several
+% branch statements. For all $j \in [1,m]$, we add a branch statement
+% $\IF{s=j}{x_{j}:=\cur; c_j; s:=s+1}$.  We also add $\IF{s=m+1}{s_2}$ for the
+% original loop body.
+
+In general, the problem with the input before the loop can be handled as
+follows, including the case where $\cur$ occurs multiple times in $s_1$. Assume
+that the $s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ has the form
+$c_0;x_{1}{:=} \cur;c_1; \ldots; x_{m}{:=}\cur;c_m$ where $\cur$ does not occur
+in $c_0,c_1,\ldots, c_m$. In the transformed reducer, the part before the loop
+will be $c_0;s:=1$, and the loop body will contain several new branch
+statements. In particular, for all $j \in [1,m]$, we add the branch statement
+$\IF{s=j}{x_{j}:=\cur; c_j; s:=s+1}$. Moreover, we transform the original loop
+body into the branch $\IF{s=m+1}{s_2}$.
 
 %-----------------------------------------------------------------------------
 %\paragraph*{Handling output inside the loop body} 
