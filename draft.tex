@@ -7,7 +7,8 @@
 \usepackage{alltt}
 \usepackage{xspace}
 \usepackage{multirow}
-\pagestyle{plain}
+%\pagestyle{plain}
+\pagestyle{empty}
 \usepackage{xcolor}
 \usepackage{algorithm2e}
 \usepackage{tikz,pgfplots}
@@ -140,7 +141,7 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 
 \maketitle
 
-\begin{abstract}
+\vspace*{-4mm}\begin{abstract}
 
 The MapReduce framework for data-parallel computation was first proposed by
 Google~\cite{dean04} and later implemented in the Apache Hadoop
@@ -161,7 +162,9 @@ handles over 97~\% of them.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace*{-4mm}
 \section{Introduction} \label{section:introduction}
+\vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MapReduce belongs among the most popular frameworks for data parallel
@@ -379,18 +382,10 @@ open repositories, reducer programs are almost always in this form. The
 $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly for
 each input element until the entire input list is consumed. An example of a
 reducer is shown in Figure~\ref{fig:reducer_example}. In the paper, to simplify
-the presentation, we assume that a reducer does never produce output in the loop
-body $s_2$. In the J-ReCoVer tool, an algorithm to deal with output inside the
-loop is implemented.
-
-% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%
-% Just to remember: the way the output from the main loop is handled currently
-% is wrong: One should either check that there is no flow between the input and
-% output in the loop, or to add a check that the projection of the F function on
-% any value output in the main loop stays the same for any input value.
-%
-% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+the presentation, we assume that a reducer does never produce any output in the
+loop body $s_2$. In the J-ReCoVer tool, an algorithm to deal with the output
+inside the loop is implemented (as briefly mentioned at the end of
+Section~\ref{sec:prover}).
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
 interleaved with some non-looping code. These loops are executed sequentially,
