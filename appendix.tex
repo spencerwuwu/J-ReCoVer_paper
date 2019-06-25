@@ -2,12 +2,14 @@
 \clearpage
 \appendix
 
-\section{J-ReCoVer Usages}
+\section{J-ReCoVer Demo}
+
+Our plan is to demo the basic usage of J-ReCoVer over two examples. The first example is a reducer that is not commutative, and J-ReCoVer will report a counterexample. Based on this counterexample, we will fix the reducer to get the 2nd example, and let J-ReCoVer to check it again. Now J-ReCoVer will report the reducer is commutative. Below we give a more detailed description of the functionalities of J-ReCoVer. 
 
 \subsection{The User Interface of J-ReCoVer}
 \label{appendix:1}
 
-J-ReCoVer is available online at \url{\texttt{http://jrecover.iis.sinica.edu.tw/}}. Fig.~\ref{fig:main_screen} shows the main screen of J-ReCoVer. The alignment of user interface elements are as follows:
+Figure~\ref{fig:main_screen} shows the main screen of J-ReCoVer. The alignment of user interface elements are as follows:
 
 \begin{figure}
 \begin{center}
@@ -25,25 +27,25 @@ J-ReCoVer is available online at \url{\texttt{http://jrecover.iis.sinica.edu.tw/
 Top Menu:
 \begin{itemize}
 \item
-\emph{"Github"} opens a new tab of the repository of J-ReCoVer. The repository also has source code of benchmarks.
+\emph{``GitHub''} opens a new tab of the repository of J-ReCoVer. The repository also has source code of benchmarks.
 \item
-\emph{"Benchmark"} leads to the list of benchmarks we collected with their results of commutativity analysis as Fig.~\ref{fig:benchmark_list} shows. Select the filename or "try it" button will select the example and go back to the main screen.
+\emph{``Benchmark''} leads to the list of benchmarks we collected with their results of commutativity analysis as Fig.~\ref{fig:benchmark_list} shows. Select the filename or "try it" button will select the example and go back to the main screen.
 \end{itemize}
 \item
 Right Menu:
 \begin{itemize}
 \item
-\emph{"Benchmark List"} provides a quick selection to examples in the benchmark (Fig.~\ref{fig:benchmark_list_right})
+\emph{``Benchmark List''} provides a quick selection to examples in the benchmark (Fig.~\ref{fig:benchmark_list_right})
 \item
-\emph{"Results"} shows the last analysis result.
+\emph{``Results''} shows the last analysis result.
 \end{itemize}
 \item
 Upper-Right Menu:
 \begin{itemize}
 \item
-\emph{"Type"} provides types that J-ReCoVer supports. Details are explained in~\ref{appendix:3}.
+\emph{``Type''} provides types that J-ReCoVer supports. Details are explained in~\ref{appendix:3}.
 \item
-\emph{"Run"} starts the analysis of the selected example.
+\emph{``Run''} starts the analysis of the selected example.
 \end{itemize}
 \item
 Upper-Left Menu: See~\ref{appendix:3}.
@@ -74,7 +76,7 @@ Upper-Left Menu: See~\ref{appendix:3}.
 \subsection{Run analysis of selected benchmark example}
 \label{appendix:2}
 
-To run analysis, you can choose an example from benchmark using either the top menu or the right menu, then click the "Run" button of the upper-right menu to start the commutativity analysis of the selected example. The pull-down menu "Types" of the upper-right menu provides selectable types for input \texttt{(T1,T2)} and output \texttt{(T3,T4)}. Fig.~\ref{fig:type_select_menu} shows the pull-down menu and Fig.~\ref{fig:selectable_types} shows part of the selectable types in J-ReCoVer. If one selects an example from the benchmark, the types will be automatically selected to match the example. The selection will be needed if the user wants to write a reduce function from sketch for analysis (see~\ref{appendix:3}).
+To run analysis, you can choose an example from benchmark using either the top menu or the right menu, then click the "Run" button of the upper-right menu to start the commutativity analysis of the selected example. The pull-down menu "Types" of the upper-right menu provides selectable types for input \texttt{(T1,T2)} and output \texttt{(T3,T4)} key-value pairs. Fig.~\ref{fig:type_select_menu} shows the pull-down menu and Fig.~\ref{fig:selectable_types} shows part of the selectable types in J-ReCoVer. If one selects an example from the benchmark, the types will be automatically selected to match the example. The selection will be needed if the user wants to write a reduce function from sketch for analysis (see~\ref{appendix:3}).
 
 \begin{figure}
 \begin{center}
@@ -98,7 +100,7 @@ To run analysis, you can choose an example from benchmark using either the top m
 \end{center}
 \end{figure}
 
-After J-ReCoVer finishes the analysis, the \emph{"Result:"} tab of the right menu will show the result as Fig.~\ref{fig:analysis_result} shows. Fig.~\ref{fig:analysis_result_text} shows the analysis result of the first benchmark \texttt{dis.java} in detail.
+After J-ReCoVer finishes the analysis, the \emph{"Result:"} tab of the right menu will show the result of the analysis, which can be found in Figure~\ref{fig:analysis_result}. Figure~\ref{fig:analysis_result_text} shows the complete analysis report of the benchmark \texttt{dis.java} in Figure~\ref{fig:main_screen}.
 
 \begin{figure}
 \begin{center}
@@ -130,7 +132,7 @@ ________________________________
 
 Trying to find a counterexample...
 
-RESULT: Cannot find a counterexample in 500 tests
+RESULT: Cannot find a counterexample in 1500 tests
 Testcases were generated randomly.
 
 Following are the first 50 lines of testcases:
@@ -191,12 +193,13 @@ Input2: v [3, -2, -3, -3, 3]
 \end{center}
 \end{figure}
 
-In a commutativity analysis, J-ReCoVer first tries to compile the example then perfrom commutativity analysis. If the analysis says the example is commutative, J-ReCoVer then runs 500 randomly generated test cases to try to find a counterexample. If the test cases all pass, J-ReCoVer concludes that the example is commutative, or the result will be "unknown" since the results of analysis and tests are inconsistent. For the case that the commutativity analysis returns false, J-ReCoVer will also run test cases to find a counterexample. This time, J-ReCoVer will conclude "not commutative" if a counterexample is found, or "unknown" if no counterexample is found. 
+In a commutativity analysis, J-ReCoVer first tries to compile the example then perform commutativity analysis. If the analysis can not conclude that the example is commutative, J-ReCoVer then runs 1500 randomly generated test cases to try to find a counterexample. If the test cases all pass, then the result will be "unknown".
 
-\subsection{Run Analysis of an example from sketch}
+
+\subsection{Run analysis of an example from sketch}
 \label{appendix:3}
 
-Besides examples from the benchmark, J-ReCoVer also provides an interactive way to analyze a reduce function starting from a sketch.
+Besides examples from the benchmark, J-ReCoVer also provides an interactive way to analyse a user defined reducer function.
 The upper-left menu (below the top menu) provides blank templates for two versions of Hadoop. The templates are
 
 \begin{mdframed}[roundcorner=5pt]
