@@ -7,7 +7,8 @@
 \usepackage{alltt}
 \usepackage{xspace}
 \usepackage{multirow}
-\pagestyle{plain}
+%\pagestyle{plain}
+\pagestyle{empty}
 \usepackage{xcolor}
 \usepackage{algorithm2e}
 \usepackage{tikz,pgfplots}
@@ -140,7 +141,7 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 
 \maketitle
 
-\begin{abstract}
+\vspace*{-4mm}\begin{abstract}
 
 The MapReduce framework for data-parallel computation was first proposed by
 Google~\cite{dean04} and later implemented in the Apache Hadoop
@@ -161,7 +162,9 @@ handles over 97~\% of them.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace*{-4mm}
 \section{Introduction} \label{section:introduction}
+\vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MapReduce belongs among the most popular frameworks for data parallel
@@ -380,18 +383,10 @@ open repositories, reducer programs are almost always in this form. The
 $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly for
 each input element until the entire input list is consumed. An example of a
 reducer is shown in Figure~\ref{fig:reducer_example}. In the paper, to simplify
-the presentation, we assume that a reducer does never produce output in the loop
-body $s_2$. In the J-ReCoVer tool, an algorithm to deal with output inside the
-loop is implemented.
-
-% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%
-% Just to remember: the way the output from the main loop is handled currently
-% is wrong: One should either check that there is no flow between the input and
-% output in the loop, or to add a check that the projection of the F function on
-% any value output in the main loop stays the same for any input value.
-%
-% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+the presentation, we assume that a reducer does never produce any output in the
+loop body $s_2$. In the J-ReCoVer tool, an algorithm to deal with the output
+inside the loop is implemented (as briefly mentioned at the end of
+Section~\ref{sec:prover}).
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
 interleaved with some non-looping code. These loops are executed sequentially,
@@ -851,6 +846,22 @@ commutative.
 % sequence of values.
 % 
 
+%-----------------------------------------------------------------------------
+\paragraph{A note on dealing with output in the main loop.} 
+%-----------------------------------------------------------------------------
+
+So far we have assumed that there was no output in the main loop and mentioned
+that this restriction is lifted in J-ReCoVer. Due to space restrictions, a
+proper explanation of the way of handling this issue is beyond the scope of this
+paper, but we give at least a brief sketch of the solution. In particular, the
+Preprocessor performs one more transformation which adds an assignment $v := e$
+for every $out(e)$ statement in the main loop where $v$ is a fresh variable
+assigned just once in the loop body. This makes the output visible for our
+analysis since $v$ appears in Formula~\ref{eq:commu}. The Prover then makes an
+additional check whether the value of $F(n, x_1,x_2,\ldots,x_k)$ projected on
+$v$ stays the same for any input value $n$ and any initial values of the
+variables $x_i$.
+
 
 %=============================================================================
 \subsection{An Optimisation by Live Variable Analysis}
@@ -863,11 +874,11 @@ significantly improve the precision of commutativity checking.
 In our initial experiments, we realised that Formula~\ref{eq:commu} is a
 condition that is too strong for the reducer to be commutative. To illustrate
 the issue, we present a simple example. In the loop body, the input is first
-stored in a variable $t$ and this is then assigned to $s$, i.e., $t:=\cur;s:=t$.
-After the loop, output the value of $s$. In this case, the $F$ function
+stored in a variable $t$ and this is then assigned to $s$, i.e., $t:=\cur;s:=s+t$.
+After the loop, the value of $s$ is output. In this case, the $F$ function
 returns the updated values of both $s$ and $t$ after the execution of the loop
-body. Observe that $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t))
-= (c_1+c_2, c_2)$. It follows that Formula~\ref{eq:commu} is invalid. The second
+body. Observe that $F(c_1, F(c_2,s,t)) = (s+c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t))
+= (s+c_1+c_2, c_2)$. It follows that Formula~\ref{eq:commu} is invalid. The second
 component of the returned tuples, which causes the invalidity, corresponds to
 the value of $t$ after executing the loop body twice. Their values are $c_1$ and
 $c_2$, respectively, in $F(c_1, F(c_2,s,t))$ and $F(c_2, F(c_1,s,t))$. However,
@@ -936,6 +947,7 @@ using this optimisation.
 % To make the definition complete for our simple reducer program commands, we further define (I) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (II) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
 % This data structure is efficient for strong symbolic values of reducer programs mainly for reason that the operations $+$ and $-$ are quite heavily used in such programs.
 % Here we give a tiny example. Initially, $sv_x(x_0)=1$. After the commands $x:=x*x;x:=x+x$, we get $sv_x(x_0*x_0)=1$ and $sv_x(x_0*x_0)=2$, respectively.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Evaluation} \label{section:exp}
