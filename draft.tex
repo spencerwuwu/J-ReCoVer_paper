@@ -782,7 +782,9 @@ body into the branch $\IF{s=m+1}{s_2}$.
 %the loop body $s_2$.
 
 %=============================================================================
+\vspace{-2mm}
 \subsection{The Prover: Reduce Commutativity Checking to SMT Solving}
+\vspace{-2mm}
 \label{sec:prover}
 %=============================================================================
 
@@ -854,6 +856,7 @@ commutative.
 % 
 
 %-----------------------------------------------------------------------------
+
 \paragraph{A note on dealing with output in the main loop.} 
 %-----------------------------------------------------------------------------
 
@@ -871,7 +874,9 @@ variables $x_i$.
 
 
 %=============================================================================
+\vspace{-2mm}
 \subsection{An Optimisation by Live Variable Analysis}
+\vspace{-2mm}
 \label{section:optimizations}
 %=============================================================================
 
@@ -893,7 +898,7 @@ in this case, the value of $t$ will not affect the output of the reducer.
 
 To handle the above issue, we perform a simple backward live variable analysis
 to collect all variables whose value may propagate to the output command after
-the loop execution. Only these variables are then required to be equivalent. In
+the loop execution. Only these variables are then required to be equivalent. For the example above, the variable $t$ will be ignored in the equivalence checking and hence the program can be proven commutative. In
 our evaluation, the ratio of reducers that our approach can successfully analyse
 is significantly increased---in particular, from $6.8~\%$ to $97.5~\%$---by
 using this optimisation. 
@@ -957,7 +962,9 @@ using this optimisation.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{-3mm}
 \section{Evaluation} \label{section:exp}
+\vspace{-2mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We
