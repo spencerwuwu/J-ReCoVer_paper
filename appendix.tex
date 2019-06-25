@@ -132,7 +132,7 @@ ________________________________
 
 Trying to find a counterexample...
 
-RESULT: Cannot find a counterexample in 1500 tests
+RESULT: Cannot find a counterexample in 500 tests
 Testcases were generated randomly.
 
 Following are the first 50 lines of testcases:
@@ -193,7 +193,7 @@ Input2: v [3, -2, -3, -3, 3]
 \end{center}
 \end{figure}
 
-In a commutativity analysis, J-ReCoVer first tries to compile the example then perform commutativity analysis. If the analysis can not conclude that the example is commutative, J-ReCoVer then runs 1500 randomly generated test cases to try to find a counterexample. If the test cases all pass, then the result will be "unknown".
+In a commutativity analysis, J-ReCoVer first tries to compile the example then perform commutativity analysis. If the analysis can not conclude that the example is commutative, J-ReCoVer then runs 500 randomly generated test cases to try to find a counterexample. If the test cases all pass, then the result will be "unknown".
 
 
 \subsection{Run analysis of an example from sketch}
@@ -223,7 +223,7 @@ public void reduce(T1 key, Iterable<T2> values,
 \end{verbatim}
 \end{mdframed}
 
-In this case, one would have to manually fill the types T1 to T4 and the function body, then selects the types from the pull-down menu, as shown in Fig.~\ref{fig:type_select_menu} and Fig.~\ref{fig:selectable_types}.
+In this case, one would have to manually fill the types T1 to T4 and the function body, then selects the types from the pull-down menu, as shown in Figure~\ref{fig:type_select_menu} and Figure~\ref{fig:selectable_types}.
 
 For more details, all selectable types are:
 
