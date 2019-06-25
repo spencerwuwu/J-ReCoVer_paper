@@ -850,6 +850,22 @@ commutative.
 % sequence of values.
 % 
 
+%-----------------------------------------------------------------------------
+\paragraph{A note on dealing with output in the main loop.} 
+%-----------------------------------------------------------------------------
+
+So far we have assumed that there was no output in the main loop and mentioned
+that this restriction is lifted in J-ReCoVer. Due to space restrictions, a
+proper explanation of the way of handling this issue is beyond the scope of this
+paper, but we give at least a brief sketch of the solution. In particular, the
+Preprocessor performs one more transformation which adds an assignment $v := e$
+for every $out(e)$ statement in the main loop where $v$ is a fresh variable
+assigned just once in the loop body. This makes the output visible for our
+analysis since $v$ appears in Formula~\ref{eq:commu}. The Prover then makes an
+additional check whether the value of $F(n, x_1,x_2,\ldots,x_k)$ projected on
+$v$ stays the same for any input value $n$ and any initial values of the
+variables $x_i$.
+
 
 %=============================================================================
 \subsection{An Optimisation by Live Variable Analysis}
@@ -935,6 +951,7 @@ using this optimisation.
 % To make the definition complete for our simple reducer program commands, we further define (I) $sv_{\cur}(c_0) =1$ and $sv_{\cur}(e)=0$ for $e\neq \cur$, (II) $sv_{n}(1) =n$ and $sv_{n}(e)=0$ for $e\neq 1 \wedge n\in \Z$.
 % This data structure is efficient for strong symbolic values of reducer programs mainly for reason that the operations $+$ and $-$ are quite heavily used in such programs.
 % Here we give a tiny example. Initially, $sv_x(x_0)=1$. After the commands $x:=x*x;x:=x+x$, we get $sv_x(x_0*x_0)=1$ and $sv_x(x_0*x_0)=2$, respectively.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Evaluation} \label{section:exp}
