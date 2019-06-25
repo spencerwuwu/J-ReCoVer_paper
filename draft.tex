@@ -376,8 +376,21 @@ commands, or an $out(v)$ statement that outputs the value of $v \in \Var$. A
 \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$ where $s_1,s_2,s_3
 \in \Cmd$. According to our observation over hundreds  of reducer programs in
 open repositories, reducer programs are almost always in this form. The
-$\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly for each input element until
-the entire input list is consumed. An example of a reducer is shown in Figure~\ref{fig:reducer_example}. To simplify presentation, we assume in this paper the reducer never output in the loop body $s_2$. In the J-ReCoVer tool, an algorithm to deal with output inside the loop is implemented. 
+$\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly for
+each input element until the entire input list is consumed. An example of a
+reducer is shown in Figure~\ref{fig:reducer_example}. In the paper, to simplify
+the presentation, we assume that a reducer does never produce output in the loop
+body $s_2$. In the J-ReCoVer tool, an algorithm to deal with output inside the
+loop is implemented.
+
+% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+% Just to remember: the way the output from the main loop is handled currently
+% is wrong: One should either check that there is no flow between the input and
+% output in the loop, or to add a check that the projection of the F function on
+% any value output in the main loop stays the same for any input value.
+%
+% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
 interleaved with some non-looping code. These loops are executed sequentially,
@@ -393,9 +406,9 @@ examples we have seen.} The top-level loops communicate through shared
 variables. After the transformation, reducers corresponding to the second
 top-level loop (and possibly further such loops) will work with random initial
 values of the shared variable, which over-approximates the original behaviour.
-Usually, the second (or further) top-level loop are commutative even with
-arbitrary initial shared variable values and hence J-ReCoVer can be used to
-prove it.
+In our experience, the second (or further) top-level loop are usually
+commutative even with arbitrary initial shared variable values, and so J-ReCoVer
+can be used to handle such reducers.
 
 %For instance, for the case of the standard deviation, the first reducer computes
 %the average, and the other reducer performs the rest of the computation. The
