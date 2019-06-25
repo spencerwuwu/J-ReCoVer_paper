@@ -786,8 +786,8 @@ body into the branch $\IF{s=m+1}{s_2}$.
 After the transformation described above, the reducer $s_1;\rloop\{s_2\};s_3$
 never calls the $\cur$ function in the $s_1$ part before entering the loop.
 Further, we assume w.l.o.g. that the reducer reads exactly one input in one loop
-iteration. When multiple reads from the input occur in a single branch of the
-loop, we can use additional variables and break the branch into several
+iteration. When multiple reads from the input occur in a single execution path from the begin to the end of
+the loop body, we can use additional variables and branch statements to break the path into several
 auxiliary ones, each reading just once.
 
 The command $s_2$
