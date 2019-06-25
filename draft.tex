@@ -874,7 +874,7 @@ In our initial experiments, we realised that Formula~\ref{eq:commu} is a
 condition that is too strong for the reducer to be commutative. To illustrate
 the issue, we present a simple example. In the loop body, the input is first
 stored in a variable $t$ and this is then assigned to $s$, i.e., $t:=\cur;s:=s+t$.
-After the loop, output the value of $s$. In this case, the $F$ function
+After the loop, the value of $s$ is output. In this case, the $F$ function
 returns the updated values of both $s$ and $t$ after the execution of the loop
 body. Observe that $F(c_1, F(c_2,s,t)) = (s+c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t))
 = (s+c_1+c_2, c_2)$. It follows that Formula~\ref{eq:commu} is invalid. The second
