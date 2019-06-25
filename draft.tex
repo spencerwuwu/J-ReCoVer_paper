@@ -391,8 +391,8 @@ $\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly for
 each input element until the entire input list is consumed. An example of a
 reducer is shown in Figure~\ref{fig:reducer_example}. In the paper, to simplify
 the presentation, we assume that a reducer does never produce any output in the
-loop body $s_2$. In the J-ReCoVer tool, an algorithm to deal with the output
-inside the loop is implemented (as briefly mentioned at the end of
+loop body $s_2$. J-ReCoVer implements an algorithm to deal with an output
+inside the loop (as briefly mentioned at the end of
 Section~\ref{sec:prover}).
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
@@ -430,9 +430,9 @@ can be used to handle such reducers.
 
 The input of J-ReCoVer is a reducer program written in Java, which is the most
 popular programming language used in the Hadoop MapReduce
-framework. The J-ReCoVer tool has three main components, the
-\emph{Preprocessor}, the \emph{Prover}, and the \emph{BugFinder}. As the name
-suggests, the Preprocessor reads as input a reducer program and performs the
+framework. The J-ReCoVer tool has three main components,
+\emph{Preprocessor}, \emph{Prover}, and \emph{BugFinder}. As the name
+suggests, Preprocessor reads as input a reducer program and performs the
 required preprocessing. The goal of Prover is to show that a given reducer is
 commutative, and the goal of BugFinder is the opposite. The architecture of
 J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input
@@ -440,7 +440,7 @@ a reducer program to J-ReCoVer either through our web-interface or use a binary
 application installed on his/her own machine.
 
 The \emph{Preprocessor component} first compiles a reducer program to bytecode
-and uses the tool Soot to further convert it to the so-called ``Jimple'' format,
+and uses the tool Soot\footnote{\url{https://github.com/Sable/soot}} to further convert it to the so-called ``Jimple'' format,
 which is an intermediate language designed to simplify the analysis of Java
 programs. Under the Hadoop MapReduce framework, the permutation of the input is
 handled by the scheduler/shuffler component and is affected by issues like
@@ -575,19 +575,20 @@ controlled by J-ReCoVer. Finally, the Preprocessor performs  a program transform
 \enlargethispage{4mm}
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-The \emph{BugFinder component} randomly generates pairs of lists. The lists in a
-pair are permutations of each other. A concrete counterexample is reported if
-inputting any pair of lists from the generated ones to the reducer generates
-different results. Our procedure for generating random pairs is quite naive. We
+The \emph{BugFinder component} generates random pairs of lists, 
+with the list of each pair being permutations of each other. 
+A concrete counterexample is reported if
+the reducer outputs different results for the two lists of a generated pair. 
+Our procedure for generating random pairs is quite naive. We
 use five different input list of lengths 5, 7, 9, 11, and 13. For each length,
 we generate 300 lists and pick uniformly at random one of its permutations.
 Although the approach is simple; in practice, it finds counterexamples in all of
-our non-commutative benchmarks in a few seconds. 
+our non-commutative benchmarks in few seconds. 
 
 The \emph{Prover component} reduces the commutativity problem to an SMT
-satisfiability problem. From a high-level point of view, we check equivalence
+problem. From a high-level point of view, we are checking equivalence
 between a reducer program and its variant that has two consecutive inputs
-swapped. We show that this can be reduced to a first-order formula and give it
+swapped. We show that this equivalence check can be reduced to a first-order formula and give it
 to the SMT solver Z3 for solving. In case that Z3 proves the formula
 unsatisfiable, we know that swapping any two consecutive inputs of the reducer
 will not change its output. Since all permutations of a list can be obtained by
