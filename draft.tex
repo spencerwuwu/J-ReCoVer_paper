@@ -178,12 +178,14 @@ the output of a reducer is required to be independent of the order of its
 inputs. The problem of checking whether this is indeed the case is known as the
 \emph{commutativity problem} of
 reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}. If all reducers
-are commutative, they will have the same external behavior under all possible
-schedules. In such a case, by fixing a schedule, the verification problem of a
+are commutative, they will have the same external behaviour under all possible
+schedules. 
+One then suffices with considering any chosen interleaving
+of input values instead of all of them.
+In such a case, by fixing a schedule, the verification problem of a
 MapReduce program can be reduced to the verification problem of a sequential
 program, which is known to be much easier than the verification problem of
-concurrent programs. One then suffices with considering any chosen interleaving
-of input values instead of all of them.
+concurrent~programs.
 
 % More concretely, for the verification of a MapReduce program, we propose to do
 % it in two phases. First, ensuring if all reducers are commutative. If some
@@ -198,7 +200,7 @@ of input values instead of all of them.
 % scheduler. In this two-phase approach, the key enabling technique is an
 % efficient procedure for checking reducer commutativity.
 
-On the other hand, the non-commutative behavior of a reducer is often the source
+On the other hand, the non-commutative behaviour of a reducer is often the source
 of very tricky bugs. A study conducted by Microsoft investigated the
 commutativity problem of $508$ reducers running on their MapReduce
 server~\cite{xiao14mr}. These reducers were carefully checked using all
@@ -215,7 +217,7 @@ in~\cite{ChenHSW15} too, is of very high complexity and hence of theoretical
 interest only.
 
 In this paper, we present the J-ReCoVer tool (Java Reducer Commutativity
-Verifier), which is available at~\verb|http://jrecover.iis.sinica.edu.tw|. The
+Verifier). A link to J-ReCoVer can be found in the supplementary materials. The
 tool implements a heuristic approach for checking the commutativity problem
 that---despite its simplicity---works very efficiently on a large set of
 practical integer reducer programs as shown by our experiments. The main
@@ -225,11 +227,11 @@ several heuristics which enable the approach to scale to real-world examples.
 For the case when the reducer is not proven commutative, we complement the
 approach by using testing to find concrete counterexamples.
 
-We collected benchmarks from open repositories such as Github and Bitbucket to
+We collected benchmarks from open repositories such as GitHub and Bitbucket to
 evaluate J-ReCoVer. With the help of a search engine \emph{searchcode.com} over
 those repositories, we collected 118 programs. We provide this collection of
 programs to other interested researchers as a side contribution of the paper.
-Our tool J-ReCoVer is able to correctly analyze all but three of the programs.
+Our tool J-ReCoVer is able to correctly analyse all but three of the programs.
 
 %=============================================================================
 \paragraph*{Related Works}
@@ -268,7 +270,7 @@ reducer into several ones to be checked independently.
 However, in our experience, if one naively reduces the commutativity problem to
 an equivalence problem and checks it in a precise manner, many reducers cannot
 be verified. Therefore, J-ReCoVer uses an over-approximation of the reducer's
-behavior. This approximation allows for a much more efficient, yet---according
+behaviour. This approximation allows for a much more efficient, yet---according
 to our experiments---precise enough commutativity analysis.
 
 Our approach can be seen as using some form of \emph{sequentialisation} of the
@@ -371,9 +373,8 @@ commands, or an $out(v)$ statement that outputs the value of $v \in \Var$. A
 \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$ where $s_1,s_2,s_3
 \in \Cmd$. According to our observation over hundreds  of reducer programs in
 open repositories, reducer programs are almost always in this form. The
-$\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly until
-the entire input list is consumed. To simplify presentation, we assume the reducer never output in the loop body $s_2$. An example of a reducer is shown in
-Figure~\ref{fig:reducer_example}.
+$\rloop\{s_2\}$ statement enters the loop body to execute $s_2$ repeatedly for each input element until
+the entire input list is consumed. An example of a reducer is shown in Figure~\ref{fig:reducer_example}. To simplify presentation, we assume in this paper the reducer never output in the loop body $s_2$. In the J-ReCoVer tool, an algorithm to deal with output inside the loop is implemented. 
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
 interleaved with some non-looping code. These loops are executed sequentially,
@@ -388,7 +389,7 @@ same input list. In fact, such a program construct has never occurred in the
 examples we have seen.} The top-level loops communicate through shared
 variables. After the transformation, reducers corresponding to the second
 top-level loop (and possibly further such loops) will work with random initial
-values of the shared variable, which over-approximates the original behavior.
+values of the shared variable, which over-approximates the original behaviour.
 Usually, the second (or further) top-level loop are commutative even with
 arbitrary initial shared variable values and hence J-ReCoVer can be used to
 prove it.
@@ -656,7 +657,7 @@ solving, which is presented in Section~\ref{sec:prover}, concentrates on the
 influence of the input on the loop $s_2$ only, we need to transform the reducer
 such that any input happens in the loop only. 
 
-In order to be able to explain the transformation that we perform on an example,
+In order to explain the problem with further details,
 consider the example in Figure~\ref{fig:reducer_max1}. The reducer presented in
 the figure remembers the first input value in the variable $m$, increases its
 value by 10, and then updates its value to bigger ones if any occur in the loop.
@@ -686,16 +687,12 @@ $15$, respectively.
 	\label{fig:reducer_max2}
 \end{wrapfigure}
 
-To deal with the problem, we use a transformation that we first explain on the
+To deal with the problem, we apply a program transformation on the
 example from Figure~\ref{fig:reducer_max1}. In particular, we move the prefix
 $s_1$ into the loop body and use a new variable $s$ to force that the execution
 of $s_1$ is always before the original loop body. The result after the
 transformation is demonstrated in Figure~\ref{fig:reducer_max2}. The new reducer
-program over-approximates all possible inputs/outputs of the original one. When
-$s=1$, its output sequence is the same as for the original reducer. When $s\neq
-1$, it may produce outputs that are not possible by the original reducer.
-However, since the new reducer has all behaviors of the original one, if the new
-reducer is commutative, the original one is also commutative.
+program has the same inputs/outputs as the original one. Therefore, if the new reducer is commutative, the original one~is~also~commutative.
 
 % TV: The below was removed since the requirements have not even be stated.
 %
@@ -724,10 +721,7 @@ reducer is commutative, the original one is also commutative.
 %		\label{fig:general_program_transformation}
 %        \end{wrapfigure}
 
-In general, the problem with the input before the loop can be handled as follows,
-including the case where $\cur$ occurs multiple times in $s_1$. Assume that the
-$s_1$ part of the reducer $s_1;\rloop\{s_2\};s_3$ has the form
-$c_0;x_{1}{:=} \cur;c_1; \ldots; x_{m}{:=}\cur;c_m$, where $\cur$ does
+In general, the problem with the multiple inputs before the loop can be handled as follows. Given a reducer $c_0;x_{1}{:=} \cur;c_1; \ldots; x_{m}{:=}\cur;c_m;\rloop\{s_2\};s_3$, where $m$ inputs are read before the loop and $\cur$ does
 not occur in $c_0,c_1,\ldots, c_m$. 
 In the transformed reducer, the part before the loop is now $c_0;s:=1$. The loop body contains several branch statements. 
 For all $j \in [1,m]$, we add a branch statement $\IF{s=j}{x_{j}:=\cur; c_j; s:=s+1}$. 
@@ -845,7 +839,7 @@ in this case, the value of $t$ will not affect the output of the reducer.
 To handle the above issue, we perform a simple backward live variable analysis
 to collect all variables whose value may propagate to the output command after
 the loop execution. Only these variables are then required to be equivalent. In
-our evaluation, the ratio of reducers that our approach can successfully analyze
+our evaluation, the ratio of reducers that our approach can successfully analyse
 is significantly increased---in particular, from $6.8~\%$ to $97.5~\%$---by
 using this optimisation. 
 
