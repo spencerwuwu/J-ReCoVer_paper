@@ -304,7 +304,7 @@ as a component of its framework.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift
-the equality $=$ operation to tuples in the standard way.
+the equality predicate $=$ to tuples in the standard, component-wise, way.
 
 % \begin{equation*}
 % \begin{array}{rclcl}
@@ -368,13 +368,20 @@ the equality $=$ operation to tuples in the standard way.
 	\label{fig:reducer_example}
 \end{wrapfigure}
 
-For presentation purposes, we provide a sketch of a highly simplified language
-for describing reducers. The language allows us to give examples of reducers and
-to discuss our approach for checking their commutativity. Let $\Var$ be a set of
+%For presentation purposes, we provide a sketch of a highly simplified language
+%for describing reducers. 
+%%
+%The language allows us to give examples of reducers and
+%to discuss our approach for checking their commutativity. 
+%
+To present our approach, we introduce a highly simplified language
+for describing reducers. 
+%
+Let $\Var$ be a set of
 \emph{integer variables}. An \emph{integer expression} in $\Exp$ can either be
 a~variable from $\Var$, a constant value, a call to the $\cur$ function that
-reads and consumes an input value of the reducer, their combinations over basic
-arithmetic operations, or a non-deterministically chosen integer value $*$. A
+reads and consumes an input value of the reducer, a non-deterministically chosen integer value $*$, or a combination of integer expressions over basic
+arithmetic operations. A
 \emph{command} in $\Cmd$ can be an assignment, a branch statement, a sequence of
 commands, or an $out(v)$ statement that outputs the value of $v \in \Var$. A
 \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$ where $s_1,s_2,s_3
