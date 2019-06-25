@@ -165,9 +165,9 @@ handles over 97~\% of them.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MapReduce belongs among the most popular frameworks for data parallel
-computation. A MapReduce program~\cite{dean04} consists of several pairs
-of \emph{mappers} and \emph{reducers} running on a machine cluster for handling
-big data in parallel. Usually, mappers and reducers are the only components in a
+computation. A MapReduce program~\cite{dean04} consists of several pairs of
+\emph{mappers} and \emph{reducers} running on a machine cluster for handling big
+data in parallel. Usually, mappers and reducers are the only components in a
 MapReduce program that involve concurrency. Mappers read data from a distributed
 database and output a sequence of \emph{key-value} pairs. The elements of the
 sequence (i.e., key-value pairs) with the same key are sent to the same reducer
@@ -177,14 +177,14 @@ Therefore, reducers are typically required to be \emph{commutative}, that is,
 the output of a reducer is required to be independent of the order of its
 inputs. The problem of checking whether this is indeed the case is known as the
 \emph{commutativity problem} of
-reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}. If all reducers
-are commutative, they will have the same external behaviour under all possible
-schedules. 
-One then suffices with considering any chosen interleaving
-of input values instead of all of them.
-In such a case, by fixing a schedule, the verification problem of a
-MapReduce program can be reduced to the verification problem of a sequential
-program, which is known to be much easier than the verification problem of
+reducers~\cite{csallner13testing,xiao14mr,ChenHSW15,ChenSW16}.
+
+If a reducer is commutative, it will have the same external behaviour under all
+possible schedules, and one then suffices with considering any chosen
+interleaving of input values when examining its behaviour instead of having to
+consider all of them. By fixing a schedule, the verification problem of a
+MapReduce program reduces to the verification problem of a sequential program,
+which is known to be much easier than the verification problem of
 concurrent~programs.
 
 % More concretely, for the verification of a MapReduce program, we propose to do
@@ -217,8 +217,11 @@ in~\cite{ChenHSW15} too, is of very high complexity and hence of theoretical
 interest only.
 
 In this paper, we present the J-ReCoVer tool (Java Reducer Commutativity
-Verifier). A link to J-ReCoVer can be found in the supplementary materials. The
-tool implements a heuristic approach for checking the commutativity problem
+Verifier), which is available at~\verb|http://www.jrecover.tk/|.
+%
+% A link to J-ReCoVer can be found in the supplementary materials.
+%
+The tool implements a heuristic approach for checking the commutativity problem
 that---despite its simplicity---works very efficiently on a large set of
 practical integer reducer programs as shown by our experiments. The main
 ingredient of the approach is a reduction from the commutativity problem to an
