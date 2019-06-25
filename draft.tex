@@ -237,7 +237,7 @@ programs to other interested researchers as a side contribution of the paper.
 Our tool J-ReCoVer is able to correctly analyse all but three of the programs.
 
 %=============================================================================
-\paragraph*{Related Works}
+\paragraph*{Related Work.}
 %=============================================================================
 
 The reducer commutativity problem can be reduced to a \emph{program equivalence}
@@ -251,9 +251,9 @@ elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$
 [2;3;1;\textbf{4};\textbf{5}]$\rightarrow$
 [2;3;\textbf{1};\textbf{5};4]$\rightarrow$
 [\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to
-be commutative. There is a series of research results on program equivalence
+be commutative. A series of research works address program equivalence
 checking (or closely related topics such as regression verification and
-translation validation): c.f.,
+translation validation), cf.
 \cite{Pnueli:1998:TV,fedyukovich2015automated,barthe2011relational,KlebanovRuemmerUlbrich2017}
 to name a few. 
 
@@ -262,15 +262,15 @@ reduced to a sequential verification problem by executing $P'$ after $P$,
 followed by checking whether the two programs always produce the same outputs.
 The approach can be made more efficient by finding the
 right~\emph{synchronization points} and combining the code of $P$ and $P'$ in an
-interleaved manner. A lot of research effort in this direction is in finding
+interleaved manner. A lot of research effort have been invested into finding
 good synchronization points. In this work, we propose the \emph{head of the
 top-level reducer loop} as the synchronization point suitable for reducer
-commutativity analysis. According to our experience discussed later on, the
+commutativity analysis. According to our experience, discussed later on, the
 reducers usually contain just a single such loop. Moreover, for the case when
-there are more top-level loops in a reducer, we propose a way of breaking such a
+there are more top-level loops in a reducer, we propose a way of breaking the 
 reducer into several ones to be checked independently.
 
-However, in our experience, if one naively reduces the commutativity problem to
+However, we observe that if one naively reduces the commutativity problem to
 an equivalence problem and checks it in a precise manner, many reducers cannot
 be verified. Therefore, J-ReCoVer uses an over-approximation of the reducer's
 behaviour. This approximation allows for a much more efficient, yet---according
@@ -284,16 +284,17 @@ approach is specialised for the case of reducers and quite different from what
 is used in sequentialisation of multithreaded programs: indeed, in MapReduce
 programs there is no notion of threads nor context switches.
 
-Various forms of sequentialisation are behind further research works too, such
-as, e.g., works dealing with the concept of \emph{robustness} of event-driven
-asynchronous programs~\cite{ahmed2017:robustness} or those dealing with programs
+%Various forms of sequentialisation are behind further research works too, 
+Various forms of sequentialisation are also used in works dealing with the concept 
+of \emph{robustness} of event-driven
+asynchronous programs~\cite{ahmed2017:robustness} or works dealing with programs
 running under some \emph{relaxed memory
 models}~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their
-computation models are again quite different from that of reducers, and hence
-the results cannot be directly applied.
+computation models are again quite different from that of reducers, and
+their results cannot be directly applied.
 Besides verification, another interesting research direction is the
-\emph{synthesis} of MapReduce programs~\cite{SmithA16}. Commutativity analysis
-is used as a component under the synthesis framework.
+\emph{synthesis} of MapReduce programs~\cite{SmithA16}, which uses commutativity analysis
+as a component of its framework.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Notations and Definitions} \label{section:integer-reducers}
