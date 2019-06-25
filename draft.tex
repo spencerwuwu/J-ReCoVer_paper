@@ -600,7 +600,7 @@ explained in Section~\ref{sec:prover}.
 %-----------------------------------------------------------------------------
 
 \begin{wrapfigure}[11]{r}{3.5cm}
-	\vspace{-17mm}
+	\vspace{-18mm}
 	\begin{algorithm}[H]
 		\;\;$m := \cur + 10$; \;
 		\Loop{}{
@@ -613,7 +613,7 @@ explained in Section~\ref{sec:prover}.
 	\end{algorithm}
 	\vspace{-0.8cm}
 	\caption{The max$^+$ reducer with input before the main loop.}
-	\vspace{-12mm}
+	\vspace{-11mm}
 	\label{fig:reducer_max1}
 \end{wrapfigure}	
 
@@ -667,7 +667,7 @@ and its permutation $[5,4,3,2,1]$ as the inputs, the reducer outputs $11$ and
 $15$, respectively.
 
 \begin{wrapfigure}[12]{r}{5.3cm}
-	\vspace{-9mm}
+	\vspace{-10mm}
 	\begin{algorithm}[H]
 		$s:=1;$\;
 		\Loop{}{
@@ -752,8 +752,9 @@ We also add $\IF{s=m+1}{s_2}$ for the original loop body.
 %=============================================================================
 
 After the transformation described above, the reducer $s_1;\rloop\{s_2\};s_3$
-never calls the $\cur$ function in the $s_1$ part before entering the loop. W.o.l.g, we assume that the reducer reads one input $\cur$ in one loop iteration.
+never calls the $\cur$ function in the $s_1$ part before entering the loop. W.o.l.g, we assume that the reducer reads exactly one input in one loop iteration.
 For the case that multiple reads from input occur in the loop, we can break the multiple reads to several single reads over multiple loop iterations using auxiliary variables and branch statements. 
+
 The command $s_2$
 can be viewed as a function $F$ that reads the values of all variables and the
 current input before executing $s_2$ and outputs the values of all variables
@@ -763,7 +764,7 @@ the current input value of the reducer, $x_i$ and $x_i'$ are the values of the
 variables before and after the execution of $s_2$, respectively, for
 $i\in[1,k]$. The construction of $F$ from $s_2$ can be done in the standard way.
 
-We reduce the reducer commutativity checking to checking validity of the
+We reduce the reducer commutativity verification to checking validity of the
 following formula for all possible values of $n_1,n_2, x_1,x_2,\ldots,x_k$:
 \begin{equation} F(n_1, F(n_2,x_1,x_2,\ldots,x_k)) = F(n_2,
 F(n_1,x_1,x_2,\ldots,x_k) ). \label{eq:commu} \end{equation} Intuitively, the
@@ -827,7 +828,7 @@ In our initial experiments, we realised that Formula~\ref{eq:commu} is a
 condition that is too strong for the reducer to be commutative. To illustrate
 the issue, we present a simple example. In the loop body, the input is first
 stored in a variable $t$ and this is then assigned to $s$, i.e., $t:=\cur;s:=t$.
-After the loop, the value of $s$ is output. In this case, the $F$ function
+After the loop, output the value of $s$. In this case, the $F$ function
 returns the updated values of both $s$ and $t$ after the execution of the loop
 body. Observe that $F(c_1, F(c_2,s,t)) = (c_1+c_2, c_1)$ and $F(c_2, F(c_1,s,t))
 = (c_1+c_2, c_2)$. It follows that Formula~\ref{eq:commu} is invalid. The second
@@ -942,8 +943,7 @@ filters for data sources $\{\url{github.com}, \url{bitbuckect.com}\}$. In total,
 we got $11,346$ Java programs. We excluded cases that were not Hadoop MapReduce
 reducer programs (those do not import the Hadoop library, do not extend or
 implement the reducer interface) and obtained $1,273$ examples. We further
-removed those that could not be compiled, those that were identical to each
-other, and those with non-numerical data types (e.g., strings). We obtained
+removed duplicates, those that could not be compiled, and those with non-numerical data types (e.g., strings). We obtained
 $118$ reducers as the final benchmarks. Table~\ref{tab:benchmark} contains more
 details of the considered reducer functions.
 
