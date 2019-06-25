@@ -240,7 +240,7 @@ programs to other interested researchers as a side contribution of the paper.
 Our tool J-ReCoVer is able to correctly analyse all but three of the programs.
 
 %=============================================================================
-\paragraph*{Related Works}
+\paragraph*{Related Work.}
 %=============================================================================
 
 The reducer commutativity problem can be reduced to a \emph{program equivalence}
@@ -254,9 +254,9 @@ elements: [\textbf{1};\textbf{2};3;4;5] $\rightarrow$
 [2;3;1;\textbf{4};\textbf{5}]$\rightarrow$
 [2;3;\textbf{1};\textbf{5};4]$\rightarrow$
 [\textbf{2};\textbf{3};5;1;4]$\rightarrow$ [3;2;5;1;4].}, $R$ can be proved to
-be commutative. There is a series of research results on program equivalence
+be commutative. A series of research works address program equivalence
 checking (or closely related topics such as regression verification and
-translation validation): c.f.,
+translation validation), cf.
 \cite{Pnueli:1998:TV,fedyukovich2015automated,barthe2011relational,KlebanovRuemmerUlbrich2017}
 to name a few. 
 
@@ -265,15 +265,15 @@ reduced to a sequential verification problem by executing $P'$ after $P$,
 followed by checking whether the two programs always produce the same outputs.
 The approach can be made more efficient by finding the
 right~\emph{synchronization points} and combining the code of $P$ and $P'$ in an
-interleaved manner. A lot of research effort in this direction is in finding
+interleaved manner. A lot of research effort have been invested into finding
 good synchronization points. In this work, we propose the \emph{head of the
 top-level reducer loop} as the synchronization point suitable for reducer
-commutativity analysis. According to our experience discussed later on, the
+commutativity analysis. According to our experience, discussed later on, the
 reducers usually contain just a single such loop. Moreover, for the case when
-there are more top-level loops in a reducer, we propose a way of breaking such a
+there are more top-level loops in a reducer, we propose a way of breaking the 
 reducer into several ones to be checked independently.
 
-However, in our experience, if one naively reduces the commutativity problem to
+However, we observe that if one naively reduces the commutativity problem to
 an equivalence problem and checks it in a precise manner, many reducers cannot
 be verified. Therefore, J-ReCoVer uses an over-approximation of the reducer's
 behaviour. This approximation allows for a much more efficient, yet---according
@@ -287,23 +287,24 @@ approach is specialised for the case of reducers and quite different from what
 is used in sequentialisation of multithreaded programs: indeed, in MapReduce
 programs there is no notion of threads nor context switches.
 
-Various forms of sequentialisation are behind further research works too, such
-as, e.g., works dealing with the concept of \emph{robustness} of event-driven
-asynchronous programs~\cite{ahmed2017:robustness} or those dealing with programs
+%Various forms of sequentialisation are behind further research works too, 
+Various forms of sequentialisation are also used in works dealing with the concept 
+of \emph{robustness} of event-driven
+asynchronous programs~\cite{ahmed2017:robustness} or works dealing with programs
 running under some \emph{relaxed memory
 models}~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their
-computation models are again quite different from that of reducers, and hence
-the results cannot be directly applied.
+computation models are again quite different from that of reducers, and
+their results cannot be directly applied.
 Besides verification, another interesting research direction is the
-\emph{synthesis} of MapReduce programs~\cite{SmithA16}. Commutativity analysis
-is used as a component under the synthesis framework.
+\emph{synthesis} of MapReduce programs~\cite{SmithA16}, which uses commutativity analysis
+as a component of its framework.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Notations and Definitions} \label{section:integer-reducers}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift
-the equality $=$ operation to tuples in the standard way.
+the equality predicate $=$ to tuples in the standard, component-wise, way.
 
 % \begin{equation*}
 % \begin{array}{rclcl}
@@ -367,13 +368,20 @@ the equality $=$ operation to tuples in the standard way.
 	\label{fig:reducer_example}
 \end{wrapfigure}
 
-For presentation purposes, we provide a sketch of a highly simplified language
-for describing reducers. The language allows us to give examples of reducers and
-to discuss our approach for checking their commutativity. Let $\Var$ be a set of
+%For presentation purposes, we provide a sketch of a highly simplified language
+%for describing reducers. 
+%%
+%The language allows us to give examples of reducers and
+%to discuss our approach for checking their commutativity. 
+%
+To present our approach, we introduce a highly simplified language
+for describing reducers. 
+%
+Let $\Var$ be a set of
 \emph{integer variables}. An \emph{integer expression} in $\Exp$ can either be
 a~variable from $\Var$, a constant value, a call to the $\cur$ function that
-reads and consumes an input value of the reducer, their combinations over basic
-arithmetic operations, or a non-deterministically chosen integer value $*$. A
+reads and consumes an input value of the reducer, a non-deterministically chosen integer value $*$, or a combination of integer expressions over basic
+arithmetic operations. A
 \emph{command} in $\Cmd$ can be an assignment, a branch statement, a sequence of
 commands, or an $out(v)$ statement that outputs the value of $v \in \Var$. A
 \emph{reducer program} is defined as $s_1;\rloop\{s_2\};s_3$ where $s_1,s_2,s_3
@@ -572,7 +580,7 @@ pair are permutations of each other. A concrete counterexample is reported if
 inputting any pair of lists from the generated ones to the reducer generates
 different results. Our procedure for generating random pairs is quite naive. We
 use five different input list of lengths 5, 7, 9, 11, and 13. For each length,
-we generate 300 lists and pick uniformly at random one of its permutations.
+we generate 100 lists and pick uniformly at random one of its permutations.
 Although the approach is simple; in practice, it finds counterexamples in all of
 our non-commutative benchmarks in a few seconds. 
 
@@ -774,7 +782,9 @@ body into the branch $\IF{s=m+1}{s_2}$.
 %the loop body $s_2$.
 
 %=============================================================================
+\vspace{-2mm}
 \subsection{The Prover: Reduce Commutativity Checking to SMT Solving}
+\vspace{-2mm}
 \label{sec:prover}
 %=============================================================================
 
@@ -846,6 +856,7 @@ commutative.
 % 
 
 %-----------------------------------------------------------------------------
+
 \paragraph{A note on dealing with output in the main loop.} 
 %-----------------------------------------------------------------------------
 
@@ -863,7 +874,9 @@ variables $x_i$.
 
 
 %=============================================================================
+\vspace{-2mm}
 \subsection{An Optimisation by Live Variable Analysis}
+\vspace{-2mm}
 \label{section:optimizations}
 %=============================================================================
 
@@ -885,7 +898,7 @@ in this case, the value of $t$ will not affect the output of the reducer.
 
 To handle the above issue, we perform a simple backward live variable analysis
 to collect all variables whose value may propagate to the output command after
-the loop execution. Only these variables are then required to be equivalent. In
+the loop execution. Only these variables are then required to be equivalent. For the example above, the variable $t$ will be ignored in the equivalence checking and hence the program can be proven commutative. In
 our evaluation, the ratio of reducers that our approach can successfully analyse
 is significantly increased---in particular, from $6.8~\%$ to $97.5~\%$---by
 using this optimisation. 
@@ -949,7 +962,9 @@ using this optimisation.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{-3mm}
 \section{Evaluation} \label{section:exp}
+\vspace{-2mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We
@@ -975,6 +990,7 @@ on a server with AMD Opteron 6376 CPU.
 \end{wraptable} 
 
 %-----------------------------------------------------------------------------
+\vspace{-1mm}
 \paragraph*{Benchmark collection} 
 %-----------------------------------------------------------------------------
 
@@ -996,6 +1012,7 @@ details of the considered reducer functions.
 
 
 %-----------------------------------------------------------------------------
+\vspace{-1mm}
 \paragraph*{Results} 
 %-----------------------------------------------------------------------------
 
@@ -1084,7 +1101,7 @@ together with a support for more data types, belong among our future works.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\vspace{-2mm}
 \bibliographystyle{splncs-sorted}
 \bibliography{refs}
 
