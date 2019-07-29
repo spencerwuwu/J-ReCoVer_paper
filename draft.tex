@@ -109,18 +109,22 @@
 
 \newcommand{\Z}{\mathbb{Z}}
 
-\title{\hspace{-0.1cm}{J-ReCoVer}:~Java~Reducer~Commutativity~Verifier}
-\author{}
-\institute{}
-\hide{
+\title{\hspace{-1mm}{J-ReCoVer}:~Java~Reducer~Commutativity~Verifier\thanks{The
+work was supported by the Czech Science Foundation project
+17-12465S.}\vspace*{-2mm}}
+
 \author{
-Yu-Fang Chen\inst{1}\inst{2}
+Yu-Fang Chen\inst{1,2}
 \and
 Chang-Yi Chiang\inst{2}
 \and
-Hsin-Hung Lin\inst{1}
+Luk\'{a}\v{s} Hol\'{\i}k\inst{3}
 \and
 Wei-Tsung Kao\inst{1}
+\and
+Hsin-Hung Lin\inst{1}
+\and
+Tom\'{a}\v{s} Vojnar\inst{3}
 \and
 Yean-Fu Wen\inst{2}
 \and
@@ -130,10 +134,11 @@ Wei-Cheng Wu\inst{1}
 {
 Institute of Information Science, Academia Sinica, Taiwan
 \and
-Graduate Institute of Information Management, National Taipei University, Taiwan
-}}
-\author{}
-\institute{}
+Graduate Institute of Information Management, National Taipei University,
+Taiwan
+\and
+FIT, IT4I Centre of Excellence,Brno University of Technology, Czechia
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -141,30 +146,24 @@ Graduate Institute of Information Management, National Taipei University, Taiwan
 
 \maketitle
 
-\vspace*{-4mm}\begin{abstract}
-
-The MapReduce framework for data-parallel computation was first proposed by
-Google~\cite{dean04} and later implemented in the Apache Hadoop
-project. Under the MapReduce framework, a reducer computes output
-values from a sequence of input values transmitted over the network. Due to
-non-determinism in data transmission, the order in which input values arrive at
-the reducer is not fixed. In relation to this, the \emph{commutativity problem}
-of reducers asks if the output of a reducer is independent of the order of its
-inputs. Indeed, there are several advantages for a reducer to be commutative,
-e.g., the verification problem of a MapReduce program can be reduced to the
-problem of verifying a sequential program. We present the tool J-ReCoVer (Java
-Reducer Commutativity Verifier) that implements effective heuristics for reducer
-commutativity analysis. J-ReCoVer is the first tool that is specialized in
-checking reducer commutativity. Our experimental results over 118 benchmark
-examples collected from open repositories are very positive; J-ReCoVer correctly
-handles over 97~\% of them.
-
-\end{abstract}
+\vspace*{-4mm}\begin{abstract} The MapReduce framework for data-parallel
+computation was first proposed by Google~\cite{dean04} and later implemented in
+the Apache Hadoop project. Under the MapReduce framework, a reducer computes
+output values from a sequence of input values transmitted over the network. Due
+to non-determinism in data transmission, the order in which input values arrive
+at the reducer is not fixed. In relation to this, the \emph{commutativity
+problem} of reducers asks if the output of a reducer is independent of the order
+of its inputs. Indeed, there are several advantages for a reducer to be
+commutative, e.g., the verification problem of a MapReduce program can be
+reduced to the problem of verifying a sequential program. We present the tool
+J-ReCoVer (Java Reducer Commutativity Verifier) that implements effective
+heuristics for reducer commutativity analysis. J-ReCoVer is the first tool that
+is specialized in checking reducer commutativity. Our experimental results over
+118 benchmark examples collected from open repositories are very positive;
+J-ReCoVer correctly handles over 97~\% of them. \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace*{-4mm}
-\section{Introduction} \label{section:introduction}
-\vspace*{-1mm}
+\vspace*{-5mm}\section{Introduction}\label{section:introduction}\vspace*{-2mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MapReduce belongs among the most popular frameworks for data parallel
@@ -202,6 +201,10 @@ concurrent~programs.
 % we reduce the verification problem to sequential verification by fixing a
 % scheduler. In this two-phase approach, the key enabling technique is an
 % efficient procedure for checking reducer commutativity.
+
+%!!!!!!!!!!!!!!!!!!!!!!!!
+\enlargethispage{5mm}
+%!!!!!!!!!!!!!!!!!!!!!!!!
 
 On the other hand, the non-commutative behaviour of a reducer is often the source
 of very tricky bugs. A study conducted by Microsoft investigated the
@@ -273,6 +276,10 @@ reducers usually contain just a single such loop. Moreover, for the case when
 there are more top-level loops in a reducer, we propose a way of breaking the 
 reducer into several ones to be checked independently.
 
+%!!!!!!!!!!!!!!!!!!!!!!!!
+\enlargethispage{5mm}
+%!!!!!!!!!!!!!!!!!!!!!!!!
+
 However, we observe that if one naively reduces the commutativity problem to
 an equivalence problem and checks it in a precise manner, many reducers cannot
 be verified. Therefore, J-ReCoVer uses an over-approximation of the reducer's
@@ -288,19 +295,19 @@ is used in sequentialisation of multithreaded programs: indeed, in MapReduce
 programs there is no notion of threads nor context switches.
 
 %Various forms of sequentialisation are behind further research works too, 
-Various forms of sequentialisation are also used in works dealing with the concept 
-of \emph{robustness} of event-driven
-asynchronous programs~\cite{ahmed2017:robustness} or works dealing with programs
-running under some \emph{relaxed memory
+Various forms of sequentialisation are also used in works dealing with the
+concept of \emph{robustness} of event-driven asynchronous
+programs~\cite{ahmed2017:robustness} or works dealing with programs running
+under some \emph{relaxed memory
 models}~\cite{ahmed2013:robustness,AbdullaACLR13,AbdullaACLR12}. However, their
-computation models are again quite different from that of reducers, and
-their results cannot be directly applied.
-Besides verification, another interesting research direction is the
-\emph{synthesis} of MapReduce programs~\cite{SmithA16}, which uses commutativity analysis
-as a component of its framework.
+computation models are again quite different from that of reducers, and their
+results cannot be directly applied. Besides verification, another interesting
+research direction, using commutativity analysis as a component, is
+\emph{synthesis} of MapReduce programs~\cite{SmithA16}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Notations and Definitions} \label{section:integer-reducers}
+\vspace*{-2mm} \section{Notations and Definitions}
+\label{section:integer-reducers} \vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift
@@ -394,6 +401,10 @@ the presentation, we assume that a reducer does never produce any output in the
 loop body $s_2$. J-ReCoVer implements an algorithm to deal with an output
 inside the loop (as briefly mentioned at the end of
 Section~\ref{sec:prover}).
+
+%!!!!!!!!!!!!!!!!!!!!!!!!
+\enlargethispage{5mm}
+%!!!!!!!!!!!!!!!!!!!!!!!!
 
 Some reducers use two (or more) top-level loops to compute the output, possibly
 interleaved with some non-looping code. These loops are executed sequentially,
