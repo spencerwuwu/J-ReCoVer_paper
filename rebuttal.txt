@@ -1,0 +1,25 @@
+Many thanks to all the reviewers for their encouraging and constructive reviews. Below, we answer the questions raised by the reviewers.
+
+Reviewer 1: 
+
+Possibility of extending the tool beyond just Integers.
+
+Answer: Yes, we first focus on the integer type because it has the most reliable tool support. Extensions to other data types are definitely of our interest. For example, an extension to support the string data type is one of the most appealing targets. 
+
+
+Reviewer 2: 
+
+We will address the questions raised in the paper. Here, we provide the answers that we plan to use.
+
+- What logic do you use to express your SMT problems? I think it is quantifier-free linear integer arithmetic, with uninterpreted functions? 
+
+Answer: we use only quantifier-free linear integer arithmetic. 
+
+- Do you use loop summaries, or only consider bounded loop executions in Section 4.2? 
+
+Answer: For the examples that we found in open repositories, the only unbounded loop is the main loop that traverses through the input list. The main loop contains no nested loop structure. Hence, a bounded summary is sufficient for this particular application.
+
+- Do you use the fixed point engine of Z3 for SMT solving? I assume no, as your translation replaces loops by their (bounded) summaries, but would be good to make it explicit.
+
+Answer: Indeed, you are right, we do not use the fixed point engine. Thanks for the suggestion, we will make this explicit.
+
