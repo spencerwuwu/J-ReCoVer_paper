@@ -4,7 +4,7 @@ Reviewer 1:
 
 Possibility of extending the tool beyond just Integers.
 
-Answer: Yes, we first focus on the integer type because it has the most reliable tool support. Extensions to other data types are definitely of our interest. For example, an extension to support the string data type is one of the most appealing targets. 
+Answer: We focused on the integer type because it has the most reliable tool support. However, yes, we believe that extensions to other data types are possible, and they are definitely of our interest. For example, an extension to support the string data type is one of the most appealing targets. 
 
 
 Reviewer 2: 
