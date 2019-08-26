@@ -744,7 +744,7 @@ never calls the $\cur$ function in the $s_1$ part before entering the loop.
 Further, we assume w.l.o.g. that the reducer reads exactly one input in one loop
 iteration. When multiple reads from the input occur in a single execution path from the begin to the end of the loop body, we can use additional variables and branch statements to break the path into several auxiliary ones, each reading just once. 
 
-The command $s_2$ can be viewed as a function $F$ that reads the values of all variables and the current input before executing $s_2$ and outputs the values of all variables after $s_2$. The loop body $s_2$ contains no nested loop structure. Hence, a bounded summary in quantifier-free linear integer arithmetic is sufficient~for~describing~$F$.
+The command $s_2$ can be viewed as a function $F$ that reads the values of all variables and the current input before executing $s_2$ and outputs the values of all variables after $s_2$. Note that $s_2$ contains no nested loop structure. Hence, a bounded summary in quantifier-free linear integer arithmetic is sufficient~for~describing~$F$.
 
 Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1}
 \rightarrow \Z^k$ returns a tuple of values $x_1',x_2',\ldots,x_k'$ where $n$ is
