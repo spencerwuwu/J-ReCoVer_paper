@@ -28,7 +28,6 @@
 \usepackage{setspace}
 \usepackage{cancel}
 \usepackage{graphicx}
-\usepackage{appendix}
 \usepackage{amssymb}
 %\usepackage{times}
 
@@ -110,8 +109,8 @@
 \newcommand{\Z}{\mathbb{Z}}
 
 \title{\hspace{-1mm}{J-ReCoVer}:~Java~Reducer~Commutativity~Verifier\thanks{The
-work was supported by the Czech Science Foundation project
-17-12465S.}\vspace*{-2mm}}
+work was supported by the Minister of Science and Technology of Taiwan project 106-2221-E-001-009-MY3 and Czech Science Foundation project
+17-12465S.}}
 
 \author{
 Yu-Fang Chen\inst{1,2}
@@ -146,7 +145,7 @@ FIT, IT4I Centre of Excellence,Brno University of Technology, Czechia
 
 \maketitle
 
-\vspace*{-4mm}\begin{abstract} The MapReduce framework for data-parallel
+\begin{abstract} The MapReduce framework for data-parallel
 computation was first proposed by Google~\cite{dean04} and later implemented in
 the Apache Hadoop project. Under the MapReduce framework, a reducer computes
 output values from a sequence of input values transmitted over the network. Due
@@ -163,7 +162,7 @@ is specialized in checking reducer commutativity. Our experimental results over
 J-ReCoVer correctly handles over 97~\% of them. \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace*{-5mm}\section{Introduction}\label{section:introduction}\vspace*{-2mm}
+\section{Introduction}\label{section:introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 MapReduce belongs among the most popular frameworks for data parallel
@@ -202,9 +201,6 @@ concurrent~programs.
 % scheduler. In this two-phase approach, the key enabling technique is an
 % efficient procedure for checking reducer commutativity.
 
-%!!!!!!!!!!!!!!!!!!!!!!!!
-\enlargethispage{5mm}
-%!!!!!!!!!!!!!!!!!!!!!!!!
 
 On the other hand, the non-commutative behaviour of a reducer is often the source
 of very tricky bugs. A study conducted by Microsoft investigated the
@@ -276,10 +272,6 @@ reducers usually contain just a single such loop. Moreover, for the case when
 there are more top-level loops in a reducer, we propose a way of breaking the 
 reducer into several ones to be checked independently.
 
-%!!!!!!!!!!!!!!!!!!!!!!!!
-\enlargethispage{5mm}
-%!!!!!!!!!!!!!!!!!!!!!!!!
-
 However, we observe that if one naively reduces the commutativity problem to
 an equivalence problem and checks it in a precise manner, many reducers cannot
 be verified. Therefore, J-ReCoVer uses an over-approximation of the reducer's
@@ -306,8 +298,8 @@ research direction, using commutativity analysis as a component, is
 \emph{synthesis} of MapReduce programs~\cite{SmithA16}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace*{-2mm} \section{Notations and Definitions}
-\label{section:integer-reducers} \vspace*{-1mm}
+\section{Notations and Definitions}
+\label{section:integer-reducers}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We use $[n,m]$ to denote the set of integers $\{k\mid n \leq k\leq m\}$ and lift
@@ -402,10 +394,6 @@ loop body $s_2$. J-ReCoVer implements an algorithm to deal with an output
 inside the loop (as briefly mentioned at the end of
 Section~\ref{sec:prover}).
 
-%!!!!!!!!!!!!!!!!!!!!!!!!
-\enlargethispage{5mm}
-%!!!!!!!!!!!!!!!!!!!!!!!!
-
 Some reducers use two (or more) top-level loops to compute the output, possibly
 interleaved with some non-looping code. These loops are executed sequentially,
 repeatedly iterating over the input list from its beginning. For example, for
@@ -432,9 +420,7 @@ can be used to handle such reducers.
 %values. However, this reducer is still commutative, and its commutativity can be verified.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace*{-2mm}
 \section{Overview of the J-ReCoVer Tool} \label{sec:overview}
-\vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Hadoop, Java;
@@ -450,20 +436,10 @@ J-ReCoVer can be found in Figure~\ref{fig:overview-jrecover}. The user can input
 a reducer program to J-ReCoVer either through our web-interface or use a binary
 application installed on his/her own machine.
 
-The \emph{Preprocessor component} first compiles a reducer program to bytecode
-and uses the tool Soot\footnote{\url{https://github.com/Sable/soot}} to further convert it to the so-called ``Jimple'' format,
-which is an intermediate language designed to simplify the analysis of Java
-programs. Under the Hadoop MapReduce framework, the permutation of the input is
-handled by the scheduler/shuffler component and is affected by issues like
-network latency, which are not controllable by programmers. In order to deal
-with such issues, we wrote our own dummy Hadoop environment for the reducer as a
-part of the Preprocessor component so that the input order of the reducer is now
-controlled by J-ReCoVer. Finally, the Preprocessor performs  a program transformation to simplify the analysis. 
-
 %For example, it converts all output commands $out(e)$ inside loops to a special assignment (as explained in Section~\ref{sec:program_trans1}).
 
 \begin{wrapfigure}{r}{7cm}
-	\vspace{-8mm}
+	\vspace{-3mm}
 \centering
 	\scalebox{0.7}{
 		\begin{tikzpicture}
@@ -578,13 +554,19 @@ controlled by J-ReCoVer. Finally, the Preprocessor performs  a program transform
 	}
 		\vspace{-1cm}
 	\caption{Overview of the J-ReCoVer tool. }\label{fig:overview-jrecover}
-		\vspace{-0.8cm}
+		\vspace{-0.3cm}
 	
 \end{wrapfigure}
 
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-\enlargethispage{4mm}
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+The \emph{Preprocessor component} first compiles a reducer program to bytecode
+and uses the tool Soot\footnote{\url{https://github.com/Sable/soot}} to further convert it to the so-called ``Jimple'' format,
+which is an intermediate language designed to simplify the analysis of Java
+programs. Under the Hadoop MapReduce framework, the permutation of the input is
+handled by the scheduler/shuffler component and is affected by issues like
+network latency, which are not controllable by programmers. In order to deal
+with such issues, we wrote our own dummy Hadoop environment for the reducer as a
+part of the Preprocessor component so that the input order of the reducer is now
+controlled by J-ReCoVer. Finally, the Preprocessor performs  a program transformation to simplify the analysis. 
 
 The \emph{BugFinder component} generates random pairs of lists, 
 with the list of each pair being permutations of each other. 
@@ -608,9 +590,7 @@ outputs the same value for all permutations of the same list of inputs. In this
 case, J-ReCoVer stops and reports that the reducer is commutative.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace*{-2mm}
 \section{The Preprocessor and the Prover} \label{sec:preprocessor_prover}
-\vspace*{-1mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Before entering the Prover component, the Preprocessor first performs a
@@ -620,18 +600,18 @@ commutativity-equivalent reducer program. The algorithm of the Prover is then
 explained in Section~\ref{sec:prover}. 
 
 %=============================================================================
-\vspace*{-2mm}
 \subsection{The Program Transformation in the Preprocessor}
 \label{sec:program_trans1}
-\vspace*{-1mm}
 %=============================================================================
 
-%-----------------------------------------------------------------------------
-%\paragraph*{Handling the access to $\cur$ before entering the loop.}
-%-----------------------------------------------------------------------------
+In real-world reducers, it is often the case that the $s_1$ part of the reducer
+reads from the input. Since our reduction of the commutativity problem to SMT
+solving, which is presented in Section~\ref{sec:prover}, concentrates on the
+influence of the input on the loop $s_2$ only, we need to transform the reducer
+such that any input happens in the loop only. 
 
-\begin{wrapfigure}[11]{r}{3.5cm}
-	\vspace{-18mm}
+\begin{wrapfigure}{r}{3.5cm}
+	\vspace{-13mm}
 	\begin{algorithm}[H]
 		\;\;$m := \cur + 10$; \;
 		\Loop{}{
@@ -642,51 +622,12 @@ explained in Section~\ref{sec:prover}.
 		};
 		$out(m)$\;\;
 	\end{algorithm}
-	\vspace{-0.8cm}
+
 	\caption{The max$^+$ reducer with input before the main loop.}
-	\vspace{-11mm}
+
 	\label{fig:reducer_max1}
-\end{wrapfigure}	
+\end{wrapfigure}
 
-%	\begin{figure}[t]
-%		\begin{minipage}{0.4\textwidth}
-%			\begin{algorithm}[H]
-%				\;\;$m := \cur + 10$; \;
-%				\Loop{}{
-%					$t:=\cur$\;
-%					\uIf{ $t> m$}{
-%						$m := t$ \;
-%					}
-%				};
-%				$out(m)$\;\;
-%			\end{algorithm}
-%			\caption*{(a) Reducer max$^+$}
-%		\end{minipage}
-%		\begin{minipage}{0.6\textwidth}
-%			\begin{algorithm}[H]
-%				$s:=*;$\;
-%				\Loop{}{
-%					\uIf{$s=1$}{$m := \cur + 10; s:= 2$}
-%					\uElse{
-%						$t:=\cur$\;
-%						\uIf{ $t > m$}{
-%							$m := t$ \;
-%						}
-%					}
-%				};
-%				$out(m)$
-%			\end{algorithm}
-%			\caption*{(b) Reducer max$^{+\mathtt{fix}}$}
-%		\end{minipage}
-%		\caption{Reducer examples}
-%		\label{fig:reducer_max}
-%	\end{figure}
-
-In real-world reducers, it is often the case that the $s_1$ part of the reducer
-reads from the input. Since our reduction of the commutativity problem to SMT
-solving, which is presented in Section~\ref{sec:prover}, concentrates on the
-influence of the input on the loop $s_2$ only, we need to transform the reducer
-such that any input happens in the loop only. 
 
 To illustrate the issue, we consider the reducer shown in
 Figure~\ref{fig:reducer_max1}.
@@ -698,8 +639,8 @@ this case, but the reducer is not commutative. A counterexample can be easily
 found. With the list $[1,2,3,4,5]$ and its permutation $[5,4,3,2,1]$ as the
 inputs, the reducer outputs $11$ and $15$, respectively.
 
-\begin{wrapfigure}[12]{r}{5.3cm}
-	\vspace{-10mm}
+\begin{wrapfigure}{r}{5.3cm}
+
 	\begin{algorithm}[H]
 		$s:=1;$\;
 		\Loop{}{
@@ -794,23 +735,18 @@ body into the branch $\IF{s=m+1}{s_2}$.
 %the loop body $s_2$.
 
 %=============================================================================
-\vspace{-2mm}
 \subsection{The Prover: Reduce Commutativity Checking to SMT Solving}
-\vspace{-2mm}
 \label{sec:prover}
 %=============================================================================
 
 After the transformation described above, the reducer $s_1;\rloop\{s_2\};s_3$
 never calls the $\cur$ function in the $s_1$ part before entering the loop.
 Further, we assume w.l.o.g. that the reducer reads exactly one input in one loop
-iteration. When multiple reads from the input occur in a single execution path from the begin to the end of
-the loop body, we can use additional variables and branch statements to break the path into several
-auxiliary ones, each reading just once.
+iteration. When multiple reads from the input occur in a single execution path from the begin to the end of the loop body, we can use additional variables and branch statements to break the path into several auxiliary ones, each reading just once. 
 
-The command $s_2$
-can be viewed as a function $F$ that reads the values of all variables and the
-current input before executing $s_2$ and outputs the values of all variables
-after $s_2$. Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1}
+The command $s_2$ can be viewed as a function $F$ that reads the values of all variables and the current input before executing $s_2$ and outputs the values of all variables after $s_2$. The loop body $s_2$ contains no nested loop structure. Hence, a bounded summary in quantifier-free linear integer arithmetic is sufficient~for~describing~$F$.
+
+Formally, the function $F(n,x_1,x_2,\ldots,x_k): \Z^{k+1}
 \rightarrow \Z^k$ returns a tuple of values $x_1',x_2',\ldots,x_k'$ where $n$ is
 the current input value of the reducer, $x_i$ and $x_i'$ are the values of the
 variables before and after the execution of $s_2$, respectively, for
@@ -886,9 +822,7 @@ variables $x_i$.
 
 
 %=============================================================================
-\vspace{-2mm}
 \subsection{An Optimisation by Live Variable Analysis}
-\vspace{-2mm}
 \label{section:optimizations}
 %=============================================================================
 
@@ -981,16 +915,12 @@ using this optimisation.
 %\vspace{-2mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-\enlargethispage*{4mm}
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 J-ReCoVer is implemented in Java and built on top of Soot 2.5.0 and Z3 4.7.1. We
 ran J-ReCoVer on a virtual machine with 4GB of memory running Ubuntu 16.04.5 LTS
-on a server with AMD Opteron 6376 CPU. 
+on a server with AMD Opteron 6376 CPU.
 
 \begin{wraptable}[7]{r}{40mm}
-	\vspace{-8mm}
+
 	\caption{Size of the reducers.}
 	\begin{tabular}{|c|c|c|c|}
 		\hline
@@ -1008,7 +938,6 @@ on a server with AMD Opteron 6376 CPU.
 \end{wraptable} 
 
 %-----------------------------------------------------------------------------
-\vspace{-1mm}
 \paragraph*{Benchmark collection} 
 %-----------------------------------------------------------------------------
 
@@ -1030,7 +959,6 @@ details of the considered reducer functions.
 
 
 %-----------------------------------------------------------------------------
-\vspace{-1mm}
 \paragraph*{Results} 
 %-----------------------------------------------------------------------------
 
@@ -1118,15 +1046,9 @@ together with a support for more data types, is among our future directions.
 %\end{table}
 
 
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-\enlargethispage*{4mm}
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace{-2mm}
 \bibliographystyle{splncs-sorted}
 \bibliography{refs}
-
-\input{appendix}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
